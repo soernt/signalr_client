@@ -1,3 +1,7 @@
+## [0.1.2] - 10.18.2018
+
+* Be more descriptional within the desciption of the pubspec.yaml
+
 ## [0.1.1] - 10.18.2018
 
 * Be more descriptional within the desciption of the pubspec.yaml
