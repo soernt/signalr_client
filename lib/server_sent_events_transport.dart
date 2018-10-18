@@ -8,7 +8,6 @@ import 'itransport.dart';
 import 'signalr_http_client.dart';
 import 'utils.dart';
 
-
 class ServerSentEventsTransport implements ITransport {
   // Properties
   final SignalRHttpClient _httpClient;
@@ -26,7 +25,11 @@ class ServerSentEventsTransport implements ITransport {
   @override
   OnReceive onReceive;
 
-  ServerSentEventsTransport(SignalRHttpClient httpClient, AccessTokenFactory accessTokenFactory, ILogger logger, bool logMessageContent)
+  ServerSentEventsTransport(
+      SignalRHttpClient httpClient,
+      AccessTokenFactory accessTokenFactory,
+      ILogger logger,
+      bool logMessageContent)
       : assert(httpClient != null),
         _httpClient = httpClient,
         _accessTokenFactory = accessTokenFactory,
@@ -47,13 +50,15 @@ class ServerSentEventsTransport implements ITransport {
       final token = await _accessTokenFactory();
       if (!isStringEmpty(token)) {
         final encodedToken = Uri.encodeComponent(token);
-        url += (url.indexOf("?") < 0 ? "?" : "&") + "access_token=$encodedToken";
+        url +=
+            (url.indexOf("?") < 0 ? "?" : "&") + "access_token=$encodedToken";
       }
     }
 
     var opened = false;
     if (transferFormat != TransferFormat.Text) {
-      Future.error(GeneralError("The Server-Sent Events transport only supports the 'Text' transfer format"));
+      Future.error(GeneralError(
+          "The Server-Sent Events transport only supports the 'Text' transfer format"));
     }
 
     _eventSource = EventSource(Uri.parse(url));
@@ -81,9 +86,11 @@ class ServerSentEventsTransport implements ITransport {
   @override
   Future<void> send(Object data) async {
     if (_eventSource == null) {
-      return Future.error(new GeneralError("Cannot send until the transport is connected"));
+      return Future.error(
+          new GeneralError("Cannot send until the transport is connected"));
     }
-    await sendMessage(_logger, "SSE", _httpClient, _url, _accessTokenFactory, data, _logMessageContent);
+    await sendMessage(_logger, "SSE", _httpClient, _url, _accessTokenFactory,
+        data, _logMessageContent);
   }
 
   @override
@@ -100,7 +107,9 @@ class ServerSentEventsTransport implements ITransport {
       if (onClose != null) {
         Exception ex;
         if (error != null) {
-          ex = (error is Exception) ? error : new GeneralError(error?.toString());
+          ex = (error is Exception)
+              ? error
+              : new GeneralError(error?.toString());
         }
         onClose(ex);
       }

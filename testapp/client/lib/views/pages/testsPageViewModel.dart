@@ -44,11 +44,12 @@ class TestsPageViewModel extends ViewModel {
 
   Future<HubConnection> _getHubConnection() async {
     if (_hubConnection == null) {
-      var builder = HubConnectionBuilder();      
       final httpOptions = new HttpConnectionOptions(logger: _logger);
       //final httpOptions = new HttpConnectionOptions(logger: _logger, transport: HttpTransportType.ServerSentEvents);
       //final httpOptions = new HttpConnectionOptions(logger: _logger, transport: HttpTransportType.LongPolling);
-      _hubConnection = builder.withUrl(_serverUrl, options: httpOptions).configureLogging(logger: _logger).build();
+
+      
+      _hubConnection = HubConnectionBuilder().withUrl(_serverUrl, options: httpOptions).configureLogging(logger: _logger).build();
       _hubConnection.onclose( (error) => _logger.log(LogLevel.Trace, "Connection Closed"));
     }
 

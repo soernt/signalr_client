@@ -38,7 +38,8 @@ class DartIOHttpClient extends SignalRHttpClient {
       final abortFuture = Future<void>(() {
         final completer = Completer<void>();
         if (request.abortSignal != null) {
-          request.abortSignal.onabort = () => completer.completeError(AbortError());
+          request.abortSignal.onabort =
+              () => completer.completeError(AbortError());
         }
         return completer.future;
       });
@@ -47,9 +48,11 @@ class DartIOHttpClient extends SignalRHttpClient {
         httpClient.connectionTimeout = Duration(milliseconds: request.timeout);
       }
 
-      _logger.log(LogLevel.Trace, "HTTP send: url '${request.url}', method: '${request.method}' content: '${request.content}'");
+      _logger.log(LogLevel.Trace,
+          "HTTP send: url '${request.url}', method: '${request.method}' content: '${request.content}'");
 
-      final httpReqFuture = await Future.any([httpClient.openUrl(request.method, uri), abortFuture]);
+      final httpReqFuture = await Future.any(
+          [httpClient.openUrl(request.method, uri), abortFuture]);
       final httpReq = httpReqFuture as HttpClientRequest;
       if (httpReq == null) {
         return Future.value(null);
@@ -80,18 +83,21 @@ class DartIOHttpClient extends SignalRHttpClient {
       if ((httpResp.statusCode >= 200) && (httpResp.statusCode < 300)) {
         Object content;
         final contentTypeHeader = httpResp.headers["Content-Type"];
-        final isJsonContent = contentTypeHeader.indexOf("application/json") != -1;
+        final isJsonContent =
+            contentTypeHeader.indexOf("application/json") != -1;
         if (isJsonContent) {
           content = await httpResp.transform(utf8.decoder).join();
         } else {
           content = await httpResp.transform(utf8.decoder).join();
           // When using SSE and the uri has an 'id' query parameter the response is not evaluated, otherwise it is an error.
           if (isStringEmpty(uri.queryParameters['id'])) {
-            throw ArgumentError("Response Content-Type not supported: $contentTypeHeader");
+            throw ArgumentError(
+                "Response Content-Type not supported: $contentTypeHeader");
           }
         }
 
-        return SignalRHttpResponse(httpResp.statusCode, statusText: httpResp.reasonPhrase, content: content);
+        return SignalRHttpResponse(httpResp.statusCode,
+            statusText: httpResp.reasonPhrase, content: content);
       } else {
         throw HttpError(httpResp.reasonPhrase, httpResp.statusCode);
       }

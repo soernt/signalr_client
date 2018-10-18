@@ -11,7 +11,7 @@ class ClientMethodOneSimpleParameterSimpleReturnValue extends Test {
 
   @override
   Future<void> executeTest(HubConnection hubConnection) async {
-    var result = await hubConnection.invoke("MethodOneSimpleParameterSimpleReturnValue", args: <Object>["ParameterValue"]);
+    final result = await hubConnection.invoke("MethodOneSimpleParameterSimpleReturnValue", args: <Object>["ParameterValue"]);
     logger.log(LogLevel.Information, "Result: '$result");
   }
 }

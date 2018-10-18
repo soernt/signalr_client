@@ -25,7 +25,8 @@ class HandshakeResponseMessage {
   // Methods
   HandshakeResponseMessage(this.error);
 
-  HandshakeResponseMessage.fromJson(Map<String, dynamic> json) : error = json["error"];
+  HandshakeResponseMessage.fromJson(Map<String, dynamic> json)
+      : error = json["error"];
 }
 
 /// private
@@ -38,7 +39,8 @@ class ParseHandshakeResponseResult {
   final HandshakeResponseMessage handshakeResponseMessage;
 
   // Methods
-  ParseHandshakeResponseResult(this.remainingData, this.handshakeResponseMessage);
+  ParseHandshakeResponseResult(
+      this.remainingData, this.handshakeResponseMessage);
 }
 
 /// @private
@@ -70,10 +72,13 @@ class HandshakeProtocol {
       // optional content after is additional messages
       final responseLength = separatorIndex + 1;
       messageData = utf8.decode(data.sublist(0, responseLength));
-      remainingData = (data.length > responseLength) ? data.sublist(responseLength, data.length) : null;
+      remainingData = (data.length > responseLength)
+          ? data.sublist(responseLength, data.length)
+          : null;
     } else {
       final String textData = data;
-      final separatorIndex = textData.indexOf(TextMessageFormat.recordSeparator);
+      final separatorIndex =
+          textData.indexOf(TextMessageFormat.recordSeparator);
       if (separatorIndex == -1) {
         throw new GeneralError("Message is incomplete.");
       }
@@ -82,17 +87,20 @@ class HandshakeProtocol {
       // optional content after is additional messages
       final responseLength = separatorIndex + 1;
       messageData = textData.substring(0, responseLength);
-      remainingData = (textData.length > responseLength) ? textData.substring(responseLength) : null;
+      remainingData = (textData.length > responseLength)
+          ? textData.substring(responseLength)
+          : null;
     }
 
     // At this point we should have just the single handshake message
     final messages = TextMessageFormat.parse(messageData);
-    final response = HandshakeResponseMessage.fromJson(json.decode(messages[0]));
+    final response =
+        HandshakeResponseMessage.fromJson(json.decode(messages[0]));
 
     // if (response.type) {
     //     throw new Error("Expected a handshake response from the server.");
     // }
-    
+
     responseMessage = response;
 
     // multiple messages could have arrived with handshake

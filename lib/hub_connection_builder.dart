@@ -34,8 +34,7 @@ class HubConnectionBuilder {
 
     if (logger == null) {
       _logger = ConsoleLogger(logLevel);
-    } else
-    {
+    } else {
       _logger = logger;
     }
     return this;
@@ -49,7 +48,8 @@ class HubConnectionBuilder {
   /// Use either options or transportType.
   /// Returns the builder instance, for chaining.
   ///
-  HubConnectionBuilder withUrl(String url, {HttpConnectionOptions options, HttpTransportType transportTyp}) {
+  HubConnectionBuilder withUrl(String url,
+      {HttpConnectionOptions options, HttpTransportType transportTyp}) {
     assert(!isStringEmpty(url));
     assert(!(options != null && transportTyp != null));
 
@@ -82,13 +82,16 @@ class HubConnectionBuilder {
   HubConnection build() {
     // If httpConnectionOptions has a logger, use it. Otherwise, override it with the one
     // provided to configureLogger
-    final httpConnectionOptions = _httpConnectionOptions ?? HttpConnectionOptions();
+    final httpConnectionOptions =
+        _httpConnectionOptions ?? HttpConnectionOptions();
 
     // Now create the connection
     if (isStringEmpty(_url)) {
-      throw new GeneralError("The 'HubConnectionBuilder.withUrl' method must be called before building the connection.");
+      throw new GeneralError(
+          "The 'HubConnectionBuilder.withUrl' method must be called before building the connection.");
     }
     final connection = HttpConnection(_url, options: httpConnectionOptions);
-    return HubConnection(connection, _logger ?? NullLogger.instance, _protocol ?? JsonHubProtocol());
+    return HubConnection(connection, _logger ?? NullLogger.instance,
+        _protocol ?? JsonHubProtocol());
   }
 }

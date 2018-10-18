@@ -112,7 +112,8 @@ abstract class HubInvocationMessage extends HubMessageBase {
   final String invocationId;
 
   // Methods
-  HubInvocationMessage(MessageType messageType, MessageHeaders headers, String invocationId)
+  HubInvocationMessage(
+      MessageType messageType, MessageHeaders headers, String invocationId)
       : this.headers = headers ?? MessageHeaders(),
         this.invocationId = invocationId,
         super(messageType);
@@ -129,7 +130,8 @@ class InvocationMessage extends HubInvocationMessage {
   final List<Object> arguments;
 
   // Methods
-  InvocationMessage(String target, List<Object> arguments, MessageHeaders headers, String invocationId)
+  InvocationMessage(String target, List<Object> arguments,
+      MessageHeaders headers, String invocationId)
       : this.target = target,
         this.arguments = arguments,
         super(MessageType.Invocation, headers, invocationId);
@@ -146,7 +148,8 @@ class StreamInvocationMessage extends HubInvocationMessage {
   final List<Object> arguments;
 
   // Methods
-  StreamInvocationMessage(String target, List<Object> arguments, MessageHeaders headers, String invocationId)
+  StreamInvocationMessage(String target, List<Object> arguments,
+      MessageHeaders headers, String invocationId)
       : this.target = target,
         this.arguments = arguments,
         super(MessageType.StreamInvocation, headers, invocationId);
@@ -180,7 +183,8 @@ class CompletionMessage extends HubInvocationMessage {
   final Object result;
 
   // Methods
-  CompletionMessage(String error, Object result, MessageHeaders headers, String invocationId)
+  CompletionMessage(
+      String error, Object result, MessageHeaders headers, String invocationId)
       : this.error = error,
         this.result = result,
         super(MessageType.Completion, headers, invocationId);
@@ -214,7 +218,8 @@ class CloseMessage extends HubMessageBase {
 /// A hub message sent to request that a streaming invocation be canceled.
 class CancelInvocationMessage extends HubInvocationMessage {
   // Methods
-  CancelInvocationMessage(MessageHeaders headers, String invocationId) : super(MessageType.CancelInvocation, headers, invocationId);
+  CancelInvocationMessage(MessageHeaders headers, String invocationId)
+      : super(MessageType.CancelInvocation, headers, invocationId);
 }
 
 /// A protocol abstraction for communicating with SignalR Hubs.

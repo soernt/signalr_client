@@ -36,7 +36,8 @@ class TimeoutError implements Exception {
   ///
   ///@param {string} errorMessage A descriptive error message.
   ///
-  TimeoutError([String errorMessage = "A timeout occurred."]) : this.message = errorMessage;
+  TimeoutError([String errorMessage = "A timeout occurred."])
+      : this.message = errorMessage;
 
   String toString() {
     return message;
@@ -102,4 +103,3 @@ class InvalidPayloadException extends GeneralError {
     return message;
   }
 }
-

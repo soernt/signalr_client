@@ -34,7 +34,8 @@ class JsonHubProtocol implements IHubProtocol {
   List<HubMessageBase> parseMessages(Object input, ILogger logger) {
     // Only JsonContent is allowed.
     if (!(input is String)) {
-      throw new GeneralError("Invalid input for JSON hub protocol. Expected a string.");
+      throw new GeneralError(
+          "Invalid input for JSON hub protocol. Expected a string.");
     }
 
     final jsonInput = input as String;
@@ -73,7 +74,8 @@ class JsonHubProtocol implements IHubProtocol {
           break;
         default:
           // Future protocol changes can add message types, old clients can ignore them
-          logger.log(LogLevel.Information, "Unknown message type '$messageType' ignored.");
+          logger.log(LogLevel.Information,
+              "Unknown message type '$messageType' ignored.");
           continue;
       }
       hubMessages.add(messageObj);
@@ -86,46 +88,60 @@ class JsonHubProtocol implements IHubProtocol {
     return parseMessageTypeFromString(json["type"]);
   }
 
-  static MessageHeaders createMessageHeadersFromJson(Map<String, dynamic> jsonData) {
+  static MessageHeaders createMessageHeadersFromJson(
+      Map<String, dynamic> jsonData) {
     if (jsonData != null) {
       throw GeneralError("ToDo");
     }
     return null;
   }
 
-  static InvocationMessage _getInvocationMessageFormJson(Map<String, dynamic> jsonData) {
-    final MessageHeaders headers = createMessageHeadersFromJson(jsonData["headers"]);
-    final message = InvocationMessage(jsonData["target"], jsonData["arguments"], headers, jsonData["invocationId"]);
+  static InvocationMessage _getInvocationMessageFormJson(
+      Map<String, dynamic> jsonData) {
+    final MessageHeaders headers =
+        createMessageHeadersFromJson(jsonData["headers"]);
+    final message = InvocationMessage(jsonData["target"], jsonData["arguments"],
+        headers, jsonData["invocationId"]);
 
-    _assertNotEmptyString(message.target, "Invalid payload for Invocation message.");
+    _assertNotEmptyString(
+        message.target, "Invalid payload for Invocation message.");
     if (message.invocationId != null) {
-      _assertNotEmptyString(message.invocationId, "Invalid payload for Invocation message.");
+      _assertNotEmptyString(
+          message.invocationId, "Invalid payload for Invocation message.");
     }
 
     return message;
   }
 
-  static StreamItemMessage _getStreamItemMessageFormJson(Map<String, dynamic> jsonData) {
-    final MessageHeaders headers = createMessageHeadersFromJson(jsonData["headers"]);
-    final message = StreamItemMessage(jsonData["item"], headers, jsonData["invocationId"]);
+  static StreamItemMessage _getStreamItemMessageFormJson(
+      Map<String, dynamic> jsonData) {
+    final MessageHeaders headers =
+        createMessageHeadersFromJson(jsonData["headers"]);
+    final message =
+        StreamItemMessage(jsonData["item"], headers, jsonData["invocationId"]);
 
-    _assertNotEmptyString(message.invocationId, "Invalid payload for StreamItem message.");
+    _assertNotEmptyString(
+        message.invocationId, "Invalid payload for StreamItem message.");
     if (message.item == null) {
       throw InvalidPayloadException("Invalid payload for StreamItem message.");
     }
     return message;
   }
 
-  static CompletionMessage _getCompletionMessageFormJson(Map<String, dynamic> jsonData) {
-    final MessageHeaders headers = createMessageHeadersFromJson(jsonData["headers"]);
-    final message = CompletionMessage(jsonData["error"], jsonData["result"], headers, jsonData["invocationId"]);
+  static CompletionMessage _getCompletionMessageFormJson(
+      Map<String, dynamic> jsonData) {
+    final MessageHeaders headers =
+        createMessageHeadersFromJson(jsonData["headers"]);
+    final message = CompletionMessage(jsonData["error"], jsonData["result"],
+        headers, jsonData["invocationId"]);
 
     if ((message.result != null) && (message.error != null)) {
       throw InvalidPayloadException("Invalid payload for Completion message.");
     }
 
     if ((message.result == null) && (message.error != null)) {
-      _assertNotEmptyString(message.error, "Invalid payload for Completion message.");
+      _assertNotEmptyString(
+          message.error, "Invalid payload for Completion message.");
     }
 
     return message;
@@ -147,7 +163,8 @@ class JsonHubProtocol implements IHubProtocol {
   @override
   String writeMessage(HubMessageBase message) {
     assert(message != null);
-    return TextMessageFormat.write(json.encode(message, toEncodable: _encodeMessage));
+    return TextMessageFormat.write(
+        json.encode(message, toEncodable: _encodeMessage));
   }
 
   static dynamic _encodeMessage(dynamic message) {
@@ -162,19 +179,38 @@ class JsonHubProtocol implements IHubProtocol {
     final messageType = (message as HubMessageBase).type.index;
 
     if (message is InvocationMessage) {
-      return {"type": messageType, "invocationId": message.invocationId, "target": message.target, "arguments": message.arguments};
+      return {
+        "type": messageType,
+        "invocationId": message.invocationId,
+        "target": message.target,
+        "arguments": message.arguments
+      };
     }
 
     if (message is StreamInvocationMessage) {
-      return {"type": messageType, "invocationId": message.invocationId, "target": message.target, "arguments": message.arguments};
+      return {
+        "type": messageType,
+        "invocationId": message.invocationId,
+        "target": message.target,
+        "arguments": message.arguments
+      };
     }
 
     if (message is StreamItemMessage) {
-      return {"type": messageType, "invocationId": message.invocationId, "item": message.item};
+      return {
+        "type": messageType,
+        "invocationId": message.invocationId,
+        "item": message.item
+      };
     }
 
     if (message is CompletionMessage) {
-      return {"type": messageType, "invocationId": message.invocationId, "error": message.error, "result": message.result};
+      return {
+        "type": messageType,
+        "invocationId": message.invocationId,
+        "error": message.error,
+        "result": message.result
+      };
     }
 
     if (message is PingMessage) {

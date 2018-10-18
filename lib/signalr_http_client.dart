@@ -30,7 +30,13 @@ class SignalRHttpRequest {
 
   // Methods
 
-  SignalRHttpRequest({String method, String url, Object content, MessageHeaders headers, IAbortSignal abortSignal, int timeout})
+  SignalRHttpRequest(
+      {String method,
+      String url,
+      Object content,
+      MessageHeaders headers,
+      IAbortSignal abortSignal,
+      int timeout})
       : this.method = method,
         this.url = url,
         this.content = content,

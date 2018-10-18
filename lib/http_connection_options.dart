@@ -34,7 +34,13 @@ class HttpConnectionOptions {
   bool skipNegotiation;
 
   // Methods
-  HttpConnectionOptions({SignalRHttpClient httpClient, Object transport, ILogger logger, AccessTokenFactory accessTokenFactory, bool logMessageContent = false, bool skipNegotiation = false})
+  HttpConnectionOptions(
+      {SignalRHttpClient httpClient,
+      Object transport,
+      ILogger logger,
+      AccessTokenFactory accessTokenFactory,
+      bool logMessageContent = false,
+      bool skipNegotiation = false})
       : this.httpClient = httpClient,
         this.transport = transport,
         this.logger = logger,

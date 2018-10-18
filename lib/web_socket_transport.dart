@@ -23,7 +23,8 @@ class WebSocketTransport implements ITransport {
   OnReceive onReceive;
 
   // Methods
-  WebSocketTransport(AccessTokenFactory accessTokenFactory, ILogger logger, bool logMessageContent)
+  WebSocketTransport(AccessTokenFactory accessTokenFactory, ILogger logger,
+      bool logMessageContent)
       : this._accessTokenFactory = accessTokenFactory,
         this._logger = logger,
         this._logMessageContent = logMessageContent;
@@ -39,7 +40,8 @@ class WebSocketTransport implements ITransport {
       final token = await _accessTokenFactory();
       if (!isStringEmpty(token)) {
         final encodedToken = Uri.encodeComponent(token);
-        url += (url.indexOf("?") < 0 ? "?" : "&") + "access_token=$encodedToken";
+        url +=
+            (url.indexOf("?") < 0 ? "?" : "&") + "access_token=$encodedToken";
       }
     }
 

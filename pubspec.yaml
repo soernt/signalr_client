@@ -1,8 +1,8 @@
 name: signalr_client
-description: A flutter client for SignalR.
-version: 0.0.1
-author: Sörnt Poppe
-homepage: 
+description: A flutter client for ASP.NET Core SignalR .
+version: 0.1.0
+author: Sörnt Poppe <soernt.poppe@nordlichtsoftware.de>
+homepage: https://github.com/soernt/signalr_client
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"

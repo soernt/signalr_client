@@ -1,2 +1,115 @@
 # signalr_client
-A Flutter SignalR Client for ASP.NET Core
+A Flutter SignalR Client for [ASP.NET Core](https://docs.microsoft.com/aspnet/core/signalr/?view=aspnetcore-2.1).   
+ASP.NET Core SignalR is an open-source library that simplifies adding real-time web functionality to apps. Real-time web functionality enables server-side code to push content to clients instantly.
+
+The client is able to invoke server side hub functions (including streaming functions) and to receive method invocations issued by the server.
+
+The client supports the following transport protocols:
+* WebSocket
+* Service Side Events
+* Long Polling
+
+The client supports the following hub protocols:
+* Json
+* [~~MessagePack~~](https://msgpack.org/) - Since I can't find a MessagePack library that support the current flutter version.
+
+## Examples
+
+* [Chat client/server](https://github.com/soernt/signalr_client/tree/master/example) - A simple client/server chat application.
+* [Integration test app](https://github.com/soernt/signalr_client/tree/master/testapp/client) - To see how a client calls various types of hub functions.
+  
+
+## Getting Started
+
+Add `signalr_client` to your `pubspec.yaml` dependencies:
+```yaml
+...
+dependencies:
+  flutter:
+    sdk: flutter
+
+  signalr_client:
+...
+```
+
+
+## Usage
+
+Let's demo some basic usages:
+
+#### 1. Create a hub connection:
+```dart
+// Import the library.
+import 'package:signalr_client/signalr_client.dart';
+
+// The location of the SignalR Server.
+final serverUrl = "192.168.10.50:51001";
+// Prints log messages to the console.
+final logger = ConsoleLogger();
+// Creates the connection by using the HubConnectionBuilder.
+final hubConnection = HubConnectionBuilder().withUrl(serverUrl).configureLogging(logger: logger).build();
+// When the connection is closed, print out a message to the logger.
+final hubConnection.onclose( (error) => logger.log(LogLevel.Information, "Connection Closed"));
+
+```
+
+#### 2. Calling a Hub function:
+
+Assuming there is this hub function:
+```c
+public string MethodOneSimpleParameterSimpleReturnValue(string p1)
+{
+  Console.WriteLine($"'MethodOneSimpleParameterSimpleReturnValue' invoked. Parameter value: '{p1}");
+  return p1;
+}
+```
+
+The client can invoke the function by using:
+
+```dart
+
+  final result = await hubConnection.invoke("MethodOneSimpleParameterSimpleReturnValue", args: <Object>["ParameterValue"]);
+  logger.log(LogLevel.Information, "Result: '$result");
+
+```
+
+
+#### 3. Calling a client function:
+
+Assuming the server calls a function "aClientProvidedFunction":
+```c
+  await Clients.Caller.SendAsync("aClientProvidedFunction", null);
+```
+
+The Client provides the function like this:
+
+```dart
+  
+  hubConnection.on("aClientProvidedFunction", _handleAClientProvidedFunction);
+
+  // To unregister the function use:
+  // a) to unregister a specific implementation:
+  // hubConnection.off("aClientProvidedFunction", method: _handleServerInvokeMethodNoParametersNoReturnValue);
+  // b) to unregister all implementations:
+  // hubConnection.off("aClientProvidedFunction");
+  ...
+  void _handleAClientProvidedFunction(List<Object> parameters) {
+    logger.log(LogLevel.Information, "Server invoked the method");
+  }
+
+```
+
+### A note about the parameter types
+
+All function parameters and return values are serialized/deserialized into/from JSON by using the dart:convert package (json.endcode/json.decode). Make sure that you:
+* use only simple parameter types
+
+or
+
+* use objects that implements toJson() since that method is used by the dart:convert package to serialize an object.
+
+
+Flutter Json 101: 
+* [flutter.io](https://flutter.io/json/)
+* [json.encode](https://api.dartlang.org/stable/2.0.0/dart-convert/JsonCodec/encode.html)
+* [json.decode](https://api.dartlang.org/stable/2.0.0/dart-convert/JsonCodec/decode.html)
