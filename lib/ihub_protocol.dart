@@ -61,7 +61,7 @@ class MessageHeaders {
   // Properties
   HashMap<String, String> _headers;
 
-  Iterable<String> get names => _headers.values;
+  Iterable<String> get names => _headers.keys;
 
   bool get isEmtpy => _headers.length == 0;
 
