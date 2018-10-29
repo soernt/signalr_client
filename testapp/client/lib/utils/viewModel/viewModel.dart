@@ -16,9 +16,6 @@ class PropertyChangedEvent {
 
 typedef void SetValue<TValue>(TValue value);
 
-// Callback der von einem Widget gesetzt wird um ein Flutter Form zu validieren und die "save()" Methode aufzurufen.
-typedef bool FormViewDoValidateAndSaveFormData();
-
 abstract class ViewModel {
   // Properties
 
@@ -46,7 +43,7 @@ abstract class ViewModel {
     propertyChanges.add(PropertyChangedEvent(this, propertyName));
   }
 
-  Observable<PropertyChangedEvent> whenPropertiesChanged<TPropertyType>(List<String> propertyNames) {
+  Observable<PropertyChangedEvent> whenPropertiesChanged(List<String> propertyNames) {
     assert(propertyNames != null || propertyNames.length != 0);
 
     return propertyChanges
@@ -66,7 +63,7 @@ abstract class ViewModel {
     }));
   }
 
-  Observable<PropertyChangedEvent> whenPropertyChanged<TPropertyType>(String propertyName) {
+  Observable<PropertyChangedEvent> whenPropertyChanged(String propertyName) {
     return propertyChanges
         .where((event) => isBlank(event.propertyName) || event.propertyName == propertyName)
         .transform(StreamTransformer.fromHandlers(handleData: (PropertyChangedEvent value, EventSink<PropertyChangedEvent> sink) {
@@ -74,7 +71,7 @@ abstract class ViewModel {
     }));
   }
 
-  Observable whenPropertyChangedHint<TPropertyType>(String propertyName) {
+  Observable whenPropertyChangedHint(String propertyName) {
     return propertyChanges
         .where((event) => isBlank(event.propertyName) || event.propertyName == propertyName)
         .transform(StreamTransformer.fromHandlers(handleData: (PropertyChangedEvent value, EventSink<void> sink) {
@@ -83,12 +80,10 @@ abstract class ViewModel {
   }
 
   Future<void> viewInitState() {
-    //print("${runtimeType.toString()}.viewInitState ");
     return Future<void>.value();
   }
 
   Future<void> viewDispose() {
-    //print("${runtimeType.toString()}.viewDispose ");
     return Future<void>.value();
   }
 

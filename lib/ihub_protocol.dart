@@ -1,7 +1,9 @@
 import 'dart:collection';
 
+import 'package:logging/logging.dart';
+import 'package:signalr_client/utils.dart';
+
 import 'errors.dart';
-import 'ilogger.dart';
 import 'itransport.dart';
 
 /// Defines the type of a Hub Message.
@@ -58,6 +60,8 @@ MessageType parseMessageTypeFromString(int value) {
 
 /// Defines a dictionary of string keys and string values representing headers attached to a Hub message.
 class MessageHeaders {
+  static const String AuthorizationHeaderName = "Authorization";
+
   // Properties
   HashMap<String, String> _headers;
 
@@ -78,6 +82,20 @@ class MessageHeaders {
   /// Sets the header with the specified key.
   void setHeaderValue(String name, String value) {
     _headers[name] = value;
+  }
+
+  void setAuthorizationHeaderValue(String token) {
+    if (!isStringEmpty(token)) {
+      setHeaderValue(AuthorizationHeaderName, "Bearer $token");
+    } else {
+      removeAuthorizationHeaderValue();
+    }
+  }
+
+  void removeAuthorizationHeaderValue() {
+    if (_headers.containsKey(AuthorizationHeaderName)) {
+      _headers.remove(AuthorizationHeaderName);
+    }
   }
 
   /// removes the given header
@@ -246,9 +264,9 @@ abstract class IHubProtocol {
   /// If transferFormat is 'Text', the `input` parameter must be a string, otherwise it must be an ArrayBuffer.
   ///
   /// [input] A string (json), or Uint8List (binary) containing the serialized representation.
-  /// [ILogger] logger A logger that will be used to log messages that occur during parsing.
+  /// [Logger] logger A logger that will be used to log messages that occur during parsing.
 
-  List<HubMessageBase> parseMessages(Object input, ILogger logger);
+  List<HubMessageBase> parseMessages(Object input, Logger logger);
 
   /// Writes the specified HubMessage to a string or ArrayBuffer and returns it.
   ///

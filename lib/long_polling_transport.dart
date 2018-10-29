@@ -1,9 +1,10 @@
 import 'dart:async';
 
+import 'package:logging/logging.dart';
+
 import 'abort_controller.dart';
 import 'errors.dart';
 import 'ihub_protocol.dart';
-import 'ilogger.dart';
 import 'itransport.dart';
 import 'signalr_http_client.dart';
 import 'utils.dart';
@@ -12,7 +13,7 @@ class LongPollingTransport implements ITransport {
   // Properties
   final SignalRHttpClient _httpClient;
   final AccessTokenFactory _accessTokenFactory;
-  final ILogger _logger;
+  final Logger _logger;
   final bool _logMessageContent;
   final AbortController _pollAbort;
 
@@ -34,7 +35,7 @@ class LongPollingTransport implements ITransport {
   LongPollingTransport(
       SignalRHttpClient httpClient,
       AccessTokenFactory accessTokenFactory,
-      ILogger logger,
+      Logger logger,
       bool logMessageContent)
       : assert(httpClient != null),
         _httpClient = httpClient,
@@ -52,7 +53,7 @@ class LongPollingTransport implements ITransport {
 
     _url = url;
 
-    _logger.log(LogLevel.Trace, "(LongPolling transport) Connecting");
+    _logger?.finest("(LongPolling transport) Connecting");
 
     if (transferFormat == TransferFormat.Binary) {
       throw new GeneralError(
@@ -70,10 +71,10 @@ class LongPollingTransport implements ITransport {
     // Make initial long polling request
     // Server uses first long polling request to finish initializing connection and it returns without data
     final pollUrl = "$_url&_=${DateTime.now()}";
-    _logger.log(LogLevel.Trace, "(LongPolling transport) polling: $pollUrl");
+    _logger?.finest("(LongPolling transport) polling: $pollUrl");
     final response = await _httpClient.get(pollUrl, options: pollOptions);
     if (response.statusCode != 200) {
-      _logger.log(LogLevel.Error,
+      _logger?.severe(
           "(LongPolling transport) Unexpected response code: ${response.statusCode}");
 
       // Mark running as false so that the poll immediately ends and runs the close logic
@@ -95,17 +96,15 @@ class LongPollingTransport implements ITransport {
 
         try {
           final pollUrl = "$url&_=${DateTime.now()}";
-          _logger.log(
-              LogLevel.Trace, "(LongPolling transport) polling: $pollUrl");
+          _logger?.finest("(LongPolling transport) polling: $pollUrl");
           final response = await _httpClient.get(pollUrl, options: pollOptions);
 
           if (response.statusCode == 204) {
-            _logger.log(LogLevel.Information,
-                "(LongPolling transport) Poll terminated by server");
+            _logger?.info("(LongPolling transport) Poll terminated by server");
 
             _running = false;
           } else if (response.statusCode != 200) {
-            _logger.log(LogLevel.Error,
+            _logger?.severe(
                 "(LongPolling transport) Unexpected response code: ${response.statusCode}");
 
             // Unexpected status code
@@ -116,26 +115,25 @@ class LongPollingTransport implements ITransport {
             // Process the response
             if (!isStringEmpty(response.content)) {
               // _logger.log(LogLevel.Trace, "(LongPolling transport) data received. ${getDataDetail(response.content, this.logMessageContent)}");
-              _logger.log(
-                  LogLevel.Trace, "(LongPolling transport) data received");
+              _logger?.finest("(LongPolling transport) data received");
               if (onReceive != null) {
                 onReceive(response.content);
               }
             } else {
               // This is another way timeout manifest.
-              _logger.log(LogLevel.Trace,
+              _logger?.finest(
                   "(LongPolling transport) Poll timed out, reissuing.");
             }
           }
         } catch (e) {
           if (!_running) {
             // Log but disregard errors that occur after stopping
-            _logger.log(LogLevel.Trace,
+            _logger?.finest(
                 "(LongPolling transport) Poll errored after shutdown: ${e.message}");
           } else {
             if (e is TimeoutError) {
               // Ignore timeouts and reissue the poll.
-              _logger.log(LogLevel.Trace,
+              _logger?.finest(
                   "(LongPolling transport) Poll timed out, reissuing.");
             } else {
               // Close the connection with the error as the result.
@@ -146,7 +144,7 @@ class LongPollingTransport implements ITransport {
         }
       }
     } finally {
-      _logger.log(LogLevel.Trace, "(LongPolling transport) Polling complete.");
+      _logger?.finest("(LongPolling transport) Polling complete.");
 
       // We will reach here with pollAborted==false when the server returned a response causing the transport to stop.
       // If pollAborted==true then client initiated the stop and the stop method will raise the close event after DELETE is sent.
@@ -168,7 +166,7 @@ class LongPollingTransport implements ITransport {
 
   @override
   Future<void> stop(Error error) async {
-    _logger.log(LogLevel.Trace, "(LongPolling transport) Stopping polling.");
+    _logger?.finest("(LongPolling transport) Stopping polling.");
 
     // Tell receiving loop to stop, abort any current request, and then wait for it to finish
     _running = false;
@@ -178,18 +176,17 @@ class LongPollingTransport implements ITransport {
       await _receiving;
 
       // Send DELETE to clean up long polling on the server
-      _logger.log(LogLevel.Trace,
-          "(LongPolling transport) sending DELETE request to $_url.");
+      _logger
+          ?.finest("(LongPolling transport) sending DELETE request to $_url.");
 
       final deleteOptions = SignalRHttpRequest();
       final token = await _getAccessToken();
       _updateHeaderToken(deleteOptions, token);
       await _httpClient.delete(_url, options: deleteOptions);
 
-      _logger.log(
-          LogLevel.Trace, "(LongPolling transport) DELETE request sent.");
+      _logger?.finest("(LongPolling transport) DELETE request sent.");
     } finally {
-      _logger.log(LogLevel.Trace, "(LongPolling transport) Stop finished.");
+      _logger?.finest("(LongPolling transport) Stop finished.");
 
       // Raise close event here instead of in polling
       // It needs to happen after the DELETE request is sent
@@ -222,7 +219,7 @@ class LongPollingTransport implements ITransport {
       if (_closeError != null) {
         logMessage += " Error: " + _closeError.toString();
       }
-      _logger.log(LogLevel.Trace, logMessage);
+      _logger?.finest(logMessage);
       onClose(new GeneralError(_closeError?.toString()));
     }
   }

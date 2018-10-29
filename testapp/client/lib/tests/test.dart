@@ -1,5 +1,6 @@
 import 'package:client/utils/viewModel/viewModel.dart';
 import 'package:client/views/pages/testsPageViewModel.dart';
+import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
 import 'package:signalr_client/signalr_client.dart';
 
@@ -9,7 +10,7 @@ abstract class Test extends ViewModel {
   final HubConnectionProvider _hubConnectionProvider;
 
   @protected
-  final ILogger logger;
+  final Logger logger;
 
   final String description;
 
@@ -29,7 +30,7 @@ abstract class Test extends ViewModel {
 
   // Methods
 
-  Test(HubConnectionProvider hubConnectionProvider, ILogger logger, String description)
+  Test(HubConnectionProvider hubConnectionProvider, Logger logger, String description)
       : assert(hubConnectionProvider != null),
         assert(logger != null),
         assert(description != null),

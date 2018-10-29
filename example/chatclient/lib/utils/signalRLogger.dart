@@ -1,25 +1,46 @@
 
-import 'package:signalr_client/signalr_client.dart';
+import 'dart:async';
 
-typedef Log = void Function(LogMessage);
+import 'package:logging/logging.dart';
 
-class SignalRLogger implements ILogger {
+typedef LogMessageDelegate = void Function(LogMessage);
+
+class DelegatingLogSink {
   // Properties
-  final Log _logFunc;
-
-  SignalRLogger(this._logFunc);
+  final LogMessageDelegate _logFunc;
+  StreamSubscription<LogRecord> _subscription;
 
   // Methods
-  @override
-  void log(LogLevel logLevel, String message) {
-    _logFunc(LogMessage(DateTime.now(), logLevel, message));
+
+  DelegatingLogSink(this._logFunc);
+
+  
+  void attachToLogger(Logger logger) {
+    assert(logger != null);
+
+    _subscription = Logger.root.onRecord.listen(_logMessage, onDone: _handleOnDone, cancelOnError: true);
+  }
+
+  
+  void dispose() {
+    _subscription?.cancel();
+  }
+
+  void _handleOnDone() {
+    _subscription = null;
+  }
+
+  void _logMessage(LogRecord event) {
+    
+    _logFunc(LogMessage(event.time, event.level, event.message));
   }
 }
+
 
 class LogMessage {
   // Properites
   final DateTime at;
-  final LogLevel level;
+  final Level level;
   String message;
 
   // Methods

@@ -1,4 +1,5 @@
-import 'ilogger.dart';
+import 'package:logging/logging.dart';
+
 import 'itransport.dart';
 import 'signalr_http_client.dart';
 
@@ -10,13 +11,14 @@ class HttpConnectionOptions {
   SignalRHttpClient httpClient;
 
   /// An HttpTransportType or ITransport value specifying the transport to use for the connection
+  /// If transport is null and the server supports all transport protocols than HttpTransportType.WebSockets is used.
   Object transport;
 
   /// Configures the logger used for logging.
   ///
-  /// Provide an ILogger instance, and log messages will be logged via that instance
+  /// Provide an Logger instance, and log messages will be logged via that instance
   ///
-  ILogger logger;
+  Logger logger;
 
   /// A function that provides an access token required for HTTP Bearer authentication.
   AccessTokenFactory accessTokenFactory;
@@ -37,7 +39,7 @@ class HttpConnectionOptions {
   HttpConnectionOptions(
       {SignalRHttpClient httpClient,
       Object transport,
-      ILogger logger,
+      Logger logger,
       AccessTokenFactory accessTokenFactory,
       bool logMessageContent = false,
       bool skipNegotiation = false})

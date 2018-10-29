@@ -1,9 +1,10 @@
+import 'package:logging/logging.dart';
+
 import 'errors.dart';
 import 'http_connection.dart';
 import 'http_connection_options.dart';
 import 'hub_connection.dart';
 import 'ihub_protocol.dart';
-import 'ilogger.dart';
 import 'itransport.dart';
 import 'json_hub_protocol.dart';
 import 'utils.dart';
@@ -18,25 +19,15 @@ class HubConnectionBuilder {
 
   String _url;
 
-  ILogger _logger;
+  Logger _logger;
 
   /// Configures console logging for the HubConnection.
   ///
-  /// logLevel: The minimum level of messages to log. Anything at this level, or a more severe level, will be logged.
   /// logger: this logger with the already configured log level will be used.
-  /// Either the logLevel will be used with a new instance of a ConsoleLogger or the given logger will be used.
   /// Returns the builder instance, for chaining.
   ///
-  HubConnectionBuilder configureLogging({LogLevel logLevel, ILogger logger}) {
-    if (logLevel == null) {
-      logLevel = LogLevel.Error;
-    }
-
-    if (logger == null) {
-      _logger = ConsoleLogger(logLevel);
-    } else {
-      _logger = logger;
-    }
+  HubConnectionBuilder configureLogging(Logger logger) {
+    _logger = logger;
     return this;
   }
 
@@ -91,7 +82,6 @@ class HubConnectionBuilder {
           "The 'HubConnectionBuilder.withUrl' method must be called before building the connection.");
     }
     final connection = HttpConnection(_url, options: httpConnectionOptions);
-    return HubConnection(connection, _logger ?? NullLogger.instance,
-        _protocol ?? JsonHubProtocol());
+    return HubConnection(connection, _logger, _protocol ?? JsonHubProtocol());
   }
 }

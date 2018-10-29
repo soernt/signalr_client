@@ -1,12 +1,13 @@
 import 'package:client/tests/test.dart';
 import 'package:client/views/pages/testsPageViewModel.dart';
+import 'package:logging/logging.dart';
 import 'package:signalr_client/signalr_client.dart';
 
 class ServerInvokeMethodNoParametersNoReturnValue extends Test {
   // Properties
 
   // Methods
-  ServerInvokeMethodNoParametersNoReturnValue(HubConnectionProvider hubConnectionProvider, ILogger logger)
+  ServerInvokeMethodNoParametersNoReturnValue(HubConnectionProvider hubConnectionProvider, Logger logger)
       : super(hubConnectionProvider, logger, "Server Invokes method: 'ServerInvokeMethodNoParametersNoReturnValue");
 
   @override
@@ -20,6 +21,6 @@ class ServerInvokeMethodNoParametersNoReturnValue extends Test {
   }
 
   void _handleServerInvokeMethodNoParametersNoReturnValue(List<Object> parameters) {
-    logger.log(LogLevel.Information, "From Callback: Server invoked method 'ServerInvokeMethodNoParametersNoReturnValue'");
+    logger.info("From Callback: Server invoked method 'ServerInvokeMethodNoParametersNoReturnValue'");
   }
 }

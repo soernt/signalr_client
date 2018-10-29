@@ -1,8 +1,9 @@
 import 'dart:convert';
 
+import 'package:logging/logging.dart';
+
 import 'errors.dart';
 import 'ihub_protocol.dart';
-import 'ilogger.dart';
 import 'itransport.dart';
 import 'text_message_format.dart';
 import 'utils.dart';
@@ -27,11 +28,11 @@ class JsonHubProtocol implements IHubProtocol {
 
   /// Creates an array of {@link @aspnet/signalr.HubMessage} objects from the specified serialized representation.
   ///
-  /// @param {string} input A string containing the serialized representation.
-  /// @param {ILogger} logger A logger that will be used to log messages that occur during parsing.
+  /// A string containing the serialized representation.
+  /// A logger that will be used to log messages that occur during parsing.
   ///
   @override
-  List<HubMessageBase> parseMessages(Object input, ILogger logger) {
+  List<HubMessageBase> parseMessages(Object input, Logger logger) {
     // Only JsonContent is allowed.
     if (!(input is String)) {
       throw new GeneralError(
@@ -43,10 +44,6 @@ class JsonHubProtocol implements IHubProtocol {
 
     if (input == null) {
       return hubMessages;
-    }
-
-    if (logger == null) {
-      logger = NullLogger.instance;
     }
 
     // Parse the messages
@@ -74,8 +71,7 @@ class JsonHubProtocol implements IHubProtocol {
           break;
         default:
           // Future protocol changes can add message types, old clients can ignore them
-          logger.log(LogLevel.Information,
-              "Unknown message type '$messageType' ignored.");
+          logger?.info("Unknown message type '$messageType' ignored.");
           continue;
       }
       hubMessages.add(messageObj);

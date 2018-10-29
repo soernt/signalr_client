@@ -1,17 +1,21 @@
-## [0.1.2] - 10.18.2018
+## [0.1.3]
+* Change the logging behaviour: The client uses the dart standard [logging](https://pub.dartlang.org/packages/logging) package instead of a proprietary logging behaviour (see readme for an example).
+* Fixes a bug within the MessageHeaders class.
+
+## [0.1.2]
 
 * Be more descriptional within the desciption of the pubspec.yaml
 
-## [0.1.1] - 10.18.2018
+## [0.1.1]
 
 * Be more descriptional within the desciption of the pubspec.yaml
 
-## [0.1.0] - 10.18.2018
+## [0.1.0]
 
 * Chat client/server example added.
 * Reformat Library code to compile to PUB spec.
 * Added some more description to the readme.
 
-## [0.0.1] - 10.17.2018
+## [0.0.1]
 
 * Intitial Version

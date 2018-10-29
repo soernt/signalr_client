@@ -3,18 +3,18 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'errors.dart';
-import 'ilogger.dart';
 import 'signalr_http_client.dart';
 import 'utils.dart';
+import 'package:logging/logging.dart';
 
 class DartIOHttpClient extends SignalRHttpClient {
   // Properties
 
-  final ILogger _logger;
+  final Logger _logger;
 
   // Methods
 
-  DartIOHttpClient(ILogger logger) : this._logger = logger ?? NullLogger();
+  DartIOHttpClient(Logger logger) : this._logger = logger;
 
   Future<SignalRHttpResponse> send(SignalRHttpRequest request) {
     // Check that abort was not signaled before calling send
@@ -48,7 +48,7 @@ class DartIOHttpClient extends SignalRHttpClient {
         httpClient.connectionTimeout = Duration(milliseconds: request.timeout);
       }
 
-      _logger.log(LogLevel.Trace,
+      _logger?.finest(
           "HTTP send: url '${request.url}', method: '${request.method}' content: '${request.content}'");
 
       final httpReqFuture = await Future.any(

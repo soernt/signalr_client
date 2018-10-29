@@ -27,11 +27,6 @@ class ViewModelProvider<TViewModel extends ViewModel> extends InheritedWidget {
   }
 }
 
-/*
- ViewModelViewStateManager: 
- * Der Ansatz das ViewModel über den Status seines zugehörigen Views zu informieren.
-*/
-
 class ViewModelViewStateManager extends StatefulWidget {
   // Properties
   final ViewModel _viewModel;

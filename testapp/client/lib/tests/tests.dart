@@ -7,7 +7,7 @@ import 'package:client/tests/clientInvoke/serverInvokeMethodNoParametersNoReturn
 import 'package:client/tests/clientInvoke/serverInvokeMethodSimpleParametersNoReturnValue.dart';
 import 'package:client/tests/test.dart';
 import 'package:client/views/pages/testsPageViewModel.dart';
-import 'package:signalr_client/signalr_client.dart';
+import 'package:logging/logging.dart';
 
 class Tests {
   // Properties
@@ -16,7 +16,7 @@ class Tests {
   // Methods
   List<Test> get items => _items;
 
-  Tests(HubConnectionProvider connectionProvider, ILogger logger) {
+  Tests(HubConnectionProvider connectionProvider, Logger logger) {
     _items = List<Test>();
 
     _items.add(ClientMethodNoParametersNoReturnValue(connectionProvider, logger));

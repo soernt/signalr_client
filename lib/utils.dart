@@ -1,18 +1,7 @@
+import 'package:logging/logging.dart';
+
 import 'ihub_protocol.dart';
-import 'ilogger.dart';
 import 'signalr_client.dart';
-
-ILogger createLogger(Object logger) {
-  if (logger == null) {
-    return NullLogger.instance;
-  }
-
-  if ((logger is ILogger)) {
-    return logger;
-  }
-
-  return new ConsoleLogger(logger as LogLevel);
-}
 
 bool isStringEmpty(String value) {
   return (value == null) || (value.length == 0);
@@ -23,7 +12,7 @@ bool isListEmpty(List value) {
 }
 
 Future<void> sendMessage(
-    ILogger logger,
+    Logger logger,
     String transportName,
     SignalRHttpClient httpClient,
     String url,
@@ -39,13 +28,13 @@ Future<void> sendMessage(
   }
 
   // logger.log(LogLevel.Trace, `(${transportName} transport) sending data. ${getDataDetail(content, logMessageContent)}.`);
-  logger.log(LogLevel.Trace, "($transportName transport) sending data.");
+  logger?.finest("($transportName transport) sending data.");
 
   //final responseType = content is String ? "arraybuffer" : "text";
   SignalRHttpRequest req =
       SignalRHttpRequest(content: content, headers: headers);
   final response = await httpClient.post(url, options: req);
 
-  logger.log(LogLevel.Trace,
+  logger?.finest(
       "($transportName transport) request complete. Response status: ${response.statusCode}.");
 }

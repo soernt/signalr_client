@@ -1,12 +1,13 @@
 import 'package:client/tests/test.dart';
 import 'package:client/views/pages/testsPageViewModel.dart';
+import 'package:logging/logging.dart';
 import 'package:signalr_client/signalr_client.dart';
 
 class ServerInvokeMethodSimpleParametersNoReturnValue extends Test {
   // Properties
 
   // Methods
-  ServerInvokeMethodSimpleParametersNoReturnValue(HubConnectionProvider hubConnectionProvider, ILogger logger)
+  ServerInvokeMethodSimpleParametersNoReturnValue(HubConnectionProvider hubConnectionProvider, Logger logger)
       : super(hubConnectionProvider, logger, "Server Invokes method: 'ServerInvokeMethodSimpleParametersNoReturnValue");
 
   @override
@@ -27,6 +28,6 @@ class ServerInvokeMethodSimpleParametersNoReturnValue extends Test {
       paramValues.write( "$i => $value, ");
     }
 
-    logger.log(LogLevel.Information, "From Callback: Server invoked method 'ServerInvokeMethodSimpleParametersNoReturnValue': " + paramValues.toString());
+    logger.info("From Callback: Server invoked method 'ServerInvokeMethodSimpleParametersNoReturnValue': " + paramValues.toString());
   }
 }

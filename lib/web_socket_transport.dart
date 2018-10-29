@@ -2,15 +2,16 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:logging/logging.dart';
+
 import 'errors.dart';
-import 'ilogger.dart';
 import 'itransport.dart';
 import 'utils.dart';
 
 class WebSocketTransport implements ITransport {
   // Properties
 
-  ILogger _logger;
+  Logger _logger;
   AccessTokenFactory _accessTokenFactory;
   bool _logMessageContent;
   WebSocket _webSocket;
@@ -23,7 +24,7 @@ class WebSocketTransport implements ITransport {
   OnReceive onReceive;
 
   // Methods
-  WebSocketTransport(AccessTokenFactory accessTokenFactory, ILogger logger,
+  WebSocketTransport(AccessTokenFactory accessTokenFactory, Logger logger,
       bool logMessageContent)
       : this._accessTokenFactory = accessTokenFactory,
         this._logger = logger,
@@ -34,7 +35,7 @@ class WebSocketTransport implements ITransport {
     assert(url != null);
     assert(transferFormat != null);
 
-    _logger.log(LogLevel.Trace, "(WebSockets transport) Connecting");
+    _logger?.finest("(WebSockets transport) Connecting");
 
     if (_accessTokenFactory != null) {
       final token = await _accessTokenFactory();
@@ -46,14 +47,14 @@ class WebSocketTransport implements ITransport {
     }
 
     url = url.replaceFirst('http', 'ws');
-    _logger.log(LogLevel.Trace, "WebSocket try connecting to '$url'.");
+    _logger?.finest("WebSocket try connecting to '$url'.");
     _webSocket = await WebSocket.connect(url);
-    _logger.log(LogLevel.Information, "WebSocket connected to '$url'.");
+    _logger?.info("WebSocket connected to '$url'.");
     _webSocketListenSub = _webSocket.listen(
       // onData
       (Object message) {
         //_logger.log(LogLevel.Trace, "(WebSockets transport) data received. ${getDataDetail(message.data, this.logMessageContent)}.");
-        _logger.log(LogLevel.Trace, "(WebSockets transport) data received.");
+        _logger?.finest("(WebSockets transport) data received.");
         if (onReceive != null) {
           onReceive(message);
         }
@@ -79,7 +80,7 @@ class WebSocketTransport implements ITransport {
   Future<void> send(Object data) {
     if ((_webSocket != null) && (_webSocket.readyState == WebSocket.open)) {
       //_logger.log(LogLevel.Trace, "(WebSockets transport) sending data. ${getDataDetail(data, this.logMessageContent)}.");
-      _logger.log(LogLevel.Trace, "(WebSockets transport) sending data.");
+      _logger?.finest("(WebSockets transport) sending data.");
 
       if (data is String) {
         _webSocket.add(data);
@@ -115,7 +116,7 @@ class WebSocketTransport implements ITransport {
   }
 
   void _close(Error error) {
-    _logger.log(LogLevel.Trace, "(WebSockets transport) socket closed.");
+    _logger?.finest("(WebSockets transport) socket closed.");
     if (onClose != null) {
       if (error != null) {
         // if (event && (event.wasClean === false || event.code !== 1000)) {

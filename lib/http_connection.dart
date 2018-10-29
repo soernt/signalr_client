@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:logging/logging.dart';
+
 import 'dartio_http_client.dart';
 import 'errors.dart';
 import 'http_connection_options.dart';
 import 'iconnection.dart';
 import 'ihub_protocol.dart';
-import 'ilogger.dart';
 import 'itransport.dart';
 import 'long_polling_transport.dart';
 import 'server_sent_events_transport.dart';
@@ -97,7 +98,7 @@ class HttpConnection implements IConnection {
   ConnectionState _connectionState;
   String _baseUrl;
   SignalRHttpClient _httpClient;
-  ILogger _logger;
+  final Logger _logger;
   HttpConnectionOptions _options;
   ITransport _transport;
   Future<void> _startPromise;
@@ -115,8 +116,8 @@ class HttpConnection implements IConnection {
   // Methods
 
   HttpConnection(String url, {HttpConnectionOptions options})
-      : assert(url != null) {
-    _logger = createLogger(options.logger);
+      : assert(url != null),
+        _logger = options?.logger {
     _baseUrl = url;
 
     _options = options ?? HttpConnectionOptions();
@@ -128,8 +129,8 @@ class HttpConnection implements IConnection {
   Future<void> start({TransferFormat transferFormat}) {
     transferFormat = transferFormat ?? TransferFormat.Binary;
 
-    _logger.log(LogLevel.Debug,
-        "Starting connection with transfer format '$transferFormat'.");
+    _logger
+        ?.finer("Starting connection with transfer format '$transferFormat'.");
 
     if (_connectionState != ConnectionState.Disconnected) {
       return Future.error(GeneralError(
@@ -249,7 +250,7 @@ class HttpConnection implements IConnection {
       // the state if the connection is already marked as Disconnected
       _changeState(ConnectionState.Connecting, ConnectionState.Connected);
     } catch (e) {
-      _logger.log(LogLevel.Error, "Failed to start the connection: ${e}");
+      _logger?.severe("Failed to start the connection: ${e}");
       _connectionState = ConnectionState.Disconnected;
       _transport = null;
       throw e;
@@ -266,7 +267,7 @@ class HttpConnection implements IConnection {
     }
 
     final negotiateUrl = _resolveNegotiateUrl(url);
-    _logger.log(LogLevel.Debug, "Sending negotiation request: $negotiateUrl");
+    _logger?.finer("Sending negotiation request: $negotiateUrl");
     try {
       final SignalRHttpRequest options =
           SignalRHttpRequest(content: "", headers: headers);
@@ -284,8 +285,7 @@ class HttpConnection implements IConnection {
       return NegotiateResponse.fromJson(
           json.decode(response.content as String));
     } catch (e) {
-      _logger.log(LogLevel.Error,
-          "Failed to complete negotiation with the server: ${e}");
+      _logger?.severe("Failed to complete negotiation with the server: ${e}");
       throw e;
     }
   }
@@ -297,7 +297,7 @@ class HttpConnection implements IConnection {
       TransferFormat requestedTransferFormat) async {
     var connectUrl = _createConnectUrl(url, negotiateResponse.connectionId);
     if (requestedTransport is ITransport) {
-      _logger.log(LogLevel.Debug,
+      _logger?.finer(
           "Connection was provided an instance of ITransport, using that directly.");
       _transport = requestedTransport;
       await _transport.connect(connectUrl, requestedTransferFormat);
@@ -326,8 +326,7 @@ class HttpConnection implements IConnection {
         _changeState(ConnectionState.Connecting, ConnectionState.Connected);
         return;
       } catch (ex) {
-        _logger.log(LogLevel.Error,
-            "Failed to start the transport '$transport': ${ex}");
+        _logger?.severe("Failed to start the transport '$transport': ${ex}");
         _connectionState = ConnectionState.Disconnected;
         negotiateResponse.connectionId = null;
       }
@@ -359,20 +358,20 @@ class HttpConnection implements IConnection {
       TransferFormat requestedTransferFormat) {
     final transport = endpoint.transport;
     if (transport == null) {
-      _logger.log(LogLevel.Debug,
+      _logger?.finer(
           "Skipping transport '${endpoint.transport}' because it is not supported by this client.");
     } else {
       final transferFormats = endpoint.transferFormats;
       if (transportMatches(requestedTransport, transport)) {
         if (transferFormats.indexOf(requestedTransferFormat) >= 0) {
-          _logger.log(LogLevel.Debug, "Selecting transport '$transport'");
+          _logger?.finer("Selecting transport '$transport'");
           return transport;
         } else {
-          _logger.log(LogLevel.Debug,
+          _logger?.finer(
               "Skipping transport '$transport' because it does not support the requested transfer format '$requestedTransferFormat'.");
         }
       } else {
-        _logger.log(LogLevel.Debug,
+        _logger?.finer(
             "Skipping transport '$transport' because it was disabled by the client.");
       }
     }
@@ -394,10 +393,9 @@ class HttpConnection implements IConnection {
     error = _stopError ?? error;
 
     if (error != null) {
-      _logger.log(
-          LogLevel.Error, "Connection disconnected with error '$error'.");
+      _logger?.severe("Connection disconnected with error '$error'.");
     } else {
-      _logger.log(LogLevel.Information, "Connection disconnected.");
+      _logger?.info("Connection disconnected.");
     }
 
     _connectionState = ConnectionState.Disconnected;

@@ -1,10 +1,11 @@
 import 'dart:async';
 
+import 'package:logging/logging.dart';
+
 import 'errors.dart';
 import 'handshake_protocol.dart';
 import 'iconnection.dart';
 import 'ihub_protocol.dart';
-import 'ilogger.dart';
 import 'utils.dart';
 
 const int DEFAULT_TIMEOUT_IN_MS = 30 * 1000;
@@ -29,7 +30,7 @@ class HubConnection {
   // Either a string (json) or Uint8List (binary);
   Object _cachedPingMessage;
   final IConnection _connection;
-  final ILogger _logger;
+  final Logger _logger;
   final IHubProtocol _protocol;
   final HandshakeProtocol _handshakeProtocol;
 
@@ -63,9 +64,8 @@ class HubConnection {
   /// Indicates the state of the {@link HubConnection} to the server.
   HubConnectionState get state => this._connectionState;
 
-  HubConnection(IConnection connection, ILogger logger, IHubProtocol protocol)
+  HubConnection(IConnection connection, Logger logger, IHubProtocol protocol)
       : assert(connection != null),
-        assert(logger != null),
         assert(protocol != null),
         _connection = connection,
         _logger = logger,
@@ -95,18 +95,18 @@ class HubConnection {
     final handshakeRequest =
         HandshakeRequestMessage(this._protocol.name, this._protocol.version);
 
-    _logger.log(LogLevel.Debug, "Starting HubConnection.");
+    _logger?.finer("Starting HubConnection.");
 
     _receivedHandshakeResponse = false;
     // Set up the Future before any connection is started otherwise it could race with received messages
     _handshakeCompleter = Completer();
     await _connection.start(transferFormat: _protocol.transferFormat);
 
-    _logger.log(LogLevel.Debug, "Sending handshake request.");
+    _logger?.finer("Sending handshake request.");
     await _sendMessage(
         _handshakeProtocol.writeHandshakeRequest(handshakeRequest));
 
-    _logger.log(LogLevel.Information, "Using HubProtocol '${_protocol.name}'.");
+    _logger?.info("Using HubProtocol '${_protocol.name}'.");
 
     // defensively cleanup timeout in case we receive a message from the server before we finish start
     _cleanupTimeoutTimer();
@@ -123,7 +123,7 @@ class HubConnection {
   /// Returns a Promise that resolves when the connection has been successfully terminated, or rejects with an error.
   ///
   Future<void> stop() {
-    _logger.log(LogLevel.Debug, "Stopping HubConnection.");
+    _logger?.finer("Stopping HubConnection.");
 
     _cleanupTimeoutTimer();
     _cleanupServerPingTimer();
@@ -184,7 +184,7 @@ class HubConnection {
 
   Future<void> _sendMessage(Object message) {
     _resetKeepAliveInterval();
-    _logger.log(LogLevel.Trace, "Sending message.");
+    _logger?.finest("Sending message.");
     return _connection.send(message);
   }
 
@@ -317,7 +317,7 @@ class HubConnection {
   void _processIncomingData(Object data) {
     _cleanupTimeoutTimer();
 
-    _logger.log(LogLevel.Trace, "Incomming message");
+    _logger?.finest("Incomming message");
 
     if (!_receivedHandshakeResponse) {
       data = _processHandshakeResponse(data);
@@ -330,8 +330,7 @@ class HubConnection {
       final messages = _protocol.parseMessages(data, _logger);
 
       for (final message in messages) {
-        _logger.log(
-            LogLevel.Trace, "Handle message of type '${message.type}'.");
+        _logger?.finest("Handle message of type '${message.type}'.");
         switch (message.type) {
           case MessageType.Invocation:
             _invokeClientMethod(message);
@@ -351,8 +350,7 @@ class HubConnection {
             // Don't care about pings
             break;
           case MessageType.Close:
-            _logger.log(
-                LogLevel.Information, "Close message received from server.");
+            _logger?.info("Close message received from server.");
             final closeMsg = message as CloseMessage;
 
             // We don't want to wait on the stop itself.
@@ -363,8 +361,7 @@ class HubConnection {
 
             break;
           default:
-            _logger.log(
-                LogLevel.Warning, "Invalid message type: '${message.type}'");
+            _logger?.warning("Invalid message type: '${message.type}'");
             break;
         }
       }
@@ -381,7 +378,7 @@ class HubConnection {
       handshakeResult = _handshakeProtocol.parseHandshakeResponse(data);
     } catch (e) {
       final message = "Error parsing handshake response: '${e}'.";
-      _logger.log(LogLevel.Error, message);
+      _logger?.severe(message);
 
       final error = GeneralError(message);
 
@@ -394,7 +391,7 @@ class HubConnection {
     if (!isStringEmpty(handshakeResult.handshakeResponseMessage.error)) {
       final message =
           "Server returned handshake error: '${handshakeResult.handshakeResponseMessage.error}'";
-      _logger.log(LogLevel.Error, message);
+      _logger?.severe(message);
 
       _handshakeCompleter?.completeError(new GeneralError(message));
       _handshakeCompleter = null;
@@ -402,7 +399,7 @@ class HubConnection {
       _connection.stop(GeneralError(message));
       throw GeneralError(message);
     } else {
-      _logger.log(LogLevel.Debug, "Server handshake complete.");
+      _logger?.finer("Server handshake complete.");
     }
 
     _handshakeCompleter?.complete();
@@ -463,13 +460,13 @@ class HubConnection {
         // This is not supported in v1. So we return an error to avoid blocking the server waiting for the response.
         final message =
             "Server requested a response, which is not supported in this version of the client.";
-        _logger.log(LogLevel.Error, message);
+        _logger?.severe(message);
 
         // We don't need to wait on this Promise.
         _connection.stop(new GeneralError(message));
       }
     } else {
-      _logger.log(LogLevel.Warning,
+      _logger?.warning(
           "No client method with the name '${invocationMessage.target}' found.");
     }
   }

@@ -1,10 +1,10 @@
 import 'package:client/main.dart';
 import 'package:client/tests/test.dart';
-import 'package:client/utils/signalRLogger.dart';
 import 'package:client/utils/viewModel/viewModelPropertyWidgetBuilder.dart';
 import 'package:client/views/pages/testsPageViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:logging/logging.dart';
 
 class TestsPage extends StatelessWidget {
 // Properties
@@ -19,7 +19,7 @@ class TestsPage extends StatelessWidget {
     return TestsPageViewModelProvider(
         viewModel: vm,
         childBuilder: (ctx) {
-          return Scaffold(appBar: AppBar(title: Text( "Server at: $kServerUrl")), resizeToAvoidBottomPadding: false, body: TestsPageView());
+          return Scaffold(appBar: AppBar(title: Text("Server at: $kServerUrl")), resizeToAvoidBottomPadding: false, body: TestsPageView());
         });
   }
 }
@@ -76,7 +76,7 @@ class TestsPageView extends StatelessWidget {
               style: Theme.of(context).textTheme.subhead,
             ),
             Padding(padding: EdgeInsetsDirectional.only(top: 8.0)),
-            ViewModelPropertyWidgetBuilder<LogMessage>(
+            ViewModelPropertyWidgetBuilder(
                 viewModel: vm,
                 propertyName: TestsPageViewModel.hubLogMessagesPropName,
                 builder: (context, snapshot) {
@@ -98,7 +98,7 @@ class TestsPageView extends StatelessWidget {
                 }),
             Padding(padding: EdgeInsetsDirectional.only(top: 8.0)),
             Expanded(
-              child: ViewModelPropertyWidgetBuilder<LogMessage>(
+              child: ViewModelPropertyWidgetBuilder(
                   viewModel: vm,
                   propertyName: TestsPageViewModel.hubLogMessagesPropName,
                   builder: (context, snapshot) {
@@ -111,8 +111,8 @@ class TestsPageView extends StatelessWidget {
     ));
   }
 
-  Widget _createLogMessageItemView(LogMessage item) {
-    final at = item.at.toLocal();
+  Widget _createLogMessageItemView(LogRecord item) {
+    final at = item.time.toLocal();
 
     return Card(
       child: Padding(
