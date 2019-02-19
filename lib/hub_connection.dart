@@ -377,7 +377,7 @@ class HubConnection {
     try {
       handshakeResult = _handshakeProtocol.parseHandshakeResponse(data);
     } catch (e) {
-      final message = "Error parsing handshake response: '${e}'.";
+      final message = "Error parsing handshake response: '${e.toString()}'.";
       _logger?.severe(message);
 
       final error = GeneralError(message);
@@ -493,10 +493,13 @@ class HubConnection {
 
   InvocationMessage _createInvocation(
       String methodName, List<Object> args, bool nonblocking) {
-    final id = _id++;
-    return nonblocking
-        ? InvocationMessage(methodName, args, MessageHeaders(), null)
-        : InvocationMessage(methodName, args, MessageHeaders(), id.toString());
+    if (nonblocking) {
+      return InvocationMessage(methodName, args, MessageHeaders(), null);
+    } else {
+      final id = _id++;
+      return InvocationMessage(
+          methodName, args, MessageHeaders(), id.toString());
+    }
   }
 
   StreamInvocationMessage _createStreamInvocation(

@@ -1,3 +1,6 @@
+## [0.1.4]
+* Prevent null exception when calling HubConnection.stop()
+
 ## [0.1.3]
 * Change the logging behaviour: The client uses the dart standard [logging](https://pub.dartlang.org/packages/logging) package instead of a proprietary logging behaviour (see readme for an example).
 * Fixes a bug within the MessageHeaders class.

@@ -250,7 +250,7 @@ class HttpConnection implements IConnection {
       // the state if the connection is already marked as Disconnected
       _changeState(ConnectionState.Connecting, ConnectionState.Connected);
     } catch (e) {
-      _logger?.severe("Failed to start the connection: ${e}");
+      _logger?.severe("Failed to start the connection: ${e.toString()}");
       _connectionState = ConnectionState.Disconnected;
       _transport = null;
       throw e;
@@ -285,7 +285,7 @@ class HttpConnection implements IConnection {
       return NegotiateResponse.fromJson(
           json.decode(response.content as String));
     } catch (e) {
-      _logger?.severe("Failed to complete negotiation with the server: ${e}");
+      _logger?.severe("Failed to complete negotiation with the server: ${e.toString()}");
       throw e;
     }
   }
@@ -326,7 +326,7 @@ class HttpConnection implements IConnection {
         _changeState(ConnectionState.Connecting, ConnectionState.Connected);
         return;
       } catch (ex) {
-        _logger?.severe("Failed to start the transport '$transport': ${ex}");
+        _logger?.severe("Failed to start the transport '$transport': ${ex.toString()}");
         _connectionState = ConnectionState.Disconnected;
         negotiateResponse.connectionId = null;
       }
