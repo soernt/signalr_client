@@ -127,7 +127,7 @@ class HubConnection {
 
     _cleanupTimeoutTimer();
     _cleanupServerPingTimer();
-    return _connection.stop(null);
+    return _connection.stop(Exception("closed"));
   }
 
   /// Invokes a streaming hub method on the server using the specified name and arguments.
