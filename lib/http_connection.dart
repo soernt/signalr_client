@@ -285,7 +285,8 @@ class HttpConnection implements IConnection {
       return NegotiateResponse.fromJson(
           json.decode(response.content as String));
     } catch (e) {
-      _logger?.severe("Failed to complete negotiation with the server: ${e.toString()}");
+      _logger?.severe(
+          "Failed to complete negotiation with the server: ${e.toString()}");
       throw e;
     }
   }
@@ -326,7 +327,8 @@ class HttpConnection implements IConnection {
         _changeState(ConnectionState.Connecting, ConnectionState.Connected);
         return;
       } catch (ex) {
-        _logger?.severe("Failed to start the transport '$transport': ${ex.toString()}");
+        _logger?.severe(
+            "Failed to start the transport '$transport': ${ex.toString()}");
         _connectionState = ConnectionState.Disconnected;
         negotiateResponse.connectionId = null;
       }

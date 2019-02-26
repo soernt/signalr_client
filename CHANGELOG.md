@@ -1,3 +1,6 @@
+## [0.1.5]
+* Fix complex object serialization to json.
+
 ## [0.1.4]
 * Prevent null exception when calling HubConnection.stop()
 
