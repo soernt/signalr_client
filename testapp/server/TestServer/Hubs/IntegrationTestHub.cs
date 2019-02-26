@@ -55,6 +55,18 @@ namespace TestServer.Hubs
       return p1;
     }
 
+    public ComplexReturnValue MethodWithComplexParameterAndComplexReturnValue(ComplexInParameter req)
+    {
+      
+      Console.WriteLine($"'MethodWithComplexParameterAndReturnValue' invoked. Parameter value: '{req}");
+      return new ComplexReturnValue
+      {
+        FirstName = req.FirstName,
+        LastName = req.LastName,
+        GreetingText = $"Hello {req.FirstName} {req.LastName}"
+      };
+    }
+
     #endregion
 
     #region Server invokes a client method

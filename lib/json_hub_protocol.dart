@@ -159,11 +159,11 @@ class JsonHubProtocol implements IHubProtocol {
   @override
   String writeMessage(HubMessageBase message) {
     assert(message != null);
-    return TextMessageFormat.write(
-        json.encode(message, toEncodable: _encodeMessage));
+    var jsonObj = _messageAsMap(message);
+    return TextMessageFormat.write(json.encode(jsonObj));
   }
 
-  static dynamic _encodeMessage(dynamic message) {
+  static dynamic _messageAsMap(dynamic message) {
     if (message == null) {
       throw GeneralError("Cannot encode message which is null.");
     }
