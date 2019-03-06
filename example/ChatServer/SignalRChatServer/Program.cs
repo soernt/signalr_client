@@ -7,10 +7,10 @@ namespace SignalRChatServer
   {
     public static void Main(string[] args)
     {
-      CreateWebHostBuilder(args).Build().Run();
+      createWebHostBuilder(args).Build().Run();
     }
 
-    public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+    private static IWebHostBuilder createWebHostBuilder(string[] args) =>
       WebHost.CreateDefaultBuilder(args)
         .UseStartup<Startup>()
         .UseUrls(urls: "http://*:51002");
