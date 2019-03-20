@@ -493,13 +493,8 @@ class HubConnection {
 
   InvocationMessage _createInvocation(
       String methodName, List<Object> args, bool nonblocking) {
-    if (nonblocking) {
-      return InvocationMessage(methodName, args, MessageHeaders(), null);
-    } else {
-      final id = _id++;
-      return InvocationMessage(
-          methodName, args, MessageHeaders(), id.toString());
-    }
+    final id = _id++;
+    return InvocationMessage(methodName, args, MessageHeaders(), id.toString());
   }
 
   StreamInvocationMessage _createStreamInvocation(
