@@ -118,7 +118,7 @@ The client can invoke the function by using:
 ```
 
 
-#### 3. Calling a client function:
+#### 4. Calling a client function:
 
 Assuming the server calls a function "aClientProvidedFunction":
 ```c
