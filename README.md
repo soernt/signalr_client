@@ -90,9 +90,14 @@ final hubConnection = HubConnectionBuilder().withUrl(serverUrl, options: httpOpt
 final hubConnection.onclose( (error) => print("Connection Closed"));
 
 ```
+#### 2. Connect to a Hub:
+Calling following method starts handshaking and connects the client to SignalR server
+```c
+await hubConnection.start();
+```
 
 
-#### 2. Calling a Hub function:
+#### 3. Calling a Hub function:
 
 Assuming there is this hub function:
 ```c
