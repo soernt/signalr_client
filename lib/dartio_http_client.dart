@@ -86,9 +86,9 @@ class DartIOHttpClient extends SignalRHttpClient {
         final isJsonContent =
             contentTypeHeader.indexOf("application/json") != -1;
         if (isJsonContent) {
-          content = await httpResp.transform(utf8.decoder).join();
+          content = await utf8.decoder.bind(httpResp).join();
         } else {
-          content = await httpResp.transform(utf8.decoder).join();
+          content = await utf8.decoder.bind(httpResp).join();
           // When using SSE and the uri has an 'id' query parameter the response is not evaluated, otherwise it is an error.
           if (isStringEmpty(uri.queryParameters['id'])) {
             throw ArgumentError(
