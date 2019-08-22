@@ -14,6 +14,7 @@ dependencies:
 
   logging: ^0.11.3+2
   w3c_event_source: ^1.3.0
+  msgpack2: ^2.0.0
 
 dev_dependencies:
   flutter_test:
