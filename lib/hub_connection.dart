@@ -313,6 +313,10 @@ class HubConnection {
       _closedCallbacks.add(callback);
     }
   }
+  
+  void resetOnClose() {
+     _closedCallbacks = [];
+  }
 
   void _processIncomingData(Object data) {
     _cleanupTimeoutTimer();
