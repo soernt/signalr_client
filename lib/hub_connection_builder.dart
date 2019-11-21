@@ -1,4 +1,6 @@
 import 'package:logging/logging.dart';
+import 'package:signalr_client/negotiate_providers/i_negotiate_provider.dart';
+import 'package:signalr_client/negotiate_providers/negotiate_provider_default.dart';
 
 import 'errors.dart';
 import 'http_connection.dart';
@@ -12,6 +14,7 @@ import 'utils.dart';
 /// A builder for configuring {@link @aspnet/signalr.HubConnection} instances.
 class HubConnectionBuilder {
   // Properties
+  INegotiateProvider _iNegotiateProvider;
 
   IHubProtocol _protocol;
 
@@ -66,6 +69,15 @@ class HubConnectionBuilder {
     return this;
   }
 
+  /// Configures the NegotiateProvider to use the specified Hub Protocol.
+  ///
+  /// provider: The INegotiateProvider to use.
+  HubConnectionBuilder withNegotiateProvider(INegotiateProvider provider) {
+    assert(provider != null);
+    _iNegotiateProvider = provider;
+    return this;
+  }
+
   /// Creates a HubConnection from the configuration options specified in this builder.
   ///
   /// Returns the configured HubConnection.
@@ -81,7 +93,7 @@ class HubConnectionBuilder {
       throw new GeneralError(
           "The 'HubConnectionBuilder.withUrl' method must be called before building the connection.");
     }
-    final connection = HttpConnection(_url, options: httpConnectionOptions);
+    final connection = HttpConnection(_url, _iNegotiateProvider ?? NegotiateProviderDefault(), options: httpConnectionOptions);
     return HubConnection(connection, _logger, _protocol ?? JsonHubProtocol());
   }
 }
