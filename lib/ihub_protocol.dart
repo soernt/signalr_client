@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:logging/logging.dart';
-import 'package:signalr_client/utils.dart';
 
 import 'errors.dart';
 import 'itransport.dart';
@@ -10,19 +9,19 @@ import 'itransport.dart';
 enum MessageType {
   /// MessageType is not defined.
   Undefined, // = 0,
-  /// Indicates the message is an Invocation message and implements the {@link @aspnet/signalr.InvocationMessage} interface.
+  /// Indicates the message is an Invocation message and implements the {@link @microsoft/signalr.InvocationMessage} interface.
   Invocation, // = 1,
-  /// Indicates the message is a StreamItem message and implements the {@link @aspnet/signalr.StreamItemMessage} interface.
+  /// Indicates the message is a StreamItem message and implements the {@link @microsoft/signalr.StreamItemMessage} interface.
   StreamItem, // = 2,
-  /// Indicates the message is a Completion message and implements the {@link @aspnet/signalr.CompletionMessage} interface.
+  /// Indicates the message is a Completion message and implements the {@link @microsoft/signalr.CompletionMessage} interface.
   Completion, // = 3,
-  /// Indicates the message is a Stream Invocation message and implements the {@link @aspnet/signalr.StreamInvocationMessage} interface.
+  /// Indicates the message is a Stream Invocation message and implements the {@link @microsoft/signalr.StreamInvocationMessage} interface.
   StreamInvocation, // = 4,
-  /// Indicates the message is a Cancel Invocation message and implements the {@link @aspnet/signalr.CancelInvocationMessage} interface.
+  /// Indicates the message is a Cancel Invocation message and implements the {@link @microsoft/signalr.CancelInvocationMessage} interface.
   CancelInvocation, // = 5,
-  /// Indicates the message is a Ping message and implements the {@link @aspnet/signalr.PingMessage} interface.
+  /// Indicates the message is a Ping message and implements the {@link @microsoft/signalr.PingMessage} interface.
   Ping, // = 6,
-  /// Indicates the message is a Close message and implements the {@link @aspnet/signalr.CloseMessage} interface.
+  /// Indicates the message is a Close message and implements the {@link @microsoft/signalr.CloseMessage} interface.
   Close, // = 7,
 }
 
@@ -84,19 +83,19 @@ class MessageHeaders {
     _headers[name] = value;
   }
 
-  void setAuthorizationHeaderValue(String token) {
-    if (!isStringEmpty(token)) {
-      setHeaderValue(AuthorizationHeaderName, "Bearer $token");
-    } else {
-      removeAuthorizationHeaderValue();
-    }
-  }
+  // void setAuthorizationHeaderValue(String token) {
+  //   if (!isStringEmpty(token)) {
+  //     setHeaderValue(AuthorizationHeaderName, "Bearer $token");
+  //   } else {
+  //     removeAuthorizationHeaderValue();
+  //   }
+  // }
 
-  void removeAuthorizationHeaderValue() {
-    if (_headers.containsKey(AuthorizationHeaderName)) {
-      _headers.remove(AuthorizationHeaderName);
-    }
-  }
+  // void removeAuthorizationHeaderValue() {
+  //   if (_headers.containsKey(AuthorizationHeaderName)) {
+  //     _headers.remove(AuthorizationHeaderName);
+  //   }
+  // }
 
   /// removes the given header
   void removeHeader(String name) {
@@ -120,7 +119,7 @@ abstract class HubMessageBase {
 /// Defines properties common to all Hub messages relating to a specific invocation.
 abstract class HubInvocationMessage extends HubMessageBase {
   // Properties
-  /// A {@link @aspnet/signalr.MessageHeaders} dictionary containing headers attached to the message.
+  /// A {@link @microsoft/signalr.MessageHeaders} dictionary containing headers attached to the message.
   final MessageHeaders headers;
 
   ///The ID of the invocation relating to this message.
@@ -147,11 +146,15 @@ class InvocationMessage extends HubInvocationMessage {
   /// The target method arguments.
   final List<Object> arguments;
 
+  /// The target method's stream IDs.
+  final List<String> streamIds;
+
   // Methods
-  InvocationMessage(String target, List<Object> arguments,
+  InvocationMessage(String target, List<Object> arguments, List<String> streamIds,
       MessageHeaders headers, String invocationId)
       : this.target = target,
         this.arguments = arguments,
+        this.streamIds = streamIds,
         super(MessageType.Invocation, headers, invocationId);
 }
 
@@ -165,11 +168,15 @@ class StreamInvocationMessage extends HubInvocationMessage {
   /// The target method arguments.
   final List<Object> arguments;
 
+  /// The target method's stream IDs.
+  final List<String> streamIds;
+
   // Methods
-  StreamInvocationMessage(String target, List<Object> arguments,
+  StreamInvocationMessage(String target, List<Object> arguments, List<String> streamIds,
       MessageHeaders headers, String invocationId)
       : this.target = target,
         this.arguments = arguments,
+        this.streamIds = streamIds,        
         super(MessageType.StreamInvocation, headers, invocationId);
 }
 
@@ -197,7 +204,7 @@ class CompletionMessage extends HubInvocationMessage {
 
   /// The result produced by the invocation, if any.
   ///
-  /// Either {@link @aspnet/signalr.CompletionMessage.error} or {@link @aspnet/signalr.CompletionMessage.result} must be defined, but not both.
+  /// Either {@link @microsoft/signalr.CompletionMessage.error} or {@link @microsoft/signalr.CompletionMessage.result} must be defined, but not both.
   final Object result;
 
   // Methods
@@ -217,7 +224,7 @@ class PingMessage extends HubMessageBase {
 
 /// A hub message indicating that the sender is closing the connection.
 ///
-/// If {@link @aspnet/signalr.CloseMessage.error} is defined, the sender is closing the connection due to an error.
+/// If {@link @microsoft/signalr.CloseMessage.error} is defined, the sender is closing the connection due to an error.
 ///
 class CloseMessage extends HubMessageBase {
   // Properites
@@ -227,9 +234,13 @@ class CloseMessage extends HubMessageBase {
   /// If this property is undefined, the connection was closed normally and without error.
   final String error;
 
+  /// If true, clients with automatic reconnects enabled should attempt to reconnect after receiving the CloseMessage. Otherwise, they should not. */
+  final bool allowReconnect;
+
   //Methods
-  CloseMessage(String error)
+  CloseMessage({String error, bool allowReconnect})
       : this.error = error,
+        this.allowReconnect = allowReconnect,
         super(MessageType.Close);
 }
 
@@ -259,7 +270,7 @@ abstract class IHubProtocol {
         this.version = number,
         this.transferFormat = transferFormat;
 
-  /// Creates an array of {@link @aspnet/signalr.HubMessage} objects from the specified serialized representation.
+  /// Creates an array of {@link @microsoft/signalr.HubMessage} objects from the specified serialized representation.
   ///
   /// If transferFormat is 'Text', the `input` parameter must be a string, otherwise it must be an ArrayBuffer.
   ///

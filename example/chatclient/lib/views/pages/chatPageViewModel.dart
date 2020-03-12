@@ -53,8 +53,11 @@ class ChatPageViewModel extends ViewModel {
 
   Future<void> openChatConnection() async {
     if (_hubConnection == null) {
-      _hubConnection = HubConnectionBuilder().withUrl(_serverUrl).build();
-      _hubConnection.onclose((error) => connectionIsOpen = false);
+      _hubConnection = HubConnectionBuilder()
+        .withUrl(_serverUrl)
+        .withAutomaticReconnect()
+        .build();
+      _hubConnection.onclose(({error}) => connectionIsOpen = false);
       _hubConnection.on("OnMessage", _handleIncommingChatMessage);
     }
 
@@ -87,6 +90,6 @@ class ChatPageViewModelProvider extends ViewModelProvider<ChatPageViewModel> {
   ChatPageViewModelProvider({Key key, viewModel: ChatPageViewModel, WidgetBuilder childBuilder}) : super(key: key, viewModel: viewModel, childBuilder: childBuilder);
 
   static ChatPageViewModel of(BuildContext context) {
-    return (context.inheritFromWidgetOfExactType(ChatPageViewModelProvider) as ChatPageViewModelProvider).viewModel;
+    return (context.dependOnInheritedWidgetOfExactType<ChatPageViewModelProvider>()).viewModel;
   }
 }

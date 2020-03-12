@@ -53,8 +53,11 @@ class WebSocketTransport implements ITransport {
     _webSocketListenSub = _webSocket.listen(
       // onData
       (Object message) {
-        //_logger.log(LogLevel.Trace, "(WebSockets transport) data received. ${getDataDetail(message.data, this.logMessageContent)}.");
-        _logger?.finest("(WebSockets transport) data received.");
+        if (_logMessageContent && message is String) {
+          _logger?.finest("(WebSockets transport) data received. message ${getDataDetail(message, _logMessageContent)}.");
+        } else {
+          _logger?.finest("(WebSockets transport) data received.");
+        }
         if (onReceive != null) {
           onReceive(message);
         }
@@ -65,12 +68,13 @@ class WebSocketTransport implements ITransport {
         if (error != null) {
           return Future.error(error);
         }
+        return Future.value();
       },
 
       // onDone
       onDone: () {
         if (onClose != null) {
-          onClose(null);
+          onClose();
         }
       },
     );
@@ -79,8 +83,8 @@ class WebSocketTransport implements ITransport {
   @override
   Future<void> send(Object data) {
     if ((_webSocket != null) && (_webSocket.readyState == WebSocket.open)) {
-      //_logger.log(LogLevel.Trace, "(WebSockets transport) sending data. ${getDataDetail(data, this.logMessageContent)}.");
-      _logger?.finest("(WebSockets transport) sending data.");
+      _logger?.finest("(WebSockets transport) sending data. ${getDataDetail(data, true)}.");
+      //_logger?.finest("(WebSockets transport) sending data.");
 
       if (data is String) {
         _webSocket.add(data);
@@ -97,7 +101,7 @@ class WebSocketTransport implements ITransport {
   }
 
   @override
-  Future<void> stop(Error error) async {
+  Future<void> stop({Error error}) async {
     if (_webSocket != null) {
       // Clear websocket handlers because we are considering the socket closed now
       if (_webSocketListenSub != null) {
@@ -122,7 +126,7 @@ class WebSocketTransport implements ITransport {
         // if (event && (event.wasClean === false || event.code !== 1000)) {
         // this.onclose(new Error(`Websocket closed with status code: ${event.code} (${event.reason})`));
       }
-      onClose(GeneralError(error?.toString()));
+      onClose(error: GeneralError(error?.toString()));
     }
   }
 }

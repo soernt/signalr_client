@@ -12,10 +12,13 @@ class ConnectionFeatures {
 
 abstract class IConnection {
   ConnectionFeatures features;
+  String connectionId;
+  
+  String baseUrl;
 
   Future<void> start({TransferFormat transferFormat});
   Future<void> send(Object data);
-  Future<void> stop(Exception error);
+  Future<void> stop({Exception error});
 
   OnReceive onreceive;
   OnClose onclose;

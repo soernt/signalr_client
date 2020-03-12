@@ -26,7 +26,7 @@ class JsonHubProtocol implements IHubProtocol {
 
   // Methods
 
-  /// Creates an array of {@link @aspnet/signalr.HubMessage} objects from the specified serialized representation.
+  /// Creates an array of {@link @microsoft/signalr.HubMessage} objects from the specified serialized representation.
   ///
   /// A string containing the serialized representation.
   /// A logger that will be used to log messages that occur during parsing.
@@ -96,7 +96,7 @@ class JsonHubProtocol implements IHubProtocol {
       Map<String, dynamic> jsonData) {
     final MessageHeaders headers =
         createMessageHeadersFromJson(jsonData["headers"]);
-    final message = InvocationMessage(jsonData["target"], jsonData["arguments"],
+    final message = InvocationMessage(jsonData["target"], jsonData["arguments"], jsonData["streamIds"],
         headers, jsonData["invocationId"]);
 
     _assertNotEmptyString(
@@ -148,7 +148,7 @@ class JsonHubProtocol implements IHubProtocol {
   }
 
   static CloseMessage _getCloseMessageFormJson(Map<String, dynamic> jsonData) {
-    return CloseMessage(jsonData["error"]);
+    return CloseMessage(error: jsonData["error"], allowReconnect: jsonData["allowReconnect"]);
   }
 
   /// Writes the specified HubMessage to a string and returns it.
@@ -179,7 +179,8 @@ class JsonHubProtocol implements IHubProtocol {
         "type": messageType,
         "invocationId": message.invocationId,
         "target": message.target,
-        "arguments": message.arguments
+        "arguments": message.arguments,
+        "streamIds": message.streamIds,
       };
     }
 
@@ -188,7 +189,8 @@ class JsonHubProtocol implements IHubProtocol {
         "type": messageType,
         "invocationId": message.invocationId,
         "target": message.target,
-        "arguments": message.arguments
+        "arguments": message.arguments,
+        "streamIds": message.streamIds,
       };
     }
 
@@ -214,7 +216,7 @@ class JsonHubProtocol implements IHubProtocol {
     }
 
     if (message is CloseMessage) {
-      return {"type": messageType, "error": message.error};
+      return {"type": messageType, "error": message.error, "allowReconnect": message.allowReconnect};
     }
 
     if (message is CancelInvocationMessage) {

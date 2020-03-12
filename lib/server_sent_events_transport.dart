@@ -94,7 +94,7 @@ class ServerSentEventsTransport implements ITransport {
   }
 
   @override
-  Future<void> stop(Error error) {
+  Future<void> stop({Error error}) {
     _close(error);
     return Future.value(null);
   }
@@ -111,7 +111,7 @@ class ServerSentEventsTransport implements ITransport {
               ? error
               : new GeneralError(error?.toString());
         }
-        onClose(ex);
+        onClose(error: ex);
       }
     }
   }
