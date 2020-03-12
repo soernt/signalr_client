@@ -55,19 +55,19 @@ class JsonHubProtocol implements IHubProtocol {
 
       switch (messageType) {
         case MessageType.Invocation:
-          messageObj = _getInvocationMessageFormJson(jsonData);
+          messageObj = _getInvocationMessageFromJson(jsonData);
           break;
         case MessageType.StreamItem:
-          messageObj = _getStreamItemMessageFormJson(jsonData);
+          messageObj = _getStreamItemMessageFromJson(jsonData);
           break;
         case MessageType.Completion:
-          messageObj = _getCompletionMessageFormJson(jsonData);
+          messageObj = _getCompletionMessageFromJson(jsonData);
           break;
         case MessageType.Ping:
-          messageObj = _getPingMessageFormJson(jsonData);
+          messageObj = _getPingMessageFromJson(jsonData);
           break;
         case MessageType.Close:
-          messageObj = _getCloseMessageFormJson(jsonData);
+          messageObj = _getCloseMessageFromJson(jsonData);
           break;
         default:
           // Future protocol changes can add message types, old clients can ignore them
@@ -92,7 +92,7 @@ class JsonHubProtocol implements IHubProtocol {
     return null;
   }
 
-  static InvocationMessage _getInvocationMessageFormJson(
+  static InvocationMessage _getInvocationMessageFromJson(
       Map<String, dynamic> jsonData) {
     final MessageHeaders headers =
         createMessageHeadersFromJson(jsonData["headers"]);
@@ -109,7 +109,7 @@ class JsonHubProtocol implements IHubProtocol {
     return message;
   }
 
-  static StreamItemMessage _getStreamItemMessageFormJson(
+  static StreamItemMessage _getStreamItemMessageFromJson(
       Map<String, dynamic> jsonData) {
     final MessageHeaders headers =
         createMessageHeadersFromJson(jsonData["headers"]);
@@ -124,7 +124,7 @@ class JsonHubProtocol implements IHubProtocol {
     return message;
   }
 
-  static CompletionMessage _getCompletionMessageFormJson(
+  static CompletionMessage _getCompletionMessageFromJson(
       Map<String, dynamic> jsonData) {
     final MessageHeaders headers =
         createMessageHeadersFromJson(jsonData["headers"]);
@@ -143,11 +143,11 @@ class JsonHubProtocol implements IHubProtocol {
     return message;
   }
 
-  static PingMessage _getPingMessageFormJson(Map<String, dynamic> jsonData) {
+  static PingMessage _getPingMessageFromJson(Map<String, dynamic> jsonData) {
     return PingMessage();
   }
 
-  static CloseMessage _getCloseMessageFormJson(Map<String, dynamic> jsonData) {
+  static CloseMessage _getCloseMessageFromJson(Map<String, dynamic> jsonData) {
     return CloseMessage(error: jsonData["error"], allowReconnect: jsonData["allowReconnect"]);
   }
 

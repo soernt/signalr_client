@@ -52,7 +52,6 @@ class HubConnection {
   List<ReconnectingCallback> _reconnectingCallbacks;
   List<ReconnectedCallback> _reconnectedCallbacks;
 
-//  int _id;
   bool _receivedHandshakeResponse;
   Completer _handshakeCompleter;
   // void Function({Future<Object> value}) _handshakeResolver;

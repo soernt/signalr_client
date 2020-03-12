@@ -83,20 +83,6 @@ class MessageHeaders {
     _headers[name] = value;
   }
 
-  // void setAuthorizationHeaderValue(String token) {
-  //   if (!isStringEmpty(token)) {
-  //     setHeaderValue(AuthorizationHeaderName, "Bearer $token");
-  //   } else {
-  //     removeAuthorizationHeaderValue();
-  //   }
-  // }
-
-  // void removeAuthorizationHeaderValue() {
-  //   if (_headers.containsKey(AuthorizationHeaderName)) {
-  //     _headers.remove(AuthorizationHeaderName);
-  //   }
-  // }
-
   /// removes the given header
   void removeHeader(String name) {
     if (_headers.containsKey(name)) {

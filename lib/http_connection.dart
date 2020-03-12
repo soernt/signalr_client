@@ -101,28 +101,6 @@ class AvailableTransport {
   }
 }
 
-// class PromiseSource {
-//   final void Function() resolver;
-//   final void Function({Object reason}) rejecter;
-//   Future<void> promise;
-
-//   PromiseSource({this.resolver, this.rejecter}) {
-//     var completer = Completer();
-//     completer.complete(resolver);
-//     completer.completeError(rejecter);
-
-//     promise = completer.future;
-//   }
-
-//   resolve() {
-//     this.resolver();
-//   }
-
-//   reject({Object reason}) {
-//     this.rejecter(reason: reason);
-//   }
-// }
-
 class TransportSendQueue {
   List<Object> _buffer = List<Object>();
   Completer _sendBufferedData;
