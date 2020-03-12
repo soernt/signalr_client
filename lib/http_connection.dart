@@ -189,6 +189,7 @@ class TransportSendQueue {
 class HttpConnection implements IConnection {
   // Properties
   static final maxRedirects = 100;
+  static final maxRequestTimeoutMilliseconds = 2000;
 
   ConnectionState _connectionState;
   // connectionStarted is tracked independently from connectionState, so we can check if the
@@ -200,7 +201,7 @@ class HttpConnection implements IConnection {
   ITransport _transport;
   Future<void> _startInternalPromise;
   Future<void> _stopPromise;
-  void Function({Future<void> value}) _stopPromiseResolver;
+  Completer _stopPromiseCompleter;
   Exception _stopError;
   AccessTokenFactory _accessTokenFactory;
   TransportSendQueue _sendQueue;
@@ -298,9 +299,8 @@ class HttpConnection implements IConnection {
     _connectionState = ConnectionState.Disconnecting;
 
     // Don't complete stop() until stopConnection() completes.
-    var stopPromiseCompleter = Completer();
-    stopPromiseCompleter.complete((resolve) {_stopPromiseResolver = resolve;});
-    _stopPromise = stopPromiseCompleter.future;
+    _stopPromiseCompleter = Completer();
+    _stopPromise = _stopPromiseCompleter.future;
 
     // stopInternal should never throw so just observe it.
     await _stopInternal(error: error);
@@ -444,8 +444,7 @@ class HttpConnection implements IConnection {
     final negotiateUrl = _resolveNegotiateUrl(url);
     _logger?.finer("Sending negotiation request: $negotiateUrl");
     try {
-      final SignalRHttpRequest options =
-          SignalRHttpRequest(content: "", headers: headers);
+      final SignalRHttpRequest options = SignalRHttpRequest(content: "", headers: headers, timeout: maxRequestTimeoutMilliseconds);
       final response = await _httpClient.post(negotiateUrl, options: options);
 
       if (response.statusCode != 200) {
@@ -592,7 +591,7 @@ class HttpConnection implements IConnection {
   }
 
   void _stopConnection({Exception error}) {
-    _logger?.finer("HttpConnection.stopConnection($error) called while in state $_connectionState.");
+    _logger?.finer("HttpConnection.stopConnection(${error ?? "Unknown"}) called while in state $_connectionState.");
 
     _transport = null;
 
@@ -613,7 +612,7 @@ class HttpConnection implements IConnection {
     if (_connectionState == ConnectionState.Disconnecting) {
       // A call to stop() induced this call to stopConnection and needs to be completed.
       // Any stop() awaiters will be scheduled to continue after the onclose callback fires.
-      _stopPromiseResolver();
+      _stopPromiseCompleter.complete();
     }
 
     if (error != null) {

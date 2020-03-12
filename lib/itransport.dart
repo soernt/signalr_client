@@ -78,7 +78,7 @@ abstract class ITransport {
 
   /// data: the content. Either a string (json) or Uint8List (binary)
   Future<void> send(Object data);
-  Future<void> stop({Error error});
+  Future<void> stop();
   OnReceive onReceive;
   OnClose onClose;
 }

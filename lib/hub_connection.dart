@@ -54,8 +54,6 @@ class HubConnection {
 
   bool _receivedHandshakeResponse;
   Completer _handshakeCompleter;
-  // void Function({Future<Object> value}) _handshakeResolver;
-  // void Function({Object reason}) _handshakeRejecter;
   Exception _stopDuringStartError;
 
   HubConnectionState _connectionState;
