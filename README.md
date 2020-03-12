@@ -2,7 +2,7 @@
 
 [![pub package](https://img.shields.io/pub/v/signalr_client.svg)](https://pub.dartlang.org/packages/signalr_client)
 
-A Flutter SignalR Client for [ASP.NET Core](https://docs.microsoft.com/aspnet/core/signalr/?view=aspnetcore-2.1).   
+A Flutter SignalR Client for [ASP.NET Core](https://docs.microsoft.com/aspnet/core/signalr/?view=aspnetcore-3.1).   
 ASP.NET Core SignalR is an open-source library that simplifies adding real-time web functionality to apps. Real-time web functionality enables server-side code to push content to clients instantly.
 
 The client is able to invoke server side hub functions (including streaming functions) and to receive method invocations issued by the server.
