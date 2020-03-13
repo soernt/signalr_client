@@ -7,15 +7,21 @@ import 'signalr_http_client.dart';
 import 'utils.dart';
 import 'package:logging/logging.dart';
 
+typedef OnHttpClientCreateCallback = void Function(HttpClient httpClient);
+
 class DartIOHttpClient extends SignalRHttpClient {
   // Properties
 
   final Logger _logger;
+  final OnHttpClientCreateCallback _httpClientCreateCallback;
 
   // Methods
 
-  DartIOHttpClient(Logger logger) : this._logger = logger;
+  DartIOHttpClient(Logger logger, {OnHttpClientCreateCallback httpClientCreateCallback})
+    : this._logger = logger,
+      this._httpClientCreateCallback = httpClientCreateCallback;
 
+  
   Future<SignalRHttpResponse> send(SignalRHttpRequest request) {
     // Check that abort was not signaled before calling send
     if ((request.abortSignal != null) && request.abortSignal.aborted) {
@@ -34,6 +40,9 @@ class DartIOHttpClient extends SignalRHttpClient {
       final uri = Uri.parse(request.url);
 
       final httpClient = new HttpClient();
+      if (_httpClientCreateCallback != null) {
+        _httpClientCreateCallback(httpClient);
+      }
 
       final abortFuture = Future<void>(() {
         final completer = Completer<void>();

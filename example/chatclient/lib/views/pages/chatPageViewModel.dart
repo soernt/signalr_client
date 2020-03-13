@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:chatclient/main.dart';
 import 'package:chatclient/utils/viewModel/viewModel.dart';
@@ -64,11 +65,18 @@ class ChatPageViewModel extends ViewModel {
     print(msg.message);
   }
 
+  void _httpClientCreateCallback(HttpClient httpClient) {
+    httpClient.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+  }
+
   Future<void> openChatConnection() async {
     final logger = _logger;
 
     if (_hubConnection == null) {
-      final httpConnectionOptions = new HttpConnectionOptions(logger: logger, logMessageContent: true);
+      final httpConnectionOptions = new HttpConnectionOptions(
+        httpClient: DartIOHttpClient(logger, httpClientCreateCallback: _httpClientCreateCallback),
+        logger: logger, 
+        logMessageContent: true);
 
       _hubConnection = HubConnectionBuilder()
         .withUrl(_serverUrl, options: httpConnectionOptions)
