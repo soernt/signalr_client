@@ -319,15 +319,6 @@ class HttpConnection implements IConnection {
       // This exception is returned to the user as a rejected Promise from the start method.
     }
 
-    if (_sendQueue != null) {
-      try {
-        await _sendQueue.stop();
-      } catch (e) {
-        _logger?.severe("TransportSendQueue.stop() threw error '$e'.");
-      }
-      _sendQueue = null;
-    }
-
     // The transport's onclose will trigger stopConnection which will run our onclose event.
     // The transport should always be set if currently connected. If it wasn't set, it's likely because
     // stop was called during start() and start() failed.
@@ -606,7 +597,7 @@ class HttpConnection implements IConnection {
 
     if (_connectionState == ConnectionState.Connecting) {
       _logger?.warning("Call to HttpConnection.stopConnection($error) was ignored because the connection hasn't yet left the in the connecting state.");
-      return;
+      throw GeneralError("HttpConnection.stopConnection($error) was called while the connection is still in the connecting state.");
     }
 
     if (_connectionState == ConnectionState.Disconnecting) {
@@ -621,14 +612,23 @@ class HttpConnection implements IConnection {
       _logger?.info("Connection disconnected.");
     }
 
+    if (_sendQueue != null) {
+      _sendQueue.stop().catchError((e) {
+        _logger?.severe("TransportSendQueue.stop() threw error '$e'.");
+      });
+      _sendQueue = null;
+    }
+
     connectionId = null;
     _connectionState = ConnectionState.Disconnected;
 
-    if (onclose != null && _connectionStarted) {
+    if (_connectionStarted) {
       _connectionStarted = false;
 
       try {
-        onclose(error: error);
+        if (onclose != null) {
+          onclose(error: error);
+        }
       } catch(e) {
         _logger?.severe("HttpConnection.onclose($error) threw error '$e'.");
       }
