@@ -80,7 +80,7 @@ class ChatPageViewModel extends ViewModel {
 
       _hubConnection = HubConnectionBuilder()
         .withUrl(_serverUrl, options: httpConnectionOptions)
-        .withAutomaticReconnect()
+        .withAutomaticReconnect(retryDelays: [2000, 5000, 10000, 20000, null])
         .configureLogging(logger)
         .build();
       _hubConnection.onclose(({error}) => connectionIsOpen = false);

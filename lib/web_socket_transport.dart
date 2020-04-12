@@ -63,7 +63,11 @@ class WebSocketTransport implements ITransport {
           _logger?.finest("(WebSockets transport) data received.");
         }
         if (onReceive != null) {
-          onReceive(message);
+          try {
+            onReceive(message);
+          } catch (error) {
+            _close();
+          }
         }
       },
 

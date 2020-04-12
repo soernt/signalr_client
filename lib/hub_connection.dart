@@ -707,14 +707,7 @@ class HubConnection {
     while (nextRetryDelay != null) {
       _logger?.info("Reconnect attempt number $previousReconnectAttempts will start in $nextRetryDelay ms.");
 
-      final reconnectDelayCompleter = Completer();
-      reconnectDelayCompleter.complete(() {
-        _reconnectDelayTimer = Timer.periodic(Duration(microseconds: nextRetryDelay), (_) {
-          _reconnectDelayTimer.cancel();
-          _reconnectDelayTimer = null;
-        });
-      });
-      await reconnectDelayCompleter.future;
+      await Future.delayed(Duration(milliseconds: nextRetryDelay));
 
       if (_connectionState != HubConnectionState.Reconnecting) {
         _logger?.finer("Connection left the reconnecting state during reconnect delay. Done reconnecting.");
