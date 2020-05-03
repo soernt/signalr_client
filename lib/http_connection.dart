@@ -95,7 +95,7 @@ class HttpConnection implements IConnection {
   // Properties
   static final maxRedirects = 100;
 
-  ConnectionState _connectionState;
+  ConnectionState connectionState;
   String _baseUrl;
   SignalRHttpClient _httpClient;
   final Logger _logger;
@@ -122,7 +122,7 @@ class HttpConnection implements IConnection {
 
     _options = options ?? HttpConnectionOptions();
     _httpClient = options.httpClient ?? DartIOHttpClient(_logger);
-    _connectionState = ConnectionState.Disconnected;
+    connectionState = ConnectionState.Disconnected;
   }
 
   @override
@@ -132,12 +132,12 @@ class HttpConnection implements IConnection {
     _logger
         ?.finer("Starting connection with transfer format '$transferFormat'.");
 
-    if (_connectionState != ConnectionState.Disconnected) {
+    if (connectionState != ConnectionState.Disconnected) {
       return Future.error(GeneralError(
           "Cannot start a connection that is not in the 'Disconnected' state."));
     }
 
-    _connectionState = ConnectionState.Connecting;
+    connectionState = ConnectionState.Connecting;
 
     _startPromise = _startInternal(transferFormat);
     return _startPromise;
@@ -145,7 +145,7 @@ class HttpConnection implements IConnection {
 
   @override
   Future<void> send(Object data) {
-    if (_connectionState != ConnectionState.Connected) {
+    if (connectionState != ConnectionState.Connected) {
       return Future.error(GeneralError(
           "Cannot send data if the connection is not in the 'Connected' State."));
     }
@@ -155,7 +155,7 @@ class HttpConnection implements IConnection {
 
   @override
   Future<void> stop(Exception error) async {
-    _connectionState = ConnectionState.Disconnected;
+    connectionState = ConnectionState.Disconnected;
     // Set error as soon as possible otherwise there is a race between
     // the transport closing and providing an error and the error from a close message
     // We would prefer the close message error.
@@ -199,7 +199,7 @@ class HttpConnection implements IConnection {
         do {
           negotiateResponse = await _getNegotiationResponse(url);
           // the user tries to stop the connection when it is being started
-          if (_connectionState == ConnectionState.Disconnected) {
+          if (connectionState == ConnectionState.Disconnected) {
             return;
           }
 
@@ -251,7 +251,7 @@ class HttpConnection implements IConnection {
       _changeState(ConnectionState.Connecting, ConnectionState.Connected);
     } catch (e) {
       _logger?.severe("Failed to start the connection: ${e.toString()}");
-      _connectionState = ConnectionState.Disconnected;
+      connectionState = ConnectionState.Disconnected;
       _transport = null;
       throw e;
     }
@@ -311,7 +311,7 @@ class HttpConnection implements IConnection {
 
     final transports = negotiateResponse.availableTransports;
     for (var endpoint in transports) {
-      _connectionState = ConnectionState.Connecting;
+      connectionState = ConnectionState.Connecting;
       final transport = _resolveTransport(
           endpoint, requestedTransport, requestedTransferFormat);
       if (transport == null) {
@@ -329,7 +329,7 @@ class HttpConnection implements IConnection {
       } catch (ex) {
         _logger?.severe(
             "Failed to start the transport '$transport': ${ex.toString()}");
-        _connectionState = ConnectionState.Disconnected;
+        connectionState = ConnectionState.Disconnected;
         negotiateResponse.connectionId = null;
       }
     }
@@ -381,8 +381,8 @@ class HttpConnection implements IConnection {
   }
 
   bool _changeState(ConnectionState from, ConnectionState to) {
-    if (_connectionState == from) {
-      _connectionState = to;
+    if (connectionState == from) {
+      connectionState = to;
       return true;
     }
     return false;
@@ -400,7 +400,7 @@ class HttpConnection implements IConnection {
       _logger?.info("Connection disconnected.");
     }
 
-    _connectionState = ConnectionState.Disconnected;
+    connectionState = ConnectionState.Disconnected;
 
     if (onclose != null) {
       onclose(error);
