@@ -4,6 +4,7 @@ import 'package:logging/logging.dart';
 
 import 'errors.dart';
 import 'handshake_protocol.dart';
+import 'http_connection.dart';
 import 'iconnection.dart';
 import 'ihub_protocol.dart';
 import 'utils.dart';
@@ -17,6 +18,7 @@ enum HubConnectionState {
   Disconnected,
 
   /// The hub connection is connected.
+  Connecting,
   Connected,
 }
 
@@ -62,7 +64,16 @@ class HubConnection {
   int keepAliveIntervalInMilliseconds;
 
   /// Indicates the state of the {@link HubConnection} to the server.
-  HubConnectionState get state => this._connectionState;
+  HubConnectionState get state {
+    if (this._connection.connectionState == ConnectionState.Connecting) {
+      return HubConnectionState.Connecting;
+    } else if (this._connection.connectionState == ConnectionState.Connected) {
+      return HubConnectionState.Connected;
+    }
+    else{
+      return HubConnectionState.Disconnected;
+    }
+  }
 
   HubConnection(IConnection connection, Logger logger, IHubProtocol protocol)
       : assert(connection != null),
