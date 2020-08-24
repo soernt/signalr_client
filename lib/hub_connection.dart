@@ -635,7 +635,7 @@ class HubConnection {
     // If the handshake is in progress, start will be waiting for the handshake promise, so we complete it.
     // If it has already completed, this should just noop.
     if (_handshakeCompleter != null) {
-      _handshakeCompleter.completeError(error);
+      _handshakeCompleter.complete();
     }
 
     _cancelCallbacksWithError(error ?? GeneralError("Invocation canceled due to the underlying connection being closed."));
