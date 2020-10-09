@@ -83,8 +83,7 @@ class DartIOHttpClient extends SignalRHttpClient {
       if ((httpResp.statusCode >= 200) && (httpResp.statusCode < 300)) {
         Object content;
         final contentTypeHeader = httpResp.headers["Content-Type"];
-        final isJsonContent =
-            contentTypeHeader.indexOf("application/json") != -1;
+        final isJsonContent = contentTypeHeader.indexWhere((header) => header.startsWith("application/json")) != -1;
         if (isJsonContent) {
           content = await utf8.decoder.bind(httpResp).join();
         } else {
