@@ -4,7 +4,7 @@ version: 0.1.7+1
 homepage: https://github.com/sefidgaran/signalr_client
 
 environment:
-  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+  sdk: ">=2.6.0 <3.0.0"
 
 dependencies:
 

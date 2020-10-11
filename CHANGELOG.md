@@ -1,3 +1,6 @@
+## [0.1.7+1]
+* Minor changes
+
 ## [0.1.7]
 * Fix the exception for: Response Content-Type not supported: [application/json; charset=UTF-8]
 
