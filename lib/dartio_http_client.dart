@@ -11,10 +11,13 @@ class DartIOHttpClient extends SignalRHttpClient {
   // Properties
 
   final Logger _logger;
+  final Duration _connectionTimeout;
 
   // Methods
 
-  DartIOHttpClient(Logger logger) : this._logger = logger;
+  DartIOHttpClient(Logger logger, {Duration connectionTimeout})
+      : _logger = logger,
+        _connectionTimeout = connectionTimeout;
 
   Future<SignalRHttpResponse> send(SignalRHttpRequest request) {
     // Check that abort was not signaled before calling send
@@ -46,6 +49,8 @@ class DartIOHttpClient extends SignalRHttpClient {
 
       if ((request.timeout != null) && (0 < request.timeout)) {
         httpClient.connectionTimeout = Duration(milliseconds: request.timeout);
+      } else {
+        httpClient.connectionTimeout = _connectionTimeout;
       }
 
       _logger?.finest(
