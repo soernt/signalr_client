@@ -7,7 +7,7 @@ import 'package:client/utils/viewModel/viewModelProvider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
-import 'package:signalr_client/signalr_client.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 typedef HubConnectionProvider = Future<HubConnection> Function();
 
