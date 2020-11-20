@@ -7,7 +7,7 @@ import 'package:client/utils/viewModel/viewModelProvider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
-import 'package:signalr_client/signalr_client.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 typedef HubConnectionProvider = Future<HubConnection> Function();
 
@@ -36,7 +36,7 @@ class TestsPageViewModel extends ViewModel {
   TestsPageViewModel() {
     _hubLogMessages = List<LogRecord>();
 
-    Logger.root.level = Level.FINEST;
+    Logger.root.level = Level.ALL;
     _logMessagesSub = Logger.root.onRecord.listen(_handleLogMessage);
     _logger = Logger("TestsPageViewModel");
 
@@ -56,15 +56,19 @@ class TestsPageViewModel extends ViewModel {
   }
 
   Future<HubConnection> _getHubConnection() async {
-    //final logger = _logger;
-    final logger = null;
+    final logger = _logger;
+    //final logger = null;
     if (_hubConnection == null) {
       final httpOptions = new HttpConnectionOptions(logger: logger);
       //final httpOptions = new HttpConnectionOptions(logger: logger, transport: HttpTransportType.ServerSentEvents);
       //final httpOptions = new HttpConnectionOptions(logger: logger, transport: HttpTransportType.LongPolling);
 
-      _hubConnection = HubConnectionBuilder().withUrl(_serverUrl, options: httpOptions).configureLogging(logger).build();
-      _hubConnection.onclose((error) => _logger.info("Connection Closed"));
+      _hubConnection = HubConnectionBuilder()
+        .withUrl(_serverUrl, options: httpOptions)
+        .withAutomaticReconnect()
+        .configureLogging(logger)
+        .build();
+      _hubConnection.onclose(({error}) => _logger.info("Connection Closed"));
     }
 
     if (_hubConnection.state != HubConnectionState.Connected) {
@@ -94,6 +98,6 @@ class TestsPageViewModelProvider extends ViewModelProvider<TestsPageViewModel> {
   TestsPageViewModelProvider({Key key, viewModel: TestsPageViewModel, WidgetBuilder childBuilder}) : super(key: key, viewModel: viewModel, childBuilder: childBuilder);
 
   static TestsPageViewModel of(BuildContext context) {
-    return (context.inheritFromWidgetOfExactType(TestsPageViewModelProvider) as TestsPageViewModelProvider).viewModel;
+    return context.dependOnInheritedWidgetOfExactType<TestsPageViewModelProvider>().viewModel;
   }
 }

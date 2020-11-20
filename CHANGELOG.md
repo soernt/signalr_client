@@ -1,3 +1,6 @@
+## [0.1.8]
+* Align codebase with AspNetCore 3.1 Typescript client codebase, including support for auto-reconnect
+
 ## [0.1.7+1]
 * Minor changes
 

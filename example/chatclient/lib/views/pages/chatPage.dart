@@ -52,7 +52,7 @@ class MessageChatView extends StatelessWidget {
           children: <Widget>[
             Text(
               "Messages:",
-              style: Theme.of(context).textTheme.subhead,
+              style: Theme.of(context).textTheme.subtitle1,
             ),
             ViewModelPropertyWidgetBuilder<bool>(
                 viewModel: vm,

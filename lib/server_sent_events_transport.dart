@@ -70,16 +70,16 @@ class ServerSentEventsTransport implements ITransport {
           _logger?.finest("(SSE transport) data received");
           onReceive(event.data);
         } catch (error) {
-          _close(error);
+          _close(error: error);
           return;
         }
       }
     }, onError: (Object error) {
       if (opened) {
-        _close(error);
+        _close(error: error);
       }
     }, onDone: () {
-      _close(null);
+      _close();
     });
   }
 
@@ -94,12 +94,12 @@ class ServerSentEventsTransport implements ITransport {
   }
 
   @override
-  Future<void> stop(Error error) {
-    _close(error);
+  Future<void> stop() {
+    _close();
     return Future.value(null);
   }
 
-  _close(Error error) {
+  _close({Error error}) {
     if (_eventSourceSub != null) {
       _eventSourceSub.cancel();
       _eventSource = null;
@@ -111,7 +111,7 @@ class ServerSentEventsTransport implements ITransport {
               ? error
               : new GeneralError(error?.toString());
         }
-        onClose(ex);
+        onClose(error: ex);
       }
     }
   }
