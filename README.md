@@ -18,8 +18,8 @@ The client supports the following hub protocols:
 
 ## Examples
 
-* [Chat client/server](https://github.com/soernt/signalr_client/tree/master/example) - A simple client/server chat application.
-* [Integration test app](https://github.com/soernt/signalr_client/tree/master/testapp/client) - To see how a client calls various types of hub functions.
+* [Chat client/server](https://github.com/sefidgaran/signalr_client/tree/master/example) - A simple client/server chat application.
+* [Integration test app](https://github.com/sefidgaran/signalr_client/tree/master/testapp/client) - To see how a client calls various types of hub functions.
   
 
 ## Getting Started
