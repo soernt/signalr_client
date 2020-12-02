@@ -63,6 +63,12 @@ class ChatPageViewModel extends ViewModel {
     openChatConnection();
   }
 
+  @override
+  void dispose() {
+    _logMessagesSub?.cancel();
+    super.dispose();
+  }
+
   void _handleLogMessage(LogRecord msg) {
     print(msg.message);
   }
