@@ -1,3 +1,8 @@
+## [0.1.8+1]
+* Move chat client files to example folder
+* Add dispose to chat client example view model
+* Re-format (dart) files
+
 ## [0.1.8]
 * Align codebase with AspNetCore 3.1 Typescript client codebase, including support for auto-reconnect
 
