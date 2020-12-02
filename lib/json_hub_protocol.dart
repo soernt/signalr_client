@@ -96,8 +96,8 @@ class JsonHubProtocol implements IHubProtocol {
       Map<String, dynamic> jsonData) {
     final MessageHeaders headers =
         createMessageHeadersFromJson(jsonData["headers"]);
-    final message = InvocationMessage(jsonData["target"], jsonData["arguments"], jsonData["streamIds"],
-        headers, jsonData["invocationId"]);
+    final message = InvocationMessage(jsonData["target"], jsonData["arguments"],
+        jsonData["streamIds"], headers, jsonData["invocationId"]);
 
     _assertNotEmptyString(
         message.target, "Invalid payload for Invocation message.");
@@ -148,7 +148,8 @@ class JsonHubProtocol implements IHubProtocol {
   }
 
   static CloseMessage _getCloseMessageFromJson(Map<String, dynamic> jsonData) {
-    return CloseMessage(error: jsonData["error"], allowReconnect: jsonData["allowReconnect"]);
+    return CloseMessage(
+        error: jsonData["error"], allowReconnect: jsonData["allowReconnect"]);
   }
 
   /// Writes the specified HubMessage to a string and returns it.
@@ -216,7 +217,11 @@ class JsonHubProtocol implements IHubProtocol {
     }
 
     if (message is CloseMessage) {
-      return {"type": messageType, "error": message.error, "allowReconnect": message.allowReconnect};
+      return {
+        "type": messageType,
+        "error": message.error,
+        "allowReconnect": message.allowReconnect
+      };
     }
 
     if (message is CancelInvocationMessage) {

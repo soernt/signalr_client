@@ -136,8 +136,8 @@ class InvocationMessage extends HubInvocationMessage {
   final List<String> streamIds;
 
   // Methods
-  InvocationMessage(String target, List<Object> arguments, List<String> streamIds,
-      MessageHeaders headers, String invocationId)
+  InvocationMessage(String target, List<Object> arguments,
+      List<String> streamIds, MessageHeaders headers, String invocationId)
       : this.target = target,
         this.arguments = arguments,
         this.streamIds = streamIds,
@@ -158,11 +158,11 @@ class StreamInvocationMessage extends HubInvocationMessage {
   final List<String> streamIds;
 
   // Methods
-  StreamInvocationMessage(String target, List<Object> arguments, List<String> streamIds,
-      MessageHeaders headers, String invocationId)
+  StreamInvocationMessage(String target, List<Object> arguments,
+      List<String> streamIds, MessageHeaders headers, String invocationId)
       : this.target = target,
         this.arguments = arguments,
-        this.streamIds = streamIds,        
+        this.streamIds = streamIds,
         super(MessageType.StreamInvocation, headers, invocationId);
 }
 

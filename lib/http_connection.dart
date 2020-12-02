@@ -50,8 +50,14 @@ class NegotiateResponse {
 
   // Methods
 
-  NegotiateResponse(this.connectionId, this.connectionToken, this.negotiateVersion, this.availableTransports, this.url,
-      this.accessToken, this.error);
+  NegotiateResponse(
+      this.connectionId,
+      this.connectionToken,
+      this.negotiateVersion,
+      this.availableTransports,
+      this.url,
+      this.accessToken,
+      this.error);
 
   NegotiateResponse.fromJson(Map<String, dynamic> json)
       : assert(json != null),
@@ -133,9 +139,13 @@ class TransportSendQueue {
 
   _bufferData(Object data) {
     if (data is Uint8List && _buffer.length > 0 && !(_buffer[0] is Uint8List)) {
-      throw GeneralError("Expected data to be of type ${_buffer[0].runtimeType} but got Uint8List");
-    } else if (data is String && _buffer.length > 0 && !(_buffer[0] is String)) {
-      throw GeneralError("Expected data to be of type ${_buffer[0].runtimeType} but got String");
+      throw GeneralError(
+          "Expected data to be of type ${_buffer[0].runtimeType} but got Uint8List");
+    } else if (data is String &&
+        _buffer.length > 0 &&
+        !(_buffer[0] is String)) {
+      throw GeneralError(
+          "Expected data to be of type ${_buffer[0].runtimeType} but got String");
     }
 
     _buffer.add(data);
@@ -159,9 +169,9 @@ class TransportSendQueue {
       var transportResult = _transportResult;
       _transportResult = null;
 
-      var data = _buffer[0] is String ?
-        _buffer.join("") :
-        TransportSendQueue.concatBuffers(_buffer);
+      var data = _buffer[0] is String
+          ? _buffer.join("")
+          : TransportSendQueue.concatBuffers(_buffer);
 
       _buffer.length = 0;
 
@@ -175,7 +185,8 @@ class TransportSendQueue {
   }
 
   static Uint8List concatBuffers(List<Uint8List> arrayBuffers) {
-    var totalLength = arrayBuffers.map((b) => b.lengthInBytes).reduce((a, b) => a + b);
+    var totalLength =
+        arrayBuffers.map((b) => b.lengthInBytes).reduce((a, b) => a + b);
     var result = Uint8List(totalLength);
     var offset = 0;
     for (var item in arrayBuffers) {
@@ -251,7 +262,8 @@ class HttpConnection implements IConnection {
     // The TypeScript compiler thinks that connectionState must be Connecting here. The TypeScript compiler is wrong.
     if (_connectionState == ConnectionState.Disconnecting) {
       // stop() was called and transitioned the client into the Disconnecting state.
-      const message = "Failed to start the HttpConnection before stop() was called.";
+      const message =
+          "Failed to start the HttpConnection before stop() was called.";
       _logger?.severe(message);
 
       // We cannot await stopPromise inside startInternal since stopInternal awaits the startInternalPromise.
@@ -260,12 +272,13 @@ class HttpConnection implements IConnection {
       return Future.error(GeneralError(message));
     } else if (_connectionState != ConnectionState.Connected) {
       // stop() was called and transitioned the client into the Disconnecting state.
-      const message = "HttpConnection.startInternal completed gracefully but didn't enter the connection into the connected state!";
+      const message =
+          "HttpConnection.startInternal completed gracefully but didn't enter the connection into the connected state!";
       _logger?.severe(message);
       return Future.error(GeneralError(message));
     }
 
-    _connectionStarted = true;    
+    _connectionStarted = true;
   }
 
   @override
@@ -285,14 +298,15 @@ class HttpConnection implements IConnection {
 
   @override
   Future<void> stop({Exception error}) async {
-
     if (_connectionState == ConnectionState.Disconnected) {
-      _logger?.finer("Call to HttpConnection.stop($error) ignored because the connection is already in the disconnected state.");
+      _logger?.finer(
+          "Call to HttpConnection.stop($error) ignored because the connection is already in the disconnected state.");
       return Future.value();
     }
 
     if (_connectionState == ConnectionState.Disconnecting) {
-      _logger?.finer("Call to HttpConnection.stop($error) ignored because the connection is already in the disconnecting state.");
+      _logger?.finer(
+          "Call to HttpConnection.stop($error) ignored because the connection is already in the disconnecting state.");
       return _stopPromise;
     }
 
@@ -332,7 +346,8 @@ class HttpConnection implements IConnection {
 
       _transport = null;
     } else {
-      _logger?.finer("HttpConnection.transport is undefined in HttpConnection.stop() because start() failed.");
+      _logger?.finer(
+          "HttpConnection.transport is undefined in HttpConnection.stop() because start() failed.");
       _stopConnection();
     }
   }
@@ -362,8 +377,10 @@ class HttpConnection implements IConnection {
         do {
           negotiateResponse = await _getNegotiationResponse(url);
           // the user tries to stop the connection when it is being started
-          if (_connectionState == ConnectionState.Disconnecting || _connectionState == ConnectionState.Disconnected) {
-            throw GeneralError("The connection was stopped during negotiation.");
+          if (_connectionState == ConnectionState.Disconnecting ||
+              _connectionState == ConnectionState.Disconnected) {
+            throw GeneralError(
+                "The connection was stopped during negotiation.");
           }
 
           if (negotiateResponse.isErrorResponse) {
@@ -394,7 +411,8 @@ class HttpConnection implements IConnection {
           throw GeneralError("Negotiate redirection limit exceeded.");
         }
 
-        await _createTransport(url, _options.transport, negotiateResponse, transferFormat);
+        await _createTransport(
+            url, _options.transport, negotiateResponse, transferFormat);
       }
 
       if (_transport is LongPollingTransport) {
@@ -435,26 +453,34 @@ class HttpConnection implements IConnection {
     final negotiateUrl = _resolveNegotiateUrl(url);
     _logger?.finer("Sending negotiation request: $negotiateUrl");
     try {
-      final SignalRHttpRequest options = SignalRHttpRequest(content: "", headers: headers, timeout: maxRequestTimeoutMilliseconds);
+      final SignalRHttpRequest options = SignalRHttpRequest(
+          content: "",
+          headers: headers,
+          timeout: maxRequestTimeoutMilliseconds);
       final response = await _httpClient.post(negotiateUrl, options: options);
 
       if (response.statusCode != 200) {
-        return Future.error(GeneralError("Unexpected status code returned from negotiate ${response.statusCode}"));
+        return Future.error(GeneralError(
+            "Unexpected status code returned from negotiate ${response.statusCode}"));
       }
 
       if (!(response.content is String)) {
-        return Future.error(GeneralError("Negotation response content must be a json."));
+        return Future.error(
+            GeneralError("Negotation response content must be a json."));
       }
 
-      var negotiateResponse = NegotiateResponse.fromJson(json.decode(response.content as String));
-      if (negotiateResponse.negotiateVersion == null || negotiateResponse.negotiateVersion < 1) {
+      var negotiateResponse =
+          NegotiateResponse.fromJson(json.decode(response.content as String));
+      if (negotiateResponse.negotiateVersion == null ||
+          negotiateResponse.negotiateVersion < 1) {
         // Negotiate version 0 doesn't use connectionToken
         // So we set it equal to connectionId so all our logic can use connectionToken without being aware of the negotiate version
         negotiateResponse.connectionToken = negotiateResponse.connectionId;
       }
       return negotiateResponse;
     } catch (e) {
-      _logger?.severe("Failed to complete negotiation with the server: ${e.toString()}");
+      _logger?.severe(
+          "Failed to complete negotiation with the server: ${e.toString()}");
       return Future.error(e);
     }
   }
@@ -472,10 +498,10 @@ class HttpConnection implements IConnection {
       Object requestedTransport,
       NegotiateResponse negotiateResponse,
       TransferFormat requestedTransferFormat) async {
-
     var connectUrl = _createConnectUrl(url, negotiateResponse.connectionToken);
     if (_isITransport(requestedTransport)) {
-      _logger?.finer("Connection was provided an instance of ITransport, using that directly.");
+      _logger?.finer(
+          "Connection was provided an instance of ITransport, using that directly.");
       _transport = requestedTransport;
       await _startTransport(connectUrl, requestedTransferFormat);
 
@@ -484,14 +510,16 @@ class HttpConnection implements IConnection {
     }
 
     final List<Object> transportExceptions = List<Object>();
-    final transports = negotiateResponse.availableTransports ?? List<AvailableTransport>();
+    final transports =
+        negotiateResponse.availableTransports ?? List<AvailableTransport>();
     NegotiateResponse negotiate = negotiateResponse;
     for (var endpoint in transports) {
       _connectionState = ConnectionState.Connecting;
 
       try {
-        _transport = _resolveTransport(endpoint, requestedTransport, requestedTransferFormat);
-      } catch(e) {
+        _transport = _resolveTransport(
+            endpoint, requestedTransport, requestedTransferFormat);
+      } catch (e) {
         transportExceptions.add("${endpoint.transport} failed: $e");
         continue;
       }
@@ -499,7 +527,7 @@ class HttpConnection implements IConnection {
       if (negotiate == null) {
         try {
           negotiate = await _getNegotiationResponse(url);
-        } catch(ex) {
+        } catch (ex) {
           return Future.error(ex);
         }
         connectUrl = _createConnectUrl(url, negotiate.connectionToken);
@@ -510,32 +538,39 @@ class HttpConnection implements IConnection {
         connectionId = negotiate.connectionId;
         return;
       } catch (ex) {
-        _logger?.severe("Failed to start the transport '${endpoint.transport}': ${ex.toString()}");
+        _logger?.severe(
+            "Failed to start the transport '${endpoint.transport}': ${ex.toString()}");
         negotiate = null;
         transportExceptions.add("${endpoint.transport} failed: $ex");
 
         if (_connectionState != ConnectionState.Connecting) {
-          const message = "Failed to select transport before stop() was called.";
+          const message =
+              "Failed to select transport before stop() was called.";
           _logger?.finer(message);
-          return Future.error(GeneralError(message));          
+          return Future.error(GeneralError(message));
         }
       }
     }
 
     if (transportExceptions.length > 0) {
-      return Future.error(GeneralError("Unable to connect to the server with any of the available transports. ${transportExceptions.join(" ")}"));
+      return Future.error(GeneralError(
+          "Unable to connect to the server with any of the available transports. ${transportExceptions.join(" ")}"));
     }
-    return Future.error(GeneralError("None of the transports supported by the client are supported by the server."));
+    return Future.error(GeneralError(
+        "None of the transports supported by the client are supported by the server."));
   }
 
   ITransport _constructTransport(HttpTransportType transport) {
     switch (transport) {
       case HttpTransportType.WebSockets:
-        return WebSocketTransport(_accessTokenFactory, _logger, _options.logMessageContent ?? false);
+        return WebSocketTransport(
+            _accessTokenFactory, _logger, _options.logMessageContent ?? false);
       case HttpTransportType.ServerSentEvents:
-        return new ServerSentEventsTransport(_httpClient, _accessTokenFactory, _logger, _options.logMessageContent ?? false);
+        return new ServerSentEventsTransport(_httpClient, _accessTokenFactory,
+            _logger, _options.logMessageContent ?? false);
       case HttpTransportType.LongPolling:
-        return LongPollingTransport(_httpClient, _accessTokenFactory, _logger, _options.logMessageContent ?? false);
+        return LongPollingTransport(_httpClient, _accessTokenFactory, _logger,
+            _options.logMessageContent ?? false);
       default:
         throw new GeneralError("Unknown transport: $transport.");
     }
@@ -551,11 +586,12 @@ class HttpConnection implements IConnection {
       AvailableTransport endpoint,
       HttpTransportType requestedTransport,
       TransferFormat requestedTransferFormat) {
-        
     final transport = endpoint.transport;
     if (transport == null) {
-      _logger?.finer("Skipping transport '${endpoint.transport}' because it is not supported by this client.");
-      throw GeneralError("Skipping transport '${endpoint.transport}' because it is not supported by this client.");
+      _logger?.finer(
+          "Skipping transport '${endpoint.transport}' because it is not supported by this client.");
+      throw GeneralError(
+          "Skipping transport '${endpoint.transport}' because it is not supported by this client.");
     } else {
       if (transportMatches(requestedTransport, transport)) {
         final transferFormats = endpoint.transferFormats;
@@ -567,12 +603,16 @@ class HttpConnection implements IConnection {
             return ex;
           }
         } else {
-          _logger?.finer("Skipping transport '$transport' because it does not support the requested transfer format '$requestedTransferFormat'.");
-          throw GeneralError("Skipping transport '$transport' because it does not support the requested transfer format '$requestedTransferFormat'.");
+          _logger?.finer(
+              "Skipping transport '$transport' because it does not support the requested transfer format '$requestedTransferFormat'.");
+          throw GeneralError(
+              "Skipping transport '$transport' because it does not support the requested transfer format '$requestedTransferFormat'.");
         }
       } else {
-        _logger?.finer("Skipping transport '$transport' because it was disabled by the client.");
-        throw GeneralError("Skipping transport '$transport' because it was disabled by the client.");
+        _logger?.finer(
+            "Skipping transport '$transport' because it was disabled by the client.");
+        throw GeneralError(
+            "Skipping transport '$transport' because it was disabled by the client.");
       }
     }
   }
@@ -582,7 +622,8 @@ class HttpConnection implements IConnection {
   }
 
   void _stopConnection({Exception error}) {
-    _logger?.finer("HttpConnection.stopConnection(${error ?? "Unknown"}) called while in state $_connectionState.");
+    _logger?.finer(
+        "HttpConnection.stopConnection(${error ?? "Unknown"}) called while in state $_connectionState.");
 
     _transport = null;
 
@@ -591,13 +632,16 @@ class HttpConnection implements IConnection {
     _stopError = null;
 
     if (_connectionState == ConnectionState.Disconnected) {
-      _logger?.finer("Call to HttpConnection.stopConnection($error) was ignored because the connection is already in the disconnected state.");
+      _logger?.finer(
+          "Call to HttpConnection.stopConnection($error) was ignored because the connection is already in the disconnected state.");
       return;
     }
 
     if (_connectionState == ConnectionState.Connecting) {
-      _logger?.warning("Call to HttpConnection.stopConnection($error) was ignored because the connection hasn't yet left the in the connecting state.");
-      throw GeneralError("HttpConnection.stopConnection($error) was called while the connection is still in the connecting state.");
+      _logger?.warning(
+          "Call to HttpConnection.stopConnection($error) was ignored because the connection hasn't yet left the in the connecting state.");
+      throw GeneralError(
+          "HttpConnection.stopConnection($error) was called while the connection is still in the connecting state.");
     }
 
     if (_connectionState == ConnectionState.Disconnecting) {
@@ -629,7 +673,7 @@ class HttpConnection implements IConnection {
         if (onclose != null) {
           onclose(error: error);
         }
-      } catch(e) {
+      } catch (e) {
         _logger?.severe("HttpConnection.onclose($error) threw error '$e'.");
       }
     }
@@ -647,11 +691,13 @@ class HttpConnection implements IConnection {
     if (negotiateUrl.indexOf("negotiateVersion") == -1) {
       negotiateUrl += index == -1 ? "?" : "&";
       negotiateUrl += "negotiateVersion=$_negotiateVersion";
-    }    
+    }
     return negotiateUrl;
   }
 
-  static bool transportMatches(HttpTransportType requestedTransport, HttpTransportType actualTransport) {
-    return (requestedTransport == null) || (actualTransport == requestedTransport);
+  static bool transportMatches(
+      HttpTransportType requestedTransport, HttpTransportType actualTransport) {
+    return (requestedTransport == null) ||
+        (actualTransport == requestedTransport);
   }
 }

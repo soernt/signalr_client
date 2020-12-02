@@ -45,7 +45,8 @@ class HubConnectionBuilder {
   /// Use either options or transportType.
   /// Returns the builder instance, for chaining.
   ///
-  HubConnectionBuilder withUrl(String url, {HttpConnectionOptions options, HttpTransportType transportType}) {
+  HubConnectionBuilder withUrl(String url,
+      {HttpConnectionOptions options, HttpTransportType transportType}) {
     assert(!isStringEmpty(url));
     assert(!(options != null && transportType != null));
 
@@ -71,7 +72,8 @@ class HubConnectionBuilder {
     return this;
   }
 
-  HubConnectionBuilder withAutomaticReconnect({IRetryPolicy reconnectPolicy, List<int> retryDelays}) {
+  HubConnectionBuilder withAutomaticReconnect(
+      {IRetryPolicy reconnectPolicy, List<int> retryDelays}) {
     assert(_reconnectPolicy == null);
 
     if (reconnectPolicy == null && retryDelays == null) {
@@ -92,7 +94,8 @@ class HubConnectionBuilder {
   HubConnection build() {
     // If httpConnectionOptions has a logger, use it. Otherwise, override it with the one
     // provided to configureLogger
-    final httpConnectionOptions = _httpConnectionOptions ?? HttpConnectionOptions();
+    final httpConnectionOptions =
+        _httpConnectionOptions ?? HttpConnectionOptions();
 
     // Now create the connection
     if (isStringEmpty(_url)) {
@@ -100,6 +103,8 @@ class HubConnectionBuilder {
           "The 'HubConnectionBuilder.withUrl' method must be called before building the connection.");
     }
     final connection = HttpConnection(_url, options: httpConnectionOptions);
-    return HubConnection.create(connection, _logger, _protocol ?? JsonHubProtocol(), reconnectPolicy: _reconnectPolicy);
+    return HubConnection.create(
+        connection, _logger, _protocol ?? JsonHubProtocol(),
+        reconnectPolicy: _reconnectPolicy);
   }
 }

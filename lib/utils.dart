@@ -18,31 +18,31 @@ bool isListEmpty(List value) {
 }
 
 String getDataDetail(Object data, bool includeContent) {
-    var detail = "";
-    if (data is Uint8List) {
-        detail = "Binary data of length ${data.lengthInBytes}";
-        if (includeContent) {
-            detail += ". Content: '${formatArrayBuffer(data)}'";
-        }
-    } else if (data is String) {
-        detail = "String data of length ${data.length}";
-        if (includeContent) {
-            detail += ". Content: '$data'";
-        }
+  var detail = "";
+  if (data is Uint8List) {
+    detail = "Binary data of length ${data.lengthInBytes}";
+    if (includeContent) {
+      detail += ". Content: '${formatArrayBuffer(data)}'";
     }
-    return detail;
+  } else if (data is String) {
+    detail = "String data of length ${data.length}";
+    if (includeContent) {
+      detail += ". Content: '$data'";
+    }
+  }
+  return detail;
 }
 
 String formatArrayBuffer(Uint8List data) {
-    // Uint8Array.map only supports returning another Uint8Array?
-    var str = "";
-    data.forEach((val) {
-        var pad = val < 16 ? "0" : "";
-        str += "0x$pad${val.toString()} ";
-    });
+  // Uint8Array.map only supports returning another Uint8Array?
+  var str = "";
+  data.forEach((val) {
+    var pad = val < 16 ? "0" : "";
+    str += "0x$pad${val.toString()} ";
+  });
 
-    // Trim of trailing space.
-    return str.substring(0, str.length - 1);
+  // Trim of trailing space.
+  return str.substring(0, str.length - 1);
 }
 
 Future<void> sendMessage(

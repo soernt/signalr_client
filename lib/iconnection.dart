@@ -13,7 +13,7 @@ class ConnectionFeatures {
 abstract class IConnection {
   ConnectionFeatures features;
   String connectionId;
-  
+
   String baseUrl;
 
   Future<void> start({TransferFormat transferFormat});

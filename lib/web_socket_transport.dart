@@ -58,7 +58,8 @@ class WebSocketTransport implements ITransport {
       // onData
       (Object message) {
         if (_logMessageContent && message is String) {
-          _logger?.finest("(WebSockets transport) data received. message ${getDataDetail(message, _logMessageContent)}.");
+          _logger?.finest(
+              "(WebSockets transport) data received. message ${getDataDetail(message, _logMessageContent)}.");
         } else {
           _logger?.finest("(WebSockets transport) data received.");
         }
@@ -86,7 +87,8 @@ class WebSocketTransport implements ITransport {
             onClose();
           }
         } else {
-          websocketCompleter.completeError("There was an error with the transport.");
+          websocketCompleter
+              .completeError("There was an error with the transport.");
         }
       },
     );
@@ -97,7 +99,8 @@ class WebSocketTransport implements ITransport {
   @override
   Future<void> send(Object data) {
     if ((_webSocket != null) && (_webSocket.readyState == WebSocket.open)) {
-      _logger?.finest("(WebSockets transport) sending data. ${getDataDetail(data, true)}.");
+      _logger?.finest(
+          "(WebSockets transport) sending data. ${getDataDetail(data, true)}.");
       //_logger?.finest("(WebSockets transport) sending data.");
 
       if (data is String) {
