@@ -1,6 +1,9 @@
+## [0.1.8+2]
+* Dart format files
+
 ## [0.1.8+1]
 * Move chat client files to example folder
-* Add dispose to chat client example view model
+* Add dispose to chat client example view
 * Re-format (dart) files
 
 ## [0.1.8]
