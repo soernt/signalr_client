@@ -108,7 +108,7 @@ class AvailableTransport {
 }
 
 class TransportSendQueue {
-  List<Object> _buffer = List<Object>();
+  List<Object> _buffer = [];
   Completer _sendBufferedData;
   bool _executing = true;
   Completer _transportResult;
@@ -509,9 +509,8 @@ class HttpConnection implements IConnection {
       return;
     }
 
-    final List<Object> transportExceptions = List<Object>();
-    final transports =
-        negotiateResponse.availableTransports ?? List<AvailableTransport>();
+    final List<Object> transportExceptions = [];
+    final transports = negotiateResponse.availableTransports ?? [];
     NegotiateResponse negotiate = negotiateResponse;
     for (var endpoint in transports) {
       _connectionState = ConnectionState.Connecting;
