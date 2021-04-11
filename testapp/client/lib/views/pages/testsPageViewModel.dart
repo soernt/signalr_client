@@ -23,7 +23,8 @@ class TestsPageViewModel extends ViewModel {
   static const String errorMessagePropName = "errorMessage";
   String get errorMessage => _errorMessage;
   set errorMessage(String value) {
-    updateValue(errorMessagePropName, _errorMessage, value, (v) => _errorMessage = v);
+    updateValue(
+        errorMessagePropName, _errorMessage, value, (v) => _errorMessage = v);
   }
 
   List<LogRecord> _hubLogMessages;
@@ -34,7 +35,7 @@ class TestsPageViewModel extends ViewModel {
 
 // Methods
   TestsPageViewModel() {
-    _hubLogMessages = List<LogRecord>();
+    _hubLogMessages = [];
 
     Logger.root.level = Level.ALL;
     _logMessagesSub = Logger.root.onRecord.listen(_handleLogMessage);
@@ -64,10 +65,10 @@ class TestsPageViewModel extends ViewModel {
       //final httpOptions = new HttpConnectionOptions(logger: logger, transport: HttpTransportType.LongPolling);
 
       _hubConnection = HubConnectionBuilder()
-        .withUrl(_serverUrl, options: httpOptions)
-        .withAutomaticReconnect()
-        .configureLogging(logger)
-        .build();
+          .withUrl(_serverUrl, options: httpOptions)
+          .withAutomaticReconnect()
+          .configureLogging(logger)
+          .build();
       _hubConnection.onclose(({error}) => _logger.info("Connection Closed"));
     }
 
@@ -95,9 +96,13 @@ class TestsPageViewModelProvider extends ViewModelProvider<TestsPageViewModel> {
   // Properties
 
   // Methods
-  TestsPageViewModelProvider({Key key, viewModel: TestsPageViewModel, WidgetBuilder childBuilder}) : super(key: key, viewModel: viewModel, childBuilder: childBuilder);
+  TestsPageViewModelProvider(
+      {Key key, viewModel: TestsPageViewModel, WidgetBuilder childBuilder})
+      : super(key: key, viewModel: viewModel, childBuilder: childBuilder);
 
   static TestsPageViewModel of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<TestsPageViewModelProvider>().viewModel;
+    return context
+        .dependOnInheritedWidgetOfExactType<TestsPageViewModelProvider>()
+        .viewModel;
   }
 }

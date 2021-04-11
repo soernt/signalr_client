@@ -367,7 +367,7 @@ class HubConnection {
   /// Returns a Promise that resolves when the invocation has been successfully sent, or rejects with an error.
   ///
   Future<void> send(String methodName, {List<Object> args}) {
-    args = args ?? List<Object>();
+    args = args ?? [];
     final t = _replaceStreamingParams(args);
     final sendPromise =
         _sendWithProtocol(_createInvocation(methodName, args, true, t.item2));
@@ -387,7 +387,7 @@ class HubConnection {
   /// Returns a Future that resolves with the result of the server method (if any), or rejects with an error.
   ///
   Future<Object> invoke(String methodName, {List<Object> args}) {
-    args = args ?? List<Object>();
+    args = args ?? [];
     final t = _replaceStreamingParams(args);
     final invocationDescriptor =
         _createInvocation(methodName, args, false, t.item2);

@@ -1,3 +1,6 @@
+## [1.0.0]
+* Upgrade to Flutter 2
+
 ## [0.1.8+2]
 * Dart format files
 

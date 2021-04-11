@@ -52,7 +52,7 @@ class ChatPageViewModel extends ViewModel {
 
   ChatPageViewModel() {
     _serverUrl = kChatServerUrl + "/Chat";
-    _chatMessages = List<ChatMessage>();
+    _chatMessages = [];
     _connectionIsOpen = false;
     _userName = "Fred";
 

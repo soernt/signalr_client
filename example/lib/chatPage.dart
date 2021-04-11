@@ -19,7 +19,7 @@ class ChatPage extends StatelessWidget {
         childBuilder: (ctx) {
           return Scaffold(
               appBar: AppBar(title: Text("Server at: $kChatServerUrl")),
-              resizeToAvoidBottomPadding: false,
+              resizeToAvoidBottomInset: false,
               body: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -120,7 +120,7 @@ class _MessageComposeViewState extends State<MessageComposeView> {
             viewModel: vm,
             propertyName: ChatPageViewModel.userNamePropName,
             builder: (context, snapshot) {
-              return RaisedButton(
+              return ElevatedButton(
                 child: Text("${vm.userName} says"),
                 onPressed: _handleUpdateUserName,
               );
@@ -136,7 +136,7 @@ class _MessageComposeViewState extends State<MessageComposeView> {
                     labelText: 'Your message:', hintText: 'eg. Hi there!'),
               ),
             ),
-            RaisedButton(
+            ElevatedButton(
               child: Text("send"),
               onPressed: () => vm.sendChatMessage(_messageTextController.text),
             )
@@ -166,12 +166,12 @@ class _MessageComposeViewState extends State<MessageComposeView> {
               ],
             ),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                   child: const Text('CANCEL'),
                   onPressed: () {
                     Navigator.pop(context);
                   }),
-              FlatButton(
+              TextButton(
                   child: const Text('OK'),
                   onPressed: () {
                     vm.userName = _userNameController.text;
