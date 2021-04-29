@@ -19,7 +19,7 @@ dependencies:
   signalr_netcore:
     path: ../
     
-  logging: ^0.11.3+2
+  logging: ^1.0.1
   w3c_event_source: ^1.0.0
   rxdart : ^0.18.1  
 

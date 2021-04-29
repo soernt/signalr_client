@@ -1,3 +1,6 @@
+## [1.0.1]
+* Upgrade packages
+
 ## [1.0.0]
 * Upgrade to Flutter 2
 
