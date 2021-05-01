@@ -1,3 +1,6 @@
+## [0.1.7+2]
+* Upgrade Logging package to v1.0.1
+
 ## [0.1.7+1]
 * Minor changes
 
