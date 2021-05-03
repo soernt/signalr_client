@@ -1,3 +1,6 @@
+## [0.1.7+2-nullsafety.0]
+* Null Safety
+
 ## [0.1.7+2]
 * Upgrade Logging package to v1.0.1
 

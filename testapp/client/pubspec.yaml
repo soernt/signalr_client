@@ -8,7 +8,7 @@ description: A new Flutter project.
 # build by specifying --build-name and --build-number, respectively.
 # Read more about versioning at semver.org.
 version: 1.0.0+1
-
+publish_to: none
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
 
@@ -20,7 +20,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
 
-  signalr_client:
+  signalr_netcore:
     path: ../../
     
   w3c_event_source: ^1.0.0

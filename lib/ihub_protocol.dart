@@ -26,7 +26,7 @@ enum MessageType {
   Close, // = 7,
 }
 
-MessageType parseMessageTypeFromString(int value) {
+MessageType? parseMessageTypeFromString(int? value) {
   if (value == null) {
     return null;
   }
@@ -63,7 +63,7 @@ class MessageHeaders {
   static const String AuthorizationHeaderName = "Authorization";
 
   // Properties
-  HashMap<String, String> _headers;
+  late HashMap<String, String> _headers;
 
   Iterable<String> get names => _headers.keys;
 
@@ -75,7 +75,7 @@ class MessageHeaders {
   }
 
   /// Gets the header with the specified key.
-  String getHeaderValue(String name) {
+  String? getHeaderValue(String name) {
     return _headers[name];
   }
 
@@ -127,11 +127,11 @@ abstract class HubInvocationMessage extends HubMessageBase {
   ///
   ///This is expected to be present for StreamInvocationMessage and CompletionMessage. It may
   ///be 'undefined' for an InvocationMessage if the sender does not expect a response.
-  final String invocationId;
+  final String? invocationId;
 
   // Methods
   HubInvocationMessage(
-      MessageType messageType, MessageHeaders headers, String invocationId)
+      MessageType messageType, MessageHeaders? headers, String? invocationId)
       : this.headers = headers ?? MessageHeaders(),
         this.invocationId = invocationId,
         super(messageType);
@@ -142,14 +142,14 @@ class InvocationMessage extends HubInvocationMessage {
   // Properites
 
   /// The target method name.
-  final String target;
+  final String? target;
 
   /// The target method arguments.
-  final List<Object> arguments;
+  final List<Object>? arguments;
 
   // Methods
-  InvocationMessage(String target, List<Object> arguments,
-      MessageHeaders headers, String invocationId)
+  InvocationMessage(String? target, List<Object>? arguments,
+      MessageHeaders? headers, String? invocationId)
       : this.target = target,
         this.arguments = arguments,
         super(MessageType.Invocation, headers, invocationId);
@@ -178,10 +178,10 @@ class StreamItemMessage extends HubInvocationMessage {
   // Properites
 
   /// The item produced by the server.
-  final Object item;
+  final Object? item;
 
   // Methods
-  StreamItemMessage(Object item, MessageHeaders headers, String invocationId)
+  StreamItemMessage(Object? item, MessageHeaders? headers, String? invocationId)
       : this.item = item,
         super(MessageType.StreamItem, headers, invocationId);
 }
@@ -193,16 +193,16 @@ class CompletionMessage extends HubInvocationMessage {
   /// The error produced by the invocation, if any.
   ///
   /// Either CompletionMessage.error CompletionMessage.result must be defined, but not both.
-  final String error;
+  final String? error;
 
   /// The result produced by the invocation, if any.
   ///
   /// Either {@link @aspnet/signalr.CompletionMessage.error} or {@link @aspnet/signalr.CompletionMessage.result} must be defined, but not both.
-  final Object result;
+  final Object? result;
 
   // Methods
   CompletionMessage(
-      String error, Object result, MessageHeaders headers, String invocationId)
+      String? error, Object? result, MessageHeaders? headers, String? invocationId)
       : this.error = error,
         this.result = result,
         super(MessageType.Completion, headers, invocationId);
@@ -225,10 +225,10 @@ class CloseMessage extends HubMessageBase {
   /// The error that triggered the close, if any.
   ///
   /// If this property is undefined, the connection was closed normally and without error.
-  final String error;
+  final String? error;
 
   //Methods
-  CloseMessage(String error)
+  CloseMessage(String? error)
       : this.error = error,
         super(MessageType.Close);
 }
@@ -236,7 +236,7 @@ class CloseMessage extends HubMessageBase {
 /// A hub message sent to request that a streaming invocation be canceled.
 class CancelInvocationMessage extends HubInvocationMessage {
   // Methods
-  CancelInvocationMessage(MessageHeaders headers, String invocationId)
+  CancelInvocationMessage(MessageHeaders headers, String? invocationId)
       : super(MessageType.CancelInvocation, headers, invocationId);
 }
 
@@ -266,7 +266,7 @@ abstract class IHubProtocol {
   /// [input] A string (json), or Uint8List (binary) containing the serialized representation.
   /// [Logger] logger A logger that will be used to log messages that occur during parsing.
 
-  List<HubMessageBase> parseMessages(Object input, Logger logger);
+  List<HubMessageBase> parseMessages(Object input, Logger? logger);
 
   /// Writes the specified HubMessage to a string or ArrayBuffer and returns it.
   ///

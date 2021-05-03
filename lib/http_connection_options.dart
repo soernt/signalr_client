@@ -8,20 +8,20 @@ class HttpConnectionOptions {
   // Properties
 
   /// An SignalRHttpClient that will be used to make HTTP requests.
-  SignalRHttpClient httpClient;
+  SignalRHttpClient? httpClient;
 
   /// An HttpTransportType or ITransport value specifying the transport to use for the connection
   /// If transport is null and the server supports all transport protocols than HttpTransportType.WebSockets is used.
-  Object transport;
+  Object? transport;
 
   /// Configures the logger used for logging.
   ///
   /// Provide an Logger instance, and log messages will be logged via that instance
   ///
-  Logger logger;
+  Logger? logger;
 
   /// A function that provides an access token required for HTTP Bearer authentication.
-  AccessTokenFactory accessTokenFactory;
+  AccessTokenFactory? accessTokenFactory;
 
   /// A boolean indicating if message content should be logged.
   ///
@@ -37,10 +37,10 @@ class HttpConnectionOptions {
 
   // Methods
   HttpConnectionOptions(
-      {SignalRHttpClient httpClient,
-      Object transport,
-      Logger logger,
-      AccessTokenFactory accessTokenFactory,
+      {SignalRHttpClient? httpClient,
+      Object? transport,
+      Logger? logger,
+      AccessTokenFactory? accessTokenFactory,
       bool logMessageContent = false,
       bool skipNegotiation = false})
       : this.httpClient = httpClient,

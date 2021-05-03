@@ -21,50 +21,50 @@ enum HubConnectionState {
 }
 
 typedef InvocationEventCallback = void Function(
-    HubMessageBase invocationEvent, Exception error);
-typedef MethodInvacationFunc = void Function(List<Object> arguments);
-typedef ClosedCallback = void Function(Exception error);
+    HubMessageBase? invocationEvent, Exception? error);
+typedef MethodInvacationFunc = void Function(List<Object>? arguments);
+typedef ClosedCallback = void Function(Exception? error);
 
 /// Represents a connection to a SignalR Hub
 class HubConnection {
   // Either a string (json) or Uint8List (binary);
-  Object _cachedPingMessage;
+  Object? _cachedPingMessage;
   final IConnection _connection;
-  final Logger _logger;
+  final Logger? _logger;
   final IHubProtocol _protocol;
   final HandshakeProtocol _handshakeProtocol;
 
-  Map<String, InvocationEventCallback> _callbacks;
-  Map<String, List<MethodInvacationFunc>> _methods;
-  List<ClosedCallback> _closedCallbacks;
+  late Map<String?, InvocationEventCallback> _callbacks;
+  late Map<String, List<MethodInvacationFunc>> _methods;
+  late List<ClosedCallback> _closedCallbacks;
 
-  int _id;
-  bool _receivedHandshakeResponse;
-  Completer _handshakeCompleter;
+  int? _id;
+  late bool _receivedHandshakeResponse;
+  Completer? _handshakeCompleter;
 
-  HubConnectionState _connectionState;
+  HubConnectionState? _connectionState;
 
-  Timer _timeoutTimer;
-  Timer _pingServerTimer;
+  Timer? _timeoutTimer;
+  Timer? _pingServerTimer;
 
   /// The server timeout in milliseconds.
   ///
   /// If this timeout elapses without receiving any messages from the server, the connection will be terminated with an error.
   /// The default timeout value is 30,000 milliseconds (30 seconds).
   ///
-  int serverTimeoutInMilliseconds;
+  late int serverTimeoutInMilliseconds;
 
   /// Default interval at which to ping the server.
   ///
   /// The default value is 15,000 milliseconds (15 seconds).
   /// Allows the server to detect hard disconnects (like when a client unplugs their computer).
   ///
-  int keepAliveIntervalInMilliseconds;
+  late int keepAliveIntervalInMilliseconds;
 
   /// Indicates the state of the {@link HubConnection} to the server.
-  HubConnectionState get state => this._connectionState;
+  HubConnectionState? get state => this._connectionState;
 
-  HubConnection(IConnection connection, Logger logger, IHubProtocol protocol)
+  HubConnection(IConnection connection, Logger? logger, IHubProtocol protocol)
       : assert(connection != null),
         assert(protocol != null),
         _connection = connection,
@@ -114,7 +114,7 @@ class HubConnection {
     _resetKeepAliveInterval();
 
     // Wait for the handshake to complete before marking connection as connected
-    await _handshakeCompleter.future;
+    await _handshakeCompleter!.future;
     _connectionState = HubConnectionState.Connected;
   }
 
@@ -137,11 +137,11 @@ class HubConnection {
   /// args: The arguments used to invoke the server method.
   /// Returns an object that yields results from the server as they are received.
   ///
-  Stream<Object> stream(String methodName, List<Object> args) {
+  Stream<Object?> stream(String methodName, List<Object> args) {
     final invocationMessage = _createStreamInvocation(methodName, args);
 
     var pauseSendingItems = false;
-    final StreamController streamController = StreamController<Object>(
+    final StreamController streamController = StreamController<Object?>(
       onCancel: () {
         final cancelMessage =
             _createCancelInvocation(invocationMessage.invocationId);
@@ -154,7 +154,7 @@ class HubConnection {
     );
 
     _callbacks[invocationMessage.invocationId] =
-        (HubMessageBase invocationEvent, Exception error) {
+        (HubMessageBase? invocationEvent, Exception? error) {
       if (error != null) {
         streamController.addError(error);
         return;
@@ -182,7 +182,7 @@ class HubConnection {
     return streamController.stream;
   }
 
-  Future<void> _sendMessage(Object message) {
+  Future<void> _sendMessage(Object? message) {
     _resetKeepAliveInterval();
     _logger?.finest("Sending message.");
     return _connection.send(message);
@@ -214,14 +214,14 @@ class HubConnection {
   /// Returns a Future that resolves with the result of the server method (if any), or rejects with an error.
   ///
 
-  Future<Object> invoke(String methodName, {List<Object> args}) {
-    args = args ?? List<Object>();
+  Future<Object> invoke(String methodName, {List<Object>? args}) {
+    args = args ?? <Object>[];
     final invocationMessage = _createInvocation(methodName, args, false);
 
     final completer = Completer<Object>();
 
     _callbacks[invocationMessage.invocationId] =
-        (HubMessageBase invocationEvent, Exception error) {
+        (HubMessageBase? invocationEvent, Exception? error) {
       if (error != null) {
         completer.completeError(error);
         return;
@@ -264,11 +264,11 @@ class HubConnection {
     }
 
     // Preventing adding the same handler multiple times.
-    if (_methods[methodName].indexOf(newMethod) != -1) {
+    if (_methods[methodName]!.indexOf(newMethod) != -1) {
       return;
     }
 
-    _methods[methodName].add(newMethod);
+    _methods[methodName]!.add(newMethod);
   }
 
   /// Removes the specified handler for the specified hub method.
@@ -280,13 +280,13 @@ class HubConnection {
   /// method: The handler to remove. This must be the same Function instance as the one passed to {@link @aspnet/signalr.HubConnection.on}.
   /// If the method handler is omitted, all handlers for that method will be removed.
   ///
-  void off(String methodName, {MethodInvacationFunc method}) {
+  void off(String methodName, {MethodInvacationFunc? method}) {
     if (isStringEmpty(methodName)) {
       return;
     }
 
     methodName = methodName.toLowerCase();
-    final handlers = _methods[methodName];
+    final List<void Function(List<Object>)>? handlers = _methods[methodName];
     if (handlers == null) {
       return;
     }
@@ -314,7 +314,7 @@ class HubConnection {
     }
   }
 
-  void _processIncomingData(Object data) {
+  void _processIncomingData(Object? data) {
     _cleanupTimeoutTimer();
 
     _logger?.finest("Incomming message");
@@ -333,12 +333,13 @@ class HubConnection {
         _logger?.finest("Handle message of type '${message.type}'.");
         switch (message.type) {
           case MessageType.Invocation:
-            _invokeClientMethod(message);
+            _invokeClientMethod(message as InvocationMessage);
             break;
           case MessageType.StreamItem:
           case MessageType.Completion:
             final invocationMsg = message as HubInvocationMessage;
-            final callback = _callbacks[invocationMsg.invocationId];
+            final void Function(HubMessageBase, Exception?)? callback =
+                _callbacks[invocationMsg.invocationId];
             if (callback != null) {
               if (message.type == MessageType.Completion) {
                 _callbacks.remove(invocationMsg.invocationId);
@@ -371,7 +372,7 @@ class HubConnection {
   }
 
   /// data is either a string (json) or a Uint8List (binary)
-  Object _processHandshakeResponse(Object data) {
+  Object? _processHandshakeResponse(Object? data) {
     ParseHandshakeResponseResult handshakeResult;
 
     try {
@@ -427,8 +428,8 @@ class HubConnection {
   void _resetTimeoutPeriod() {
     _cleanupTimeoutTimer();
     if ((_connection.features == null) ||
-        (_connection.features.inherentKeepAlive == null) ||
-        (!_connection.features.inherentKeepAlive)) {
+        (_connection.features!.inherentKeepAlive == null) ||
+        (!_connection.features!.inherentKeepAlive!)) {
       // Set the timeout timer
       _timeoutTimer = Timer.periodic(
           Duration(milliseconds: serverTimeoutInMilliseconds), _serverTimeout);
@@ -453,7 +454,7 @@ class HubConnection {
   }
 
   void _invokeClientMethod(InvocationMessage invocationMessage) {
-    final methods = _methods[invocationMessage.target.toLowerCase()];
+    final methods = _methods[invocationMessage.target!.toLowerCase()];
     if (methods != null) {
       methods.forEach((m) => m(invocationMessage.arguments));
       if (!isStringEmpty(invocationMessage.invocationId)) {
@@ -471,15 +472,16 @@ class HubConnection {
     }
   }
 
-  void _connectionClosed(Exception error) {
-    final callbacks = _callbacks;
+  void _connectionClosed(Exception? error) {
+    final Map<String?, void Function(HubMessageBase?, Exception)> callbacks =
+        _callbacks;
     callbacks.clear();
 
     _connectionState = HubConnectionState.Disconnected;
 
     // if handshake is in progress start will be waiting for the handshake promise, so we complete it
     // if it has already completed this should just noop
-    _handshakeCompleter?.completeError(error);
+    _handshakeCompleter?.completeError(error!);
 
     final callbackError = error ??
         new GeneralError("Invocation canceled due to connection being closed.");
@@ -496,7 +498,8 @@ class HubConnection {
     if (nonblocking) {
       return InvocationMessage(methodName, args, MessageHeaders(), null);
     } else {
-      final id = _id++;
+      final id = _id;
+      _id = _id! + 1;
       return InvocationMessage(
           methodName, args, MessageHeaders(), id.toString());
     }
@@ -504,12 +507,13 @@ class HubConnection {
 
   StreamInvocationMessage _createStreamInvocation(
       String methodName, List<Object> args) {
-    final id = _id++;
+    final id = _id;
+    _id = _id! + 1;
     return StreamInvocationMessage(
         methodName, args, MessageHeaders(), id.toString());
   }
 
-  static CancelInvocationMessage _createCancelInvocation(String id) {
+  static CancelInvocationMessage _createCancelInvocation(String? id) {
     return CancelInvocationMessage(new MessageHeaders(), id);
   }
 }

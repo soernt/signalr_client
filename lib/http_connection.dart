@@ -23,11 +23,11 @@ enum ConnectionState {
 
 class NegotiateResponse {
   // Properties
-  String connectionId;
-  List<AvailableTransport> availableTransports;
-  final String url;
-  final String accessToken;
-  final String error;
+  String? connectionId;
+  List<AvailableTransport>? availableTransports;
+  final String? url;
+  final String? accessToken;
+  final String? error;
 
   bool get hasConnectionId => !isStringEmpty(connectionId);
 
@@ -52,13 +52,13 @@ class NegotiateResponse {
         this.accessToken = json['accessToken'],
         this.error = json['error'] {
     availableTransports = [];
-    final List<dynamic> transports = json['availableTransports'];
+    final List<dynamic>? transports = json['availableTransports'];
     if (transports == null) {
       return;
     }
 
     for (var i = 0; i < transports.length; i++) {
-      availableTransports.add(AvailableTransport.fromJson(transports[i]));
+      availableTransports!.add(AvailableTransport.fromJson(transports[i]));
     }
   }
 }
@@ -66,8 +66,8 @@ class NegotiateResponse {
 class AvailableTransport {
   // Properties
 
-  HttpTransportType transport;
-  List<TransferFormat> transferFormats;
+  HttpTransportType? transport;
+  List<TransferFormat?>? transferFormats;
 
   // Methods
 
@@ -81,12 +81,12 @@ class AvailableTransport {
     }
 
     transport = httpTransportTypeFromString(json['transport']);
-    List<dynamic> formats = json['transferFormats'];
+    List<dynamic>? formats = json['transferFormats'];
     if (formats == null) {
       return;
     }
     for (var i = 0; i < formats.length; i++) {
-      transferFormats.add(getTransferFormatFromString(formats[i]));
+      transferFormats!.add(getTransferFormatFromString(formats[i]));
     }
   }
 }
@@ -95,27 +95,27 @@ class HttpConnection implements IConnection {
   // Properties
   static final maxRedirects = 100;
 
-  ConnectionState _connectionState;
-  String _baseUrl;
-  SignalRHttpClient _httpClient;
-  final Logger _logger;
-  HttpConnectionOptions _options;
-  ITransport _transport;
-  Future<void> _startPromise;
-  Exception _stopError;
-  AccessTokenFactory _accessTokenFactory;
+  ConnectionState? _connectionState;
+  String? _baseUrl;
+  late SignalRHttpClient _httpClient;
+  final Logger? _logger;
+  late HttpConnectionOptions _options;
+  ITransport? _transport;
+  Future<void>? _startPromise;
+  Exception? _stopError;
+  AccessTokenFactory? _accessTokenFactory;
 
-  ConnectionFeatures features;
-
-  @override
-  OnReceive onreceive;
+  ConnectionFeatures? features;
 
   @override
-  OnClose onclose;
+  OnReceive? onreceive;
+
+  @override
+  OnClose? onclose;
 
   // Methods
 
-  HttpConnection(String url, {HttpConnectionOptions options})
+  HttpConnection(String url, {required HttpConnectionOptions options})
       : assert(url != null),
         _logger = options?.logger {
     _baseUrl = url;
@@ -126,7 +126,7 @@ class HttpConnection implements IConnection {
   }
 
   @override
-  Future<void> start({TransferFormat transferFormat}) {
+  Future<void>? start({TransferFormat? transferFormat}) {
     transferFormat = transferFormat ?? TransferFormat.Binary;
 
     _logger
@@ -144,17 +144,17 @@ class HttpConnection implements IConnection {
   }
 
   @override
-  Future<void> send(Object data) {
+  Future<void> send(Object? data) {
     if (_connectionState != ConnectionState.Connected) {
       return Future.error(GeneralError(
           "Cannot send data if the connection is not in the 'Connected' State."));
     }
 
-    return _transport.send(data);
+    return _transport!.send(data);
   }
 
   @override
-  Future<void> stop(Exception error) async {
+  Future<void> stop(Exception? error) async {
     _connectionState = ConnectionState.Disconnected;
     // Set error as soon as possible otherwise there is a race between
     // the transport closing and providing an error and the error from a close message
@@ -169,7 +169,7 @@ class HttpConnection implements IConnection {
 
     // The transport's onclose will trigger stopConnection which will run our onclose event.
     if (_transport != null) {
-      await _transport.stop(null);
+      await _transport!.stop(null);
       _transport = null;
     }
   }
@@ -197,7 +197,7 @@ class HttpConnection implements IConnection {
         var redirects = 0;
 
         do {
-          negotiateResponse = await _getNegotiationResponse(url);
+          negotiateResponse = await _getNegotiationResponse(url!);
           // the user tries to stop the connection when it is being started
           if (_connectionState == ConnectionState.Disconnected) {
             return;
@@ -239,7 +239,7 @@ class HttpConnection implements IConnection {
         if (features == null) {
           features = ConnectionFeatures(true);
         } else {
-          features.inherentKeepAlive = true;
+          features!.inherentKeepAlive = true;
         }
       }
 
@@ -260,7 +260,7 @@ class HttpConnection implements IConnection {
   Future<NegotiateResponse> _getNegotiationResponse(String url) async {
     MessageHeaders headers = MessageHeaders();
     if (_accessTokenFactory != null) {
-      final token = await _accessTokenFactory();
+      final token = await _accessTokenFactory!();
       if (token != null) {
         headers.setHeaderValue("Authorization", "Bearer $token");
       }
@@ -292,8 +292,8 @@ class HttpConnection implements IConnection {
   }
 
   Future<void> _createTransport(
-      String url,
-      Object requestedTransport,
+      String? url,
+      Object? requestedTransport,
       NegotiateResponse negotiateResponse,
       TransferFormat requestedTransferFormat) async {
     var connectUrl = _createConnectUrl(url, negotiateResponse.connectionId);
@@ -301,7 +301,7 @@ class HttpConnection implements IConnection {
       _logger?.finer(
           "Connection was provided an instance of ITransport, using that directly.");
       _transport = requestedTransport;
-      await _transport.connect(connectUrl, requestedTransferFormat);
+      await _transport!.connect(connectUrl, requestedTransferFormat);
 
       // only change the state if we were connecting to not overwrite
       // the state if the connection is already marked as Disconnected
@@ -309,17 +309,17 @@ class HttpConnection implements IConnection {
       return;
     }
 
-    final transports = negotiateResponse.availableTransports;
+    final transports = negotiateResponse.availableTransports!;
     for (var endpoint in transports) {
       _connectionState = ConnectionState.Connecting;
-      final transport = _resolveTransport(
-          endpoint, requestedTransport, requestedTransferFormat);
+      final transport = _resolveTransport(endpoint,
+          requestedTransport as HttpTransportType?, requestedTransferFormat);
       if (transport == null) {
         continue;
       }
       _transport = _constructTransport(transport);
       if (!negotiateResponse.hasConnectionId) {
-        negotiateResponse = await _getNegotiationResponse(url);
+        negotiateResponse = await _getNegotiationResponse(url!);
         connectUrl = _createConnectUrl(url, negotiateResponse.connectionId);
       }
       try {
@@ -354,9 +354,9 @@ class HttpConnection implements IConnection {
     }
   }
 
-  HttpTransportType _resolveTransport(
+  HttpTransportType? _resolveTransport(
       AvailableTransport endpoint,
-      HttpTransportType requestedTransport,
+      HttpTransportType? requestedTransport,
       TransferFormat requestedTransferFormat) {
     final transport = endpoint.transport;
     if (transport == null) {
@@ -365,7 +365,7 @@ class HttpConnection implements IConnection {
     } else {
       final transferFormats = endpoint.transferFormats;
       if (transportMatches(requestedTransport, transport)) {
-        if (transferFormats.indexOf(requestedTransferFormat) >= 0) {
+        if (transferFormats!.indexOf(requestedTransferFormat) >= 0) {
           _logger?.finer("Selecting transport '$transport'");
           return transport;
         } else {
@@ -403,15 +403,15 @@ class HttpConnection implements IConnection {
     _connectionState = ConnectionState.Disconnected;
 
     if (onclose != null) {
-      onclose(error);
+      onclose!(error);
     }
   }
 
-  static String _createConnectUrl(String url, String connectionId) {
+  static String? _createConnectUrl(String? url, String? connectionId) {
     if (isStringEmpty(connectionId)) {
       return url;
     }
-    return url + (url.indexOf("?") == -1 ? "?" : "&") + "id=$connectionId";
+    return url! + (url.indexOf("?") == -1 ? "?" : "&") + "id=$connectionId";
   }
 
   static String _resolveNegotiateUrl(String url) {
@@ -425,8 +425,8 @@ class HttpConnection implements IConnection {
     return negotiateUrl;
   }
 
-  static bool transportMatches(
-      HttpTransportType requestedTransport, HttpTransportType actualTransport) {
+  static bool transportMatches(HttpTransportType? requestedTransport,
+      HttpTransportType actualTransport) {
     return (requestedTransport == null) ||
         (actualTransport == requestedTransport);
   }
