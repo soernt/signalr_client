@@ -7,12 +7,9 @@ environment:
   sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-
   flutter:
     sdk: flutter
-
   logging: ^1.0.1
-  w3c_event_source: ^1.3.2
 
 dev_dependencies:
   flutter_test:
