@@ -115,9 +115,9 @@ class HttpConnection implements IConnection {
 
   // Methods
 
-  HttpConnection(String url, {required HttpConnectionOptions options})
+  HttpConnection(String? url, {required HttpConnectionOptions options})
       : assert(url != null),
-        _logger = options?.logger {
+        _logger = options.logger {
     _baseUrl = url;
 
     _options = options ?? HttpConnectionOptions();
@@ -342,13 +342,13 @@ class HttpConnection implements IConnection {
     switch (transport) {
       case HttpTransportType.WebSockets:
         return WebSocketTransport(
-            _accessTokenFactory, _logger, _options.logMessageContent ?? false);
+            _accessTokenFactory, _logger, _options.logMessageContent);
       case HttpTransportType.ServerSentEvents:
         return new ServerSentEventsTransport(_httpClient, _accessTokenFactory,
-            _logger, _options.logMessageContent ?? false);
+            _logger, _options.logMessageContent);
       case HttpTransportType.LongPolling:
         return LongPollingTransport(_httpClient, _accessTokenFactory, _logger,
-            _options.logMessageContent ?? false);
+            _options.logMessageContent);
       default:
         throw new GeneralError("Unknown transport: $transport.");
     }

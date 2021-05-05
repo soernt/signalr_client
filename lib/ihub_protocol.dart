@@ -34,25 +34,18 @@ MessageType? parseMessageTypeFromString(int? value) {
   switch (value) {
     case 1:
       return MessageType.Invocation;
-      break;
     case 2:
       return MessageType.StreamItem;
-      break;
     case 3:
       return MessageType.Completion;
-      break;
     case 4:
       return MessageType.StreamInvocation;
-      break;
     case 5:
       return MessageType.CancelInvocation;
-      break;
     case 6:
       return MessageType.Ping;
-      break;
     case 7:
       return MessageType.Close;
-      break;
     default:
       throw GeneralError("A MessageType of {value} is not supported.");
   }
@@ -145,10 +138,10 @@ class InvocationMessage extends HubInvocationMessage {
   final String? target;
 
   /// The target method arguments.
-  final List<Object>? arguments;
+  final List<dynamic>? arguments;
 
   // Methods
-  InvocationMessage(String? target, List<Object>? arguments,
+  InvocationMessage(String? target, List<dynamic>? arguments,
       MessageHeaders? headers, String? invocationId)
       : this.target = target,
         this.arguments = arguments,
@@ -201,8 +194,8 @@ class CompletionMessage extends HubInvocationMessage {
   final Object? result;
 
   // Methods
-  CompletionMessage(
-      String? error, Object? result, MessageHeaders? headers, String? invocationId)
+  CompletionMessage(String? error, Object? result, MessageHeaders? headers,
+      String? invocationId)
       : this.error = error,
         this.result = result,
         super(MessageType.Completion, headers, invocationId);

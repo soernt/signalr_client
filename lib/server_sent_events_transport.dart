@@ -1,9 +1,7 @@
 import 'dart:async';
-
 import 'package:logging/logging.dart';
-import 'package:w3c_event_source/event_source.dart';
-
 import 'errors.dart';
+import 'event_source.dart';
 import 'itransport.dart';
 import 'signalr_http_client.dart';
 import 'utils.dart';
@@ -26,19 +24,19 @@ class ServerSentEventsTransport implements ITransport {
   OnReceive? onReceive;
 
   ServerSentEventsTransport(
-      SignalRHttpClient httpClient,
+      SignalRHttpClient? httpClient,
       AccessTokenFactory? accessTokenFactory,
       Logger? logger,
       bool logMessageContent)
       : assert(httpClient != null),
-        _httpClient = httpClient,
+        _httpClient = httpClient!,
         _accessTokenFactory = accessTokenFactory,
         _logger = logger,
         _logMessageContent = logMessageContent;
 
   // Methods
   @override
-  Future<void> connect(String? url, TransferFormat transferFormat) async {
+  Future<void> connect(String? url, TransferFormat? transferFormat) async {
     assert(!isStringEmpty(url));
     assert(transferFormat != null);
     _logger?.finest("(SSE transport) Connecting");
@@ -109,7 +107,7 @@ class ServerSentEventsTransport implements ITransport {
         if (error != null) {
           ex = (error is Exception)
               ? error as Exception?
-              : new GeneralError(error?.toString());
+              : new GeneralError(error.toString());
         }
         onClose!(ex);
       }

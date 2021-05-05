@@ -22,7 +22,7 @@ enum HubConnectionState {
 
 typedef InvocationEventCallback = void Function(
     HubMessageBase? invocationEvent, Exception? error);
-typedef MethodInvacationFunc = void Function(List<Object>? arguments);
+typedef MethodInvacationFunc = void Function(List<dynamic>? arguments);
 typedef ClosedCallback = void Function(Exception? error);
 
 /// Represents a connection to a SignalR Hub
