@@ -22,10 +22,8 @@ dependencies:
 
   signalr_netcore:
     path: ../../
-    
-  w3c_event_source: ^1.0.0
 
-  rxdart : ^0.18.1  
+  rxdart : ^0.18.1
 
 dev_dependencies:
   flutter_test:

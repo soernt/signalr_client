@@ -53,7 +53,7 @@ class HandshakeProtocol {
 
   // Handshake request is always JSON
   String writeHandshakeRequest(HandshakeRequestMessage handshakeRequest) {
-    return TextMessageFormat.write(json.encode(handshakeRequest));
+    return TextMessageFormat.write(json.encode(handshakeRequest.toJson()));
   }
 
   /// Parse the handshake reponse

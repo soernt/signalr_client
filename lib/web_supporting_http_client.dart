@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:http/http.dart';
+import 'package:signalr_netcore/ihub_protocol.dart';
 import 'errors.dart';
 import 'signalr_http_client.dart';
 import 'utils.dart';
@@ -53,19 +54,27 @@ class WebSupportingHttpClient extends SignalRHttpClient {
         return completer.future;
       });
 
-      _logger?.finest(
-          "HTTP send: url '${request.url}', method: '${request.method}' content: '${request.content}'");
+      final isJson = request.content != null &&
+          request.content is String &&
+          (request.content as String).startsWith('{');
 
-      Map<String, String> headers = {
-        'X-Requested-With': 'FlutterHttpClient',
-        'Content-Type': 'text/plain;charset=UTF-8',
-      };
+      var headers = MessageHeaders();
+
+      headers.setHeaderValue('X-Requested-With', 'FlutterHttpClient');
+      headers.setHeaderValue(
+          'content-type',
+          isJson
+              ? 'application/json;charset=UTF-8'
+              : 'text/plain;charset=UTF-8');
 
       if ((request.headers != null) && (!request.headers.isEmtpy)) {
         for (var name in request.headers.names) {
-          headers[name] = request.headers.getHeaderValue(name);
+          headers.setHeaderValue(name, request.headers.getHeaderValue(name));
         }
       }
+
+      _logger?.finest(
+          "HTTP send: url '${request.url}', method: '${request.method}' content: '${request.content}' content length = '${(request.content as String).length}' headers: '$headers'");
 
       final httpRespFuture = await Future.any(
           [_sendHttpRequest(httpClient, request, uri, headers), abortFuture]);
@@ -106,26 +115,26 @@ class WebSupportingHttpClient extends SignalRHttpClient {
     Client httpClient,
     SignalRHttpRequest request,
     Uri uri,
-    Map<String, String> headers,
+    MessageHeaders headers,
   ) {
     Future<Response> httpResponse;
 
     switch (request.method.toLowerCase()) {
       case 'post':
         httpResponse =
-            httpClient.post(uri, body: request.content, headers: headers);
+            httpClient.post(uri, body: request.content, headers: headers.asMap);
         break;
       case 'put':
         httpResponse =
-            httpClient.put(uri, body: request.content, headers: headers);
+            httpClient.put(uri, body: request.content, headers: headers.asMap);
         break;
       case 'delete':
-        httpResponse =
-            httpClient.delete(uri, body: request.content, headers: headers);
+        httpResponse = httpClient.delete(uri,
+            body: request.content, headers: headers.asMap);
         break;
       case 'get':
       default:
-        httpResponse = httpClient.get(uri, headers: headers);
+        httpResponse = httpClient.get(uri, headers: headers.asMap);
     }
 
     final hasTimeout = (request.timeout != null) && (0 < request.timeout);

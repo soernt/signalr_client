@@ -65,6 +65,7 @@ class MessageHeaders {
   HashMap<String, String> _headers;
 
   Iterable<String> get names => _headers.keys;
+  HashMap<String, String> get asMap => _headers;
 
   bool get isEmtpy => _headers.length == 0;
 
@@ -88,6 +89,19 @@ class MessageHeaders {
     if (_headers.containsKey(name)) {
       _headers.remove(name);
     }
+  }
+
+  @override
+  String toString() {
+    if (isEmtpy) return '(no headers)';
+
+    String str = '';
+    for (var name in names) {
+      if (str.isNotEmpty) str += ', ';
+      str += '{ $name: ${_headers[name]} }';
+    }
+
+    return str;
   }
 }
 
