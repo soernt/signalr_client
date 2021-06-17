@@ -486,7 +486,7 @@ class HttpConnection implements IConnection {
   }
 
   String _createConnectUrl(String url, String connectionToken) {
-    if (connectionToken != null) {
+    if (connectionToken == null) {
       return url;
     }
 
