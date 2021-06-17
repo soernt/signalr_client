@@ -1,15 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-
+import 'package:http/http.dart';
 import 'errors.dart';
 import 'signalr_http_client.dart';
 import 'utils.dart';
 import 'package:logging/logging.dart';
+import 'clients/http_client_default.dart'
+    if (dart.library.js) 'clients/http_client_browser.dart';
 
-typedef OnHttpClientCreateCallback = void Function(HttpClient httpClient);
+typedef OnHttpClientCreateCallback = void Function(Client httpClient);
 
-class DartIOHttpClient extends SignalRHttpClient {
+class WebSupportingHttpClient extends SignalRHttpClient {
   // Properties
 
   final Logger _logger;
@@ -17,7 +17,7 @@ class DartIOHttpClient extends SignalRHttpClient {
 
   // Methods
 
-  DartIOHttpClient(Logger logger,
+  WebSupportingHttpClient(Logger logger,
       {OnHttpClientCreateCallback httpClientCreateCallback})
       : this._logger = logger,
         this._httpClientCreateCallback = httpClientCreateCallback;
@@ -39,7 +39,7 @@ class DartIOHttpClient extends SignalRHttpClient {
     return Future<SignalRHttpResponse>(() async {
       final uri = Uri.parse(request.url);
 
-      final httpClient = new HttpClient();
+      final httpClient = clientWithWebSupport;
       if (_httpClientCreateCallback != null) {
         _httpClientCreateCallback(httpClient);
       }
@@ -53,34 +53,23 @@ class DartIOHttpClient extends SignalRHttpClient {
         return completer.future;
       });
 
-      if ((request.timeout != null) && (0 < request.timeout)) {
-        httpClient.connectionTimeout = Duration(milliseconds: request.timeout);
-      }
-
       _logger?.finest(
           "HTTP send: url '${request.url}', method: '${request.method}' content: '${request.content}'");
 
-      final httpReqFuture = await Future.any(
-          [httpClient.openUrl(request.method, uri), abortFuture]);
-      final httpReq = httpReqFuture as HttpClientRequest;
-      if (httpReq == null) {
-        return Future.value(null);
-      }
+      Map<String, String> headers = {
+        'X-Requested-With': 'FlutterHttpClient',
+        'Content-Type': 'text/plain;charset=UTF-8',
+      };
 
-      httpReq.headers.set("X-Requested-With", "FlutterHttpClient");
-      httpReq.headers.set("Content-Type", "text/plain;charset=UTF-8");
       if ((request.headers != null) && (!request.headers.isEmtpy)) {
         for (var name in request.headers.names) {
-          httpReq.headers.set(name, request.headers.getHeaderValue(name));
+          headers[name] = request.headers.getHeaderValue(name);
         }
       }
 
-      if (request.content != null) {
-        httpReq.write(request.content);
-      }
-
-      final httpRespFuture = await Future.any([httpReq.close(), abortFuture]);
-      final httpResp = httpRespFuture as HttpClientResponse;
+      final httpRespFuture = await Future.any(
+          [_sendHttpRequest(httpClient, request, uri, headers), abortFuture]);
+      final httpResp = httpRespFuture as Response;
       if (httpResp == null) {
         return Future.value(null);
       }
@@ -91,14 +80,13 @@ class DartIOHttpClient extends SignalRHttpClient {
 
       if ((httpResp.statusCode >= 200) && (httpResp.statusCode < 300)) {
         Object content;
-        final contentTypeHeader = httpResp.headers["Content-Type"];
-        final isJsonContent = contentTypeHeader.indexWhere(
-                (header) => header.startsWith("application/json")) !=
-            -1;
+        final contentTypeHeader = httpResp.headers['content-type'];
+        final isJsonContent = contentTypeHeader == null ||
+            contentTypeHeader.startsWith('application/json');
         if (isJsonContent) {
-          content = await utf8.decoder.bind(httpResp).join();
+          content = httpResp.body;
         } else {
-          content = await utf8.decoder.bind(httpResp).join();
+          content = httpResp.body;
           // When using SSE and the uri has an 'id' query parameter the response is not evaluated, otherwise it is an error.
           if (isStringEmpty(uri.queryParameters['id'])) {
             throw ArgumentError(
@@ -112,5 +100,40 @@ class DartIOHttpClient extends SignalRHttpClient {
         throw HttpError(httpResp.reasonPhrase, httpResp.statusCode);
       }
     });
+  }
+
+  Future<Response> _sendHttpRequest(
+    Client httpClient,
+    SignalRHttpRequest request,
+    Uri uri,
+    Map<String, String> headers,
+  ) {
+    Future<Response> httpResponse;
+
+    switch (request.method.toLowerCase()) {
+      case 'post':
+        httpResponse =
+            httpClient.post(uri, body: request.content, headers: headers);
+        break;
+      case 'put':
+        httpResponse =
+            httpClient.put(uri, body: request.content, headers: headers);
+        break;
+      case 'delete':
+        httpResponse =
+            httpClient.delete(uri, body: request.content, headers: headers);
+        break;
+      case 'get':
+      default:
+        httpResponse = httpClient.get(uri, headers: headers);
+    }
+
+    final hasTimeout = (request.timeout != null) && (0 < request.timeout);
+    if (hasTimeout) {
+      httpResponse =
+          httpResponse.timeout(Duration(milliseconds: request.timeout));
+    }
+
+    return httpResponse;
   }
 }

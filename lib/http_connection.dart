@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
 
-import 'dartio_http_client.dart';
+import 'web_supporting_http_client.dart';
 import 'errors.dart';
 import 'http_connection_options.dart';
 import 'iconnection.dart';
@@ -237,7 +237,7 @@ class HttpConnection implements IConnection {
     baseUrl = url;
 
     _options = options ?? HttpConnectionOptions();
-    _httpClient = options.httpClient ?? DartIOHttpClient(_logger);
+    _httpClient = options.httpClient ?? WebSupportingHttpClient(_logger);
     _connectionState = ConnectionState.Disconnected;
     _connectionStarted = false;
   }
