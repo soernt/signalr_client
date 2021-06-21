@@ -548,7 +548,7 @@ class HubConnection {
             _logger?.info("Close message received from server.");
             final closeMessage = message as CloseMessage;
 
-            final error = closeMessage.error != null
+            final Exception error = closeMessage.error != null
                 ? GeneralError(
                     "Server returned an error on close: " + closeMessage.error)
                 : null;
@@ -656,7 +656,7 @@ class HubConnection {
         _logger?.severe(message);
 
         // We don't need to wait on this Promise.
-        _stopPromise = _stopInternal(error: new GeneralError(message));
+        _stopPromise = _stopInternal(error: GeneralError(message));
       }
     } else {
       _logger?.warning(
@@ -720,7 +720,7 @@ class HubConnection {
   _reconnect({Exception error}) async {
     final reconnectStartTime = DateTime.now();
     var previousReconnectAttempts = 0;
-    var retryError = error != null
+    Exception retryError = error != null
         ? error
         : GeneralError("Attempting to reconnect due to a unknown error.");
 
