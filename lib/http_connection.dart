@@ -177,7 +177,9 @@ class TransportSendQueue {
 
       try {
         await this.transport.send(data);
-        transportResult.complete();
+        if (!transportResult.isCompleted) {
+          transportResult.complete();
+        }
       } catch (error) {
         transportResult.completeError(error);
       }
