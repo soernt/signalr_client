@@ -397,25 +397,31 @@ class HubConnection {
     _callbacks[invocationDescriptor.invocationId] =
         (HubMessageBase invocationEvent, Exception error) {
       if (error != null) {
-        completer.completeError(error);
+        if (!completer.isCompleted) completer.completeError(error);
         return;
       } else if (invocationEvent != null) {
         if (invocationEvent is CompletionMessage) {
           if (invocationEvent.error != null) {
-            completer.completeError(new GeneralError(invocationEvent.error));
+            if (!completer.isCompleted) {
+              completer.completeError(new GeneralError(invocationEvent.error));
+            }
           } else {
-            completer.complete(invocationEvent.result);
+            if (!completer.isCompleted) {
+              completer.complete(invocationEvent.result);
+            }
           }
         } else {
-          completer.completeError(new GeneralError(
-              "Unexpected message type: ${invocationEvent.type}"));
+          if (!completer.isCompleted) {
+            completer.completeError(new GeneralError(
+                "Unexpected message type: ${invocationEvent.type}"));
+          }
         }
       }
     };
 
     final promiseQueue =
         _sendWithProtocol(invocationDescriptor).catchError((e) {
-      completer.completeError(e);
+      if (!completer.isCompleted) completer.completeError(e);
       // invocationId will always have a value for a non-blocking invocation
       _callbacks.remove(invocationDescriptor.invocationId);
     });
@@ -586,7 +592,9 @@ class HubConnection {
 
       final error = GeneralError(message);
 
-      _handshakeCompleter?.completeError(error);
+      if (!_handshakeCompleter.isCompleted) {
+        _handshakeCompleter?.completeError(error);
+      }
       _handshakeCompleter = null;
       throw error;
     }
@@ -597,14 +605,16 @@ class HubConnection {
 
       final error = GeneralError(message);
 
-      _handshakeCompleter?.completeError(error);
+      if (!_handshakeCompleter.isCompleted) {
+        _handshakeCompleter?.completeError(error);
+      }
       _handshakeCompleter = null;
       throw error;
     } else {
       _logger?.finer("Server handshake complete.");
     }
 
-    _handshakeCompleter?.complete();
+    if (!_handshakeCompleter.isCompleted) _handshakeCompleter?.complete();
     _handshakeCompleter = null;
     return handshakeResult.remainingData;
   }
@@ -677,7 +687,7 @@ class HubConnection {
     // If the handshake is in progress, start will be waiting for the handshake promise, so we complete it.
     // If it has already completed, this should just noop.
     if (_handshakeCompleter != null) {
-      _handshakeCompleter.complete();
+      if (!_handshakeCompleter.isCompleted) _handshakeCompleter.complete();
     }
 
     _cancelCallbacksWithError(error ??

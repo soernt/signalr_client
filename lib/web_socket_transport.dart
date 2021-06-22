@@ -52,7 +52,7 @@ class WebSocketTransport implements ITransport {
     _logger?.finest("WebSocket try connecting to '$url'.");
     _webSocket = WebSocketChannel.connect(Uri.parse(url));
     opened = true;
-    websocketCompleter.complete();
+    if (!websocketCompleter.isCompleted) websocketCompleter.complete();
     _logger?.info("WebSocket connected to '$url'.");
     _webSocketListenSub = _webSocket.stream.listen(
       // onData
@@ -77,7 +77,9 @@ class WebSocketTransport implements ITransport {
       // onError
       onError: (Object error) {
         var e = error != null ? error : "Unknown websocket error";
-        websocketCompleter.completeError(e);
+        if (!websocketCompleter.isCompleted) {
+          websocketCompleter.completeError(e);
+        }
       },
 
       // onDone
@@ -89,8 +91,10 @@ class WebSocketTransport implements ITransport {
             onClose();
           }
         } else {
-          websocketCompleter
-              .completeError("There was an error with the transport.");
+          if (!websocketCompleter.isCompleted) {
+            websocketCompleter
+                .completeError("There was an error with the transport.");
+          }
         }
       },
     );

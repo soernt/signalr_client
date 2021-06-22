@@ -48,8 +48,9 @@ class WebSupportingHttpClient extends SignalRHttpClient {
       final abortFuture = Future<void>(() {
         final completer = Completer<void>();
         if (request.abortSignal != null) {
-          request.abortSignal.onabort =
-              () => completer.completeError(AbortError());
+          request.abortSignal.onabort = () {
+            if (!completer.isCompleted) completer.completeError(AbortError());
+          };
         }
         return completer.future;
       });
