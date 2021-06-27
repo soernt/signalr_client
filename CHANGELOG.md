@@ -1,3 +1,7 @@
+## [1.1.0]
+* Add support for web
+* Bug fixes
+
 ## [1.0.1]
 * Upgrade packages
 
