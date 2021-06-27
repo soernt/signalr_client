@@ -40,7 +40,7 @@ class JsonHubProtocol implements IHubProtocol {
     }
 
     final jsonInput = input as String;
-    final hubMessages = [];
+    final List<HubMessageBase> hubMessages = [];
 
     if (input == null) {
       return hubMessages;

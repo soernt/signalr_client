@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:http/http.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 import 'main.dart';
@@ -73,9 +73,8 @@ class ChatPageViewModel extends ViewModel {
     print(msg.message);
   }
 
-  void _httpClientCreateCallback(HttpClient httpClient) {
-    httpClient.badCertificateCallback =
-        (X509Certificate cert, String host, int port) => true;
+  void _httpClientCreateCallback(Client httpClient) {
+    HttpOverrides.global = HttpOverrideCertificateVerificationInDev();
   }
 
   Future<void> openChatConnection() async {
@@ -83,7 +82,7 @@ class ChatPageViewModel extends ViewModel {
 
     if (_hubConnection == null) {
       final httpConnectionOptions = new HttpConnectionOptions(
-          httpClient: DartIOHttpClient(logger,
+          httpClient: WebSupportingHttpClient(logger,
               httpClientCreateCallback: _httpClientCreateCallback),
           logger: logger,
           logMessageContent: true);
@@ -139,5 +138,14 @@ class ChatPageViewModelProvider extends ViewModelProvider<ChatPageViewModel> {
     return (context
             .dependOnInheritedWidgetOfExactType<ChatPageViewModelProvider>())
         .viewModel;
+  }
+}
+
+class HttpOverrideCertificateVerificationInDev extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

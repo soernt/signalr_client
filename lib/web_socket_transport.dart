@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'errors.dart';
 import 'itransport.dart';
@@ -14,7 +14,7 @@ class WebSocketTransport implements ITransport {
   Logger _logger;
   AccessTokenFactory _accessTokenFactory;
   bool _logMessageContent;
-  WebSocket _webSocket;
+  WebSocketChannel _webSocket;
   StreamSubscription<Object> _webSocketListenSub;
 
   @override
@@ -50,11 +50,11 @@ class WebSocketTransport implements ITransport {
     var opened = false;
     url = url.replaceFirst('http', 'ws');
     _logger?.finest("WebSocket try connecting to '$url'.");
-    _webSocket = await WebSocket.connect(url);
+    _webSocket = WebSocketChannel.connect(Uri.parse(url));
     opened = true;
-    websocketCompleter.complete();
+    if (!websocketCompleter.isCompleted) websocketCompleter.complete();
     _logger?.info("WebSocket connected to '$url'.");
-    _webSocketListenSub = _webSocket.listen(
+    _webSocketListenSub = _webSocket.stream.listen(
       // onData
       (Object message) {
         if (_logMessageContent && message is String) {
@@ -67,6 +67,8 @@ class WebSocketTransport implements ITransport {
           try {
             onReceive(message);
           } catch (error) {
+            _logger?.severe(
+                "(WebSockets transport) error calling onReceive, error: $error");
             _close();
           }
         }
@@ -75,7 +77,9 @@ class WebSocketTransport implements ITransport {
       // onError
       onError: (Object error) {
         var e = error != null ? error : "Unknown websocket error";
-        websocketCompleter.completeError(e);
+        if (!websocketCompleter.isCompleted) {
+          websocketCompleter.completeError(e);
+        }
       },
 
       // onDone
@@ -87,8 +91,10 @@ class WebSocketTransport implements ITransport {
             onClose();
           }
         } else {
-          websocketCompleter
-              .completeError("There was an error with the transport.");
+          if (!websocketCompleter.isCompleted) {
+            websocketCompleter
+                .completeError("There was an error with the transport.");
+          }
         }
       },
     );
@@ -98,15 +104,15 @@ class WebSocketTransport implements ITransport {
 
   @override
   Future<void> send(Object data) {
-    if ((_webSocket != null) && (_webSocket.readyState == WebSocket.open)) {
+    if (_webSocket != null) {
       _logger?.finest(
           "(WebSockets transport) sending data. ${getDataDetail(data, true)}.");
       //_logger?.finest("(WebSockets transport) sending data.");
 
       if (data is String) {
-        _webSocket.add(data);
+        _webSocket.sink.add(data);
       } else if (data is Uint8List) {
-        _webSocket.add(data);
+        _webSocket.sink.add(data);
       } else {
         throw GeneralError("Content type is not handled.");
       }
@@ -130,7 +136,7 @@ class WebSocketTransport implements ITransport {
         await _webSocketListenSub.cancel();
         _webSocketListenSub = null;
       }
-      _webSocket.close();
+      _webSocket.sink.close();
       _webSocket = null;
     }
 

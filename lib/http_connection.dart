@@ -4,7 +4,7 @@ import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
 
-import 'dartio_http_client.dart';
+import 'web_supporting_http_client.dart';
 import 'errors.dart';
 import 'http_connection_options.dart';
 import 'iconnection.dart';
@@ -133,7 +133,7 @@ class TransportSendQueue {
 
   Future<void> stop() {
     _executing = false;
-    _sendBufferedData.complete();
+    if (!_sendBufferedData.isCompleted) _sendBufferedData.complete();
     return _sendLoopPromise;
   }
 
@@ -149,7 +149,7 @@ class TransportSendQueue {
     }
 
     _buffer.add(data);
-    _sendBufferedData.complete();
+    if (!_sendBufferedData.isCompleted) _sendBufferedData.complete();
   }
 
   Future<void> _sendLoop() async {
@@ -158,7 +158,9 @@ class TransportSendQueue {
 
       if (!_executing) {
         if (_transportResult != null) {
-          _transportResult.completeError("Connection stopped.");
+          if (!_transportResult.isCompleted) {
+            _transportResult.completeError('Connection stopped.');
+          }
         }
 
         break;
@@ -177,9 +179,9 @@ class TransportSendQueue {
 
       try {
         await this.transport.send(data);
-        transportResult.complete();
+        if (!transportResult.isCompleted) transportResult.complete();
       } catch (error) {
-        transportResult.completeError(error);
+        if (!transportResult.isCompleted) transportResult.completeError(error);
       }
     }
   }
@@ -237,7 +239,7 @@ class HttpConnection implements IConnection {
     baseUrl = url;
 
     _options = options ?? HttpConnectionOptions();
-    _httpClient = options.httpClient ?? DartIOHttpClient(_logger);
+    _httpClient = options.httpClient ?? WebSupportingHttpClient(_logger);
     _connectionState = ConnectionState.Disconnected;
     _connectionStarted = false;
   }
@@ -486,7 +488,7 @@ class HttpConnection implements IConnection {
   }
 
   String _createConnectUrl(String url, String connectionToken) {
-    if (connectionToken != null) {
+    if (connectionToken == null) {
       return url;
     }
 
@@ -646,7 +648,7 @@ class HttpConnection implements IConnection {
     if (_connectionState == ConnectionState.Disconnecting) {
       // A call to stop() induced this call to stopConnection and needs to be completed.
       // Any stop() awaiters will be scheduled to continue after the onclose callback fires.
-      _stopPromiseCompleter.complete();
+      if (!_stopPromiseCompleter.isCompleted) _stopPromiseCompleter.complete();
     }
 
     if (error != null) {
