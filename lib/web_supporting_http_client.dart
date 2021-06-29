@@ -5,8 +5,6 @@ import 'errors.dart';
 import 'signalr_http_client.dart';
 import 'utils.dart';
 import 'package:logging/logging.dart';
-import 'clients/http_client_default.dart'
-    if (dart.library.js) 'clients/http_client_browser.dart';
 
 typedef OnHttpClientCreateCallback = void Function(Client httpClient);
 
@@ -40,7 +38,7 @@ class WebSupportingHttpClient extends SignalRHttpClient {
     return Future<SignalRHttpResponse>(() async {
       final uri = Uri.parse(request.url);
 
-      final httpClient = clientWithWebSupport;
+      final httpClient = Client();
       if (_httpClientCreateCallback != null) {
         _httpClientCreateCallback(httpClient);
       }
