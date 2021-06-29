@@ -1,3 +1,6 @@
+## [1.1.1]
+* Fix pub.dev evaluation result for native support
+
 ## [1.1.0]
 * Add support for web
 * Bug fixes
