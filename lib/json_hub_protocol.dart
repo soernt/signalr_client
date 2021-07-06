@@ -26,7 +26,7 @@ class JsonHubProtocol implements IHubProtocol {
 
   // Methods
 
-  /// Creates an array of {@link @aspnet/signalr.HubMessage} objects from the specified serialized representation.
+  /// Creates an array of {@link @microsoft/signalr.HubMessage} objects from the specified serialized representation.
   ///
   /// A string containing the serialized representation.
   /// A logger that will be used to log messages that occur during parsing.
@@ -40,7 +40,7 @@ class JsonHubProtocol implements IHubProtocol {
     }
 
     final jsonInput = input as String;
-    final hubMessages = List<HubMessageBase>();
+    final List<HubMessageBase> hubMessages = [];
 
     if (input == null) {
       return hubMessages;
@@ -55,19 +55,19 @@ class JsonHubProtocol implements IHubProtocol {
 
       switch (messageType) {
         case MessageType.Invocation:
-          messageObj = _getInvocationMessageFormJson(jsonData);
+          messageObj = _getInvocationMessageFromJson(jsonData);
           break;
         case MessageType.StreamItem:
-          messageObj = _getStreamItemMessageFormJson(jsonData);
+          messageObj = _getStreamItemMessageFromJson(jsonData);
           break;
         case MessageType.Completion:
-          messageObj = _getCompletionMessageFormJson(jsonData);
+          messageObj = _getCompletionMessageFromJson(jsonData);
           break;
         case MessageType.Ping:
-          messageObj = _getPingMessageFormJson(jsonData);
+          messageObj = _getPingMessageFromJson(jsonData);
           break;
         case MessageType.Close:
-          messageObj = _getCloseMessageFormJson(jsonData);
+          messageObj = _getCloseMessageFromJson(jsonData);
           break;
         default:
           // Future protocol changes can add message types, old clients can ignore them
@@ -92,12 +92,12 @@ class JsonHubProtocol implements IHubProtocol {
     return null;
   }
 
-  static InvocationMessage _getInvocationMessageFormJson(
+  static InvocationMessage _getInvocationMessageFromJson(
       Map<String, dynamic> jsonData) {
     final MessageHeaders headers =
         createMessageHeadersFromJson(jsonData["headers"]);
     final message = InvocationMessage(jsonData["target"], jsonData["arguments"],
-        headers, jsonData["invocationId"]);
+        jsonData["streamIds"], headers, jsonData["invocationId"]);
 
     _assertNotEmptyString(
         message.target, "Invalid payload for Invocation message.");
@@ -109,7 +109,7 @@ class JsonHubProtocol implements IHubProtocol {
     return message;
   }
 
-  static StreamItemMessage _getStreamItemMessageFormJson(
+  static StreamItemMessage _getStreamItemMessageFromJson(
       Map<String, dynamic> jsonData) {
     final MessageHeaders headers =
         createMessageHeadersFromJson(jsonData["headers"]);
@@ -124,7 +124,7 @@ class JsonHubProtocol implements IHubProtocol {
     return message;
   }
 
-  static CompletionMessage _getCompletionMessageFormJson(
+  static CompletionMessage _getCompletionMessageFromJson(
       Map<String, dynamic> jsonData) {
     final MessageHeaders headers =
         createMessageHeadersFromJson(jsonData["headers"]);
@@ -143,12 +143,13 @@ class JsonHubProtocol implements IHubProtocol {
     return message;
   }
 
-  static PingMessage _getPingMessageFormJson(Map<String, dynamic> jsonData) {
+  static PingMessage _getPingMessageFromJson(Map<String, dynamic> jsonData) {
     return PingMessage();
   }
 
-  static CloseMessage _getCloseMessageFormJson(Map<String, dynamic> jsonData) {
-    return CloseMessage(jsonData["error"]);
+  static CloseMessage _getCloseMessageFromJson(Map<String, dynamic> jsonData) {
+    return CloseMessage(
+        error: jsonData["error"], allowReconnect: jsonData["allowReconnect"]);
   }
 
   /// Writes the specified HubMessage to a string and returns it.
@@ -179,7 +180,8 @@ class JsonHubProtocol implements IHubProtocol {
         "type": messageType,
         "invocationId": message.invocationId,
         "target": message.target,
-        "arguments": message.arguments
+        "arguments": message.arguments,
+        "streamIds": message.streamIds,
       };
     }
 
@@ -188,7 +190,8 @@ class JsonHubProtocol implements IHubProtocol {
         "type": messageType,
         "invocationId": message.invocationId,
         "target": message.target,
-        "arguments": message.arguments
+        "arguments": message.arguments,
+        "streamIds": message.streamIds,
       };
     }
 
@@ -214,7 +217,11 @@ class JsonHubProtocol implements IHubProtocol {
     }
 
     if (message is CloseMessage) {
-      return {"type": messageType, "error": message.error};
+      return {
+        "type": messageType,
+        "error": message.error,
+        "allowReconnect": message.allowReconnect
+      };
     }
 
     if (message is CancelInvocationMessage) {

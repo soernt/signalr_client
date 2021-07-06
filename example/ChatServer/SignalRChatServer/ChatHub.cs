@@ -14,7 +14,7 @@ namespace SignalRChatServer
     public void Send(string name, string message)
     {
       // Call the "OnMessage" method to update clients.
-      Clients.All.SendCoreAsync("OnMessage", new object[]{name, message});
+      Clients.All.SendAsync("OnMessage", name, message);
     }
 
     #endregion

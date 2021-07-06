@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 
 namespace SignalRChatServer
 {
@@ -7,12 +7,16 @@ namespace SignalRChatServer
   {
     public static void Main(string[] args)
     {
-      createWebHostBuilder(args).Build().Run();
+      CreateHostBuilder(args).Build().Run();
     }
 
-    private static IWebHostBuilder createWebHostBuilder(string[] args) =>
-      WebHost.CreateDefaultBuilder(args)
-        .UseStartup<Startup>()
-        .UseUrls(urls: "http://*:51002");
+    private static IHostBuilder CreateHostBuilder(string[] args) =>
+      Host.CreateDefaultBuilder(args)
+        .ConfigureWebHostDefaults(webBuilder =>
+        {
+          webBuilder
+            .UseStartup<Startup>()
+            .UseUrls(urls: "http://*:5000");
+        });
   }
 }

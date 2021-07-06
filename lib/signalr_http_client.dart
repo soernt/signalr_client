@@ -77,7 +77,7 @@ class SignalRHttpResponse {
 /// This class provides an abstraction over an HTTP client so that a different implementation can be provided on different platforms.
 ///
 abstract class SignalRHttpClient {
-  /// Issues an HTTP GET request to the specified URL, returning a Promise that resolves with an {@link @aspnet/signalr.HttpResponse} representing the result.
+  /// Issues an HTTP GET request to the specified URL, returning a Promise that resolves with an {@link @microsoft/signalr.HttpResponse} representing the result.
   ///
   /// url The URL for the request.
   /// HttpRequest options Additional options to configure the request. The 'url' field in this object will be overridden by the url parameter.
@@ -89,7 +89,7 @@ abstract class SignalRHttpClient {
     return send(options);
   }
 
-  /// Issues an HTTP POST request to the specified URL, returning a Promise that resolves with an {@link @aspnet/signalr.HttpResponse} representing the result.
+  /// Issues an HTTP POST request to the specified URL, returning a Promise that resolves with an {@link @microsoft/signalr.HttpResponse} representing the result.
   ///
   /// url: The URL for the request.
   /// options: Additional options to configure the request. The 'url' field in this object will be overridden by the url parameter.
@@ -101,7 +101,7 @@ abstract class SignalRHttpClient {
     return send(options);
   }
 
-  ///Issues an HTTP DELETE request to the specified URL, returning a Promise that resolves with an {@link @aspnet/signalr.HttpResponse} representing the result.
+  ///Issues an HTTP DELETE request to the specified URL, returning a Promise that resolves with an {@link @microsoft/signalr.HttpResponse} representing the result.
   ///
   /// The URL for the request.
   /// Additional options to configure the request. The 'url' field in this object will be overridden by the url parameter.

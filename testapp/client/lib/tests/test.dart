@@ -2,7 +2,7 @@ import 'package:client/utils/viewModel/viewModel.dart';
 import 'package:client/views/pages/testsPageViewModel.dart';
 import 'package:logging/logging.dart';
 import 'package:meta/meta.dart';
-import 'package:signalr_client/signalr_client.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 abstract class Test extends ViewModel {
   // Properties

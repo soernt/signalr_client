@@ -21,12 +21,14 @@ class HandshakeRequestMessage {
 class HandshakeResponseMessage {
   // Properties
   final String error;
+  final int minorVersion;
 
   // Methods
-  HandshakeResponseMessage(this.error);
+  HandshakeResponseMessage(this.error, this.minorVersion);
 
   HandshakeResponseMessage.fromJson(Map<String, dynamic> json)
-      : error = json["error"];
+      : error = json["error"],
+        minorVersion = json["minorVersion"];
 }
 
 /// private
@@ -51,7 +53,7 @@ class HandshakeProtocol {
 
   // Handshake request is always JSON
   String writeHandshakeRequest(HandshakeRequestMessage handshakeRequest) {
-    return TextMessageFormat.write(json.encode(handshakeRequest));
+    return TextMessageFormat.write(json.encode(handshakeRequest.toJson()));
   }
 
   /// Parse the handshake reponse
@@ -97,6 +99,7 @@ class HandshakeProtocol {
     final response =
         HandshakeResponseMessage.fromJson(json.decode(messages[0]));
 
+    // NOTE: The fromJson should have thrown an error before this check would be required.
     // if (response.type) {
     //     throw new Error("Expected a handshake response from the server.");
     // }

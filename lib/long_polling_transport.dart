@@ -165,7 +165,7 @@ class LongPollingTransport implements ITransport {
   }
 
   @override
-  Future<void> stop(Error error) async {
+  Future<void> stop() async {
     _logger?.finest("(LongPolling transport) Stopping polling.");
 
     // Tell receiving loop to stop, abort any current request, and then wait for it to finish
@@ -220,7 +220,7 @@ class LongPollingTransport implements ITransport {
         logMessage += " Error: " + _closeError.toString();
       }
       _logger?.finest(logMessage);
-      onClose(new GeneralError(_closeError?.toString()));
+      onClose(error: GeneralError(_closeError?.toString()));
     }
   }
 }

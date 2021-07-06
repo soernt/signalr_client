@@ -1,11 +1,11 @@
 # signalr_client
 
-[![pub package](https://img.shields.io/pub/v/signalr_client.svg)](https://pub.dartlang.org/packages/signalr_client)
+[![pub package](https://img.shields.io/pub/v/signalr_netcore.svg)](https://pub.dartlang.org/packages/signalr_netcore)
 
-A Flutter SignalR Client for [ASP.NET Core](https://docs.microsoft.com/aspnet/core/signalr/?view=aspnetcore-2.1).   
+A Flutter SignalR Client for [ASP.NET Core 3.1](https://docs.microsoft.com/aspnet/core/signalr/?view=aspnetcore-3.1).   
 ASP.NET Core SignalR is an open-source library that simplifies adding real-time web functionality to apps. Real-time web functionality enables server-side code to push content to clients instantly.
 
-The client is able to invoke server side hub functions (including streaming functions) and to receive method invocations issued by the server.
+The client is able to invoke server side hub functions (including streaming functions) and to receive method invocations issued by the server.  It also supports the auto-reconnect feature.
 
 The client supports the following transport protocols:
 * WebSocket
@@ -18,20 +18,20 @@ The client supports the following hub protocols:
 
 ## Examples
 
-* [Chat client/server](https://github.com/soernt/signalr_client/tree/master/example) - A simple client/server chat application.
-* [Integration test app](https://github.com/soernt/signalr_client/tree/master/testapp/client) - To see how a client calls various types of hub functions.
+* [Chat client/server](https://github.com/sefidgaran/signalr_client/tree/master/example) - A simple client/server chat application.
+* [Integration test app](https://github.com/sefidgaran/signalr_client/tree/master/testapp/client) - To see how a client calls various types of hub functions.
   
 
 ## Getting Started
 
-Add `signalr_client` to your `pubspec.yaml` dependencies:
+Add `signalr_netcore` to your `pubspec.yaml` dependencies:
 ```yaml
 ...
 dependencies:
   flutter:
     sdk: flutter
 
-  signalr_client:
+  signalr_netcore:
 ...
 ```
 
@@ -43,7 +43,7 @@ Let's demo some basic usages:
 #### 1. Create a hub connection:
 ```dart
 // Import the library.
-import 'package:signalr_client/signalr_client.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 // The location of the SignalR Server.
 final serverUrl = "192.168.10.50:51001";
@@ -58,7 +58,7 @@ Logging is supported via the dart [logging package](https://pub.dartlang.org/pac
 ```dart
 // Import theses libraries.
 import 'package:logging/logging.dart';
-import 'package:signalr_client/signalr_client.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 // Configer the logging
 Logger.root.level = Level.ALL;
