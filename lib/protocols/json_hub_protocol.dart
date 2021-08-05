@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:logging/logging.dart';
 
-import 'errors.dart';
+import '../exceptions/errors.dart';
+import '../transport/itransport.dart';
+import '../utils/utils.dart';
 import 'ihub_protocol.dart';
-import 'itransport.dart';
 import 'text_message_format.dart';
-import 'utils.dart';
 
 const String JSON_HUB_PROTOCOL_NAME = "json";
 const int PROTOCOL_VERSION = 1;

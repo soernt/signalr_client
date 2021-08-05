@@ -1,15 +1,15 @@
 import 'package:logging/logging.dart';
+import 'package:signalr_netcore/exceptions/errors.dart';
+import 'package:signalr_netcore/policies/default_reconnect_policy.dart';
+import 'package:signalr_netcore/policies/iretry_policy.dart';
+import 'package:signalr_netcore/protocols/ihub_protocol.dart';
+import 'package:signalr_netcore/protocols/json_hub_protocol.dart';
+import 'package:signalr_netcore/transport/itransport.dart';
+import 'package:signalr_netcore/utils/utils.dart';
 
-import 'errors.dart';
 import 'http_connection.dart';
 import 'http_connection_options.dart';
 import 'hub_connection.dart';
-import 'ihub_protocol.dart';
-import 'iretry_policy.dart';
-import 'itransport.dart';
-import 'json_hub_protocol.dart';
-import 'utils.dart';
-import 'default_reconnect_policy.dart';
 
 /// A builder for configuring {@link @microsoft/signalr.HubConnection} instances.
 class HubConnectionBuilder {

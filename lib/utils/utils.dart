@@ -2,8 +2,8 @@ import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
 
-import 'ihub_protocol.dart';
-import 'signalr_client.dart';
+import '../protocols/ihub_protocol.dart';
+import '../signalr_client.dart';
 
 bool isIntEmpty(int value) {
   return (value == null);

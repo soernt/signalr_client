@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'abort_controller.dart';
-import 'ihub_protocol.dart';
+import '../protocols/ihub_protocol.dart';
+import '../transport/long_polling/abort_controller.dart';
 
 /// Represents an HTTP request.
 class SignalRHttpRequest {

@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:logging/logging.dart';
 
+import '../../clients/signalr_http_client.dart';
+import '../../exceptions/errors.dart';
+import '../../protocols/ihub_protocol.dart';
+import '../../utils/utils.dart';
+import '../itransport.dart';
 import 'abort_controller.dart';
-import 'errors.dart';
-import 'ihub_protocol.dart';
-import 'itransport.dart';
-import 'signalr_http_client.dart';
-import 'utils.dart';
 
 class LongPollingTransport implements ITransport {
   // Properties

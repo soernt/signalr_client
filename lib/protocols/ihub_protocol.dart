@@ -2,8 +2,8 @@ import 'dart:collection';
 
 import 'package:logging/logging.dart';
 
-import 'errors.dart';
-import 'itransport.dart';
+import '../exceptions/errors.dart';
+import '../transport/itransport.dart';
 
 /// Defines the type of a Hub Message.
 enum MessageType {

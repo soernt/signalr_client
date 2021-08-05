@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:tuple/tuple.dart';
 
-import 'errors.dart';
-import 'handshake_protocol.dart';
+import '../exceptions/errors.dart';
+import '../policies/default_reconnect_policy.dart';
+import '../policies/iretry_policy.dart';
+import '../protocols/handshake_protocol.dart';
+import '../protocols/ihub_protocol.dart';
+import '../utils/utils.dart';
 import 'iconnection.dart';
-import 'ihub_protocol.dart';
-import 'iretry_policy.dart';
-import 'utils.dart';
-import 'default_reconnect_policy.dart';
 
 const int DEFAULT_TIMEOUT_IN_MS = 30 * 1000;
 const int DEFAULT_PING_INTERVAL_IN_MS = 15 * 1000;
@@ -35,7 +35,7 @@ enum HubConnectionState {
 typedef InvocationEventCallback = void Function(
     HubMessageBase invocationEvent, Exception error);
 typedef MethodInvocationFunc = void Function(List<Object> arguments);
-typedef ClosedCallback = void Function({Exception error});
+typedef ClosedCallback = void Function(Exception error);
 typedef ReconnectingCallback = void Function({Exception error});
 typedef ReconnectedCallback = void Function({String connectionId});
 
@@ -719,7 +719,7 @@ class HubConnection {
       _connectionStarted = false;
 
       try {
-        _closedCallbacks.forEach((c) => c(error: error)); // removed "this"
+        _closedCallbacks.forEach((c) => c(error)); // removed "this"
       } catch (e) {
         _logger?.severe(
             "An onclose callback called with error '$error' threw error '$e'.");

@@ -1,10 +1,12 @@
 import 'dart:async';
+
 import 'package:http/http.dart';
-import 'package:signalr_netcore/ihub_protocol.dart';
-import 'errors.dart';
-import 'signalr_http_client.dart';
-import 'utils.dart';
 import 'package:logging/logging.dart';
+import 'package:signalr_netcore/protocols/ihub_protocol.dart';
+
+import '../exceptions/errors.dart';
+import '../utils/utils.dart';
+import 'signalr_http_client.dart';
 
 typedef OnHttpClientCreateCallback = void Function(Client httpClient);
 
@@ -15,7 +17,6 @@ class WebSupportingHttpClient extends SignalRHttpClient {
   final OnHttpClientCreateCallback _httpClientCreateCallback;
 
   // Methods
-
   WebSupportingHttpClient(Logger logger,
       {OnHttpClientCreateCallback httpClientCreateCallback})
       : this._logger = logger,

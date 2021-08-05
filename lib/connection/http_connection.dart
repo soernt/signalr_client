@@ -3,18 +3,18 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
+import 'package:signalr_netcore/clients/signalr_http_client.dart';
+import 'package:signalr_netcore/clients/web_supporting_http_client.dart';
+import 'package:signalr_netcore/connection/http_connection_options.dart';
+import 'package:signalr_netcore/exceptions/errors.dart';
+import 'package:signalr_netcore/protocols/ihub_protocol.dart';
+import 'package:signalr_netcore/transport/itransport.dart';
+import 'package:signalr_netcore/transport/long_polling/long_polling_transport.dart';
+import 'package:signalr_netcore/transport/server_sent_events/server_sent_events_transport.dart';
+import 'package:signalr_netcore/transport/web_socket/web_socket_transport.dart';
+import 'package:signalr_netcore/utils/utils.dart';
 
-import 'web_supporting_http_client.dart';
-import 'errors.dart';
-import 'http_connection_options.dart';
 import 'iconnection.dart';
-import 'ihub_protocol.dart';
-import 'itransport.dart';
-import 'long_polling_transport.dart';
-import 'server_sent_events_transport.dart';
-import 'signalr_http_client.dart';
-import 'utils.dart';
-import 'web_socket_transport.dart';
 
 enum ConnectionState {
   Connecting,
@@ -205,6 +205,7 @@ class HttpConnection implements IConnection {
   static final maxRequestTimeoutMilliseconds = 2000;
 
   ConnectionState _connectionState;
+
   // connectionStarted is tracked independently from connectionState, so we can check if the
   // connection ever did successfully transition from connecting to connected before disconnecting.
   bool _connectionStarted;
@@ -567,7 +568,7 @@ class HttpConnection implements IConnection {
         return WebSocketTransport(
             _accessTokenFactory, _logger, _options.logMessageContent ?? false);
       case HttpTransportType.ServerSentEvents:
-        return new ServerSentEventsTransport(_httpClient, _accessTokenFactory,
+        return ServerSentEventsTransport(_httpClient, _accessTokenFactory,
             _logger, _options.logMessageContent ?? false);
       case HttpTransportType.LongPolling:
         return LongPollingTransport(_httpClient, _accessTokenFactory, _logger,

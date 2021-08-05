@@ -1,14 +1,15 @@
 import 'dart:async';
 import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart';
+import 'package:logging/logging.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 import 'main.dart';
 import 'utils/viewModel/viewModel.dart';
 import 'utils/viewModel/viewModelProvider.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
-import 'package:logging/logging.dart';
 
 typedef HubConnectionProvider = Future<HubConnection> Function();
 
@@ -92,7 +93,7 @@ class ChatPageViewModel extends ViewModel {
           .withAutomaticReconnect(retryDelays: [2000, 5000, 10000, 20000, null])
           .configureLogging(logger)
           .build();
-      _hubConnection.onclose(({error}) => connectionIsOpen = false);
+      _hubConnection.onclose((error) => connectionIsOpen = false);
       _hubConnection.onreconnecting(({error}) {
         print("onreconnecting called");
         connectionIsOpen = false;

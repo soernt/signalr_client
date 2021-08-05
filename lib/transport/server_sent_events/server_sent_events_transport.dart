@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:sse_client/sse_client.dart';
 
-import 'errors.dart';
-import 'itransport.dart';
-import 'signalr_http_client.dart';
-import 'utils.dart';
+import '../../clients/signalr_http_client.dart';
+import '../../exceptions/errors.dart';
+import '../../utils/utils.dart';
+import '../itransport.dart';
 
 class ServerSentEventsTransport implements ITransport {
   // Properties

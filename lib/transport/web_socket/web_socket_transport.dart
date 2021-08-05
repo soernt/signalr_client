@@ -2,11 +2,10 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
+import 'package:signalr_netcore/exceptions/errors.dart';
+import 'package:signalr_netcore/transport/itransport.dart';
+import 'package:signalr_netcore/utils/utils.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-
-import 'errors.dart';
-import 'itransport.dart';
-import 'utils.dart';
 
 class WebSocketTransport implements ITransport {
   // Properties

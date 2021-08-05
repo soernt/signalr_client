@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'errors.dart';
+import '../exceptions/errors.dart';
 import 'text_message_format.dart';
 
 /// private

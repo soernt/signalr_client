@@ -1,7 +1,6 @@
 import 'package:logging/logging.dart';
-
-import 'itransport.dart';
-import 'signalr_http_client.dart';
+import 'package:signalr_netcore/clients/signalr_http_client.dart';
+import 'package:signalr_netcore/transport/itransport.dart';
 
 /// Options provided to the 'withUrl' method on HubConnectionBuilder to configure options for the HTTP-based transports.
 class HttpConnectionOptions {

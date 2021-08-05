@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import "itransport.dart";
+import '../transport/itransport.dart';
 
 class ConnectionFeatures {
   // Properties

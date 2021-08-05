@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'errors.dart';
+import '../exceptions/errors.dart';
 
 /// Specifies a specific HTTP transport type.
 enum HttpTransportType {
