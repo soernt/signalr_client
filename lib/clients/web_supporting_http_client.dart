@@ -13,12 +13,12 @@ typedef OnHttpClientCreateCallback = void Function(Client httpClient);
 class WebSupportingHttpClient with SignalRHttpClient {
   // Properties
 
-  final Logger _logger;
+  final Logger? _logger;
   final OnHttpClientCreateCallback? _httpClientCreateCallback;
 
   // Methods
-  const WebSupportingHttpClient(Logger logger,
-      {OnHttpClientCreateCallback? httpClientCreateCallback})
+  const WebSupportingHttpClient(
+      {Logger? logger, OnHttpClientCreateCallback? httpClientCreateCallback})
       : this._logger = logger,
         this._httpClientCreateCallback = httpClientCreateCallback;
 
@@ -72,7 +72,7 @@ class WebSupportingHttpClient with SignalRHttpClient {
         }
       }
 
-      _logger.finest(
+      _logger?.finest(
           "HTTP send: url '${request.url}', method: '${request.method}' content: '${request.content}' content length = '${(request.content as String).length}' headers: '$headers'");
 
       final httpRespFuture = await Future.any(

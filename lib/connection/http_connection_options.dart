@@ -48,4 +48,20 @@ class HttpConnectionOptions {
         this.accessTokenFactory = accessTokenFactory,
         this.logMessageContent = logMessageContent,
         this.skipNegotiation = skipNegotiation;
+
+  HttpConnectionOptions copyWith(
+          {SignalRHttpClient? httpClient,
+          Object? transport,
+          Logger? logger,
+          AccessTokenFactory? accessTokenFactory,
+          bool? logMessageContent,
+          bool? skipNegotiation}) =>
+      HttpConnectionOptions(
+        httpClient: httpClient ?? this.httpClient,
+        transport: transport ?? this.transport,
+        logger: logger ?? this.logger,
+        accessTokenFactory: accessTokenFactory ?? this.accessTokenFactory,
+        logMessageContent: logMessageContent ?? this.logMessageContent,
+        skipNegotiation: skipNegotiation ?? this.skipNegotiation,
+      );
 }

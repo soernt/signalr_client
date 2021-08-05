@@ -231,8 +231,8 @@ class HttpConnection implements IConnection {
       {HttpConnectionOptions options = const HttpConnectionOptions()})
       : baseUrl = url,
         _options = options,
-        _httpClient =
-            options.httpClient ?? WebSupportingHttpClient(options.logger!),
+        _httpClient = options.httpClient ??
+            WebSupportingHttpClient(logger: options.logger),
         _logger = options.logger;
 
   @override

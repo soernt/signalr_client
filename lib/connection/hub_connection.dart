@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:logging/logging.dart';
 import 'package:signalr_netcore/policies/default_reconnect_policy.dart';
+import 'package:signalr_netcore/protocols/json_hub_protocol.dart';
+import 'package:signalr_netcore/transport/itransport.dart';
 import 'package:tuple/tuple.dart';
 
 import '../exceptions/errors.dart';
@@ -9,6 +11,8 @@ import '../policies/iretry_policy.dart';
 import '../protocols/handshake_protocol.dart';
 import '../protocols/ihub_protocol.dart';
 import '../utils/utils.dart';
+import 'http_connection.dart';
+import 'http_connection_options.dart';
 import 'iconnection.dart';
 
 const int DEFAULT_TIMEOUT_IN_MS = 30 * 1000;
@@ -143,6 +147,40 @@ class HubConnection {
           connection: connection,
           protocol: protocol,
           reconnectPolicy: reconnectPolicy);
+
+  factory HubConnection.builder(
+    String url, {
+    HttpConnectionOptions options = const HttpConnectionOptions(),
+    bool withAutomaticRetry = true,
+    HttpTransportType? transportType,
+    Logger? logger,
+    IHubProtocol? protocol,
+    IRetryPolicy? reconnectPolicy,
+    List<int>? retryDelays,
+  }) {
+    final connection = HttpConnection(
+      url,
+      options: transportType == null
+          ? options
+          : options.copyWith(transport: transportType),
+    );
+
+    IRetryPolicy? reconnectPolicy;
+
+    if (withAutomaticRetry) {
+      if (reconnectPolicy == null && retryDelays == null) {
+        reconnectPolicy = DefaultRetryPolicy();
+      } else if (retryDelays != null) {
+        reconnectPolicy = DefaultRetryPolicy(retryDelays: retryDelays);
+      } else {
+        reconnectPolicy = reconnectPolicy;
+      }
+    }
+
+    return HubConnection.create(
+        connection, logger, protocol ?? JsonHubProtocol(),
+        reconnectPolicy: reconnectPolicy);
+  }
 
   /// Starts the connection.
   ///
