@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'package:logging/logging.dart';
 
 import '../exceptions/errors.dart';
@@ -25,7 +23,7 @@ enum MessageType {
   Close, // = 7,
 }
 
-MessageType parseMessageTypeFromString(int value) {
+MessageType? parseMessageTypeFromString(int? value) {
   if (value == null) {
     return null;
   }
@@ -33,25 +31,18 @@ MessageType parseMessageTypeFromString(int value) {
   switch (value) {
     case 1:
       return MessageType.Invocation;
-      break;
     case 2:
       return MessageType.StreamItem;
-      break;
     case 3:
       return MessageType.Completion;
-      break;
     case 4:
       return MessageType.StreamInvocation;
-      break;
     case 5:
       return MessageType.CancelInvocation;
-      break;
     case 6:
       return MessageType.Ping;
-      break;
     case 7:
       return MessageType.Close;
-      break;
     default:
       throw GeneralError("A MessageType of {value} is not supported.");
   }
@@ -61,40 +52,26 @@ MessageType parseMessageTypeFromString(int value) {
 class MessageHeaders {
   static const String AuthorizationHeaderName = "Authorization";
 
+  MessageHeaders() : _headers = <String, String>{};
+
   // Properties
-  HashMap<String, String> _headers;
+  final Map<String, String> _headers;
 
   Iterable<String> get names => _headers.keys;
-  HashMap<String, String> get asMap => _headers;
 
-  bool get isEmtpy => _headers.length == 0;
+  bool get isEmpty => _headers.length == 0;
 
-  // Methods
-  MessageHeaders() {
-    _headers = HashMap<String, String>();
-  }
+  Map<String, String> get asMap => _headers;
 
-  /// Gets the header with the specified key.
-  String getHeaderValue(String name) {
-    return _headers[name];
-  }
+  void remove(String key) => _headers.remove(key);
 
-  /// Sets the header with the specified key.
-  void setHeaderValue(String name, String value) {
-    _headers[name] = value;
-  }
+  String? operator [](String key) => _headers[key];
 
-  /// removes the given header
-  void removeHeader(String name) {
-    if (_headers.containsKey(name)) {
-      _headers.remove(name);
-    }
-  }
+  void operator []=(String key, String value) => _headers[key] = value;
 
   @override
   String toString() {
-    if (isEmtpy) return '(no headers)';
-
+    if (isEmpty) return '(no headers)';
     String str = '';
     for (var name in names) {
       if (str.isNotEmpty) str += ', ';
@@ -126,11 +103,11 @@ abstract class HubInvocationMessage extends HubMessageBase {
   ///
   ///This is expected to be present for StreamInvocationMessage and CompletionMessage. It may
   ///be 'undefined' for an InvocationMessage if the sender does not expect a response.
-  final String invocationId;
+  final String? invocationId;
 
   // Methods
   HubInvocationMessage(
-      MessageType messageType, MessageHeaders headers, String invocationId)
+      MessageType messageType, MessageHeaders? headers, String? invocationId)
       : this.headers = headers ?? MessageHeaders(),
         this.invocationId = invocationId,
         super(messageType);
@@ -141,26 +118,27 @@ class InvocationMessage extends HubInvocationMessage {
   // Properites
 
   /// The target method name.
-  final String target;
+  final String? target;
 
   /// The target method arguments.
   final List<Object> arguments;
 
   /// The target method's stream IDs.
-  final List<String> streamIds;
+  final List<String>? streamIds;
 
   // Methods
-  InvocationMessage(String target, List<Object> arguments,
-      List<String> streamIds, MessageHeaders headers, String invocationId)
-      : this.target = target,
-        this.arguments = arguments,
-        this.streamIds = streamIds,
-        super(MessageType.Invocation, headers, invocationId);
+  InvocationMessage({
+    required this.target,
+    required this.arguments,
+    this.streamIds = const [],
+    MessageHeaders? headers,
+    String? invocationId,
+  }) : super(MessageType.Invocation, headers, invocationId);
 }
 
 /// A hub message representing a streaming invocation.
 class StreamInvocationMessage extends HubInvocationMessage {
-  // Properites
+  // Properties
 
   /// The target method name.
   final String target;
@@ -185,10 +163,10 @@ class StreamItemMessage extends HubInvocationMessage {
   // Properites
 
   /// The item produced by the server.
-  final Object item;
+  final Object? item;
 
   // Methods
-  StreamItemMessage(Object item, MessageHeaders headers, String invocationId)
+  StreamItemMessage(Object? item, MessageHeaders? headers, String? invocationId)
       : this.item = item,
         super(MessageType.StreamItem, headers, invocationId);
 }
@@ -200,16 +178,16 @@ class CompletionMessage extends HubInvocationMessage {
   /// The error produced by the invocation, if any.
   ///
   /// Either CompletionMessage.error CompletionMessage.result must be defined, but not both.
-  final String error;
+  final String? error;
 
   /// The result produced by the invocation, if any.
   ///
   /// Either {@link @microsoft/signalr.CompletionMessage.error} or {@link @microsoft/signalr.CompletionMessage.result} must be defined, but not both.
-  final Object result;
+  final Object? result;
 
   // Methods
-  CompletionMessage(
-      String error, Object result, MessageHeaders headers, String invocationId)
+  CompletionMessage(String? error, Object? result, MessageHeaders? headers,
+      String? invocationId)
       : this.error = error,
         this.result = result,
         super(MessageType.Completion, headers, invocationId);
@@ -232,13 +210,13 @@ class CloseMessage extends HubMessageBase {
   /// The error that triggered the close, if any.
   ///
   /// If this property is undefined, the connection was closed normally and without error.
-  final String error;
+  final String? error;
 
   /// If true, clients with automatic reconnects enabled should attempt to reconnect after receiving the CloseMessage. Otherwise, they should not. */
-  final bool allowReconnect;
+  final bool? allowReconnect;
 
   //Methods
-  CloseMessage({String error, bool allowReconnect})
+  CloseMessage({String? error, bool? allowReconnect})
       : this.error = error,
         this.allowReconnect = allowReconnect,
         super(MessageType.Close);
@@ -247,7 +225,7 @@ class CloseMessage extends HubMessageBase {
 /// A hub message sent to request that a streaming invocation be canceled.
 class CancelInvocationMessage extends HubInvocationMessage {
   // Methods
-  CancelInvocationMessage(MessageHeaders headers, String invocationId)
+  CancelInvocationMessage(MessageHeaders headers, String? invocationId)
       : super(MessageType.CancelInvocation, headers, invocationId);
 }
 
@@ -277,7 +255,7 @@ abstract class IHubProtocol {
   /// [input] A string (json), or Uint8List (binary) containing the serialized representation.
   /// [Logger] logger A logger that will be used to log messages that occur during parsing.
 
-  List<HubMessageBase> parseMessages(Object input, Logger logger);
+  List<HubMessageBase> parseMessages(Object input, Logger? logger);
 
   /// Writes the specified HubMessage to a string or ArrayBuffer and returns it.
   ///

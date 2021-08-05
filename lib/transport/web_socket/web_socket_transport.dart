@@ -10,20 +10,20 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 class WebSocketTransport implements ITransport {
   // Properties
 
-  Logger _logger;
-  AccessTokenFactory _accessTokenFactory;
+  Logger? _logger;
+  AccessTokenFactory? _accessTokenFactory;
   bool _logMessageContent;
-  WebSocketChannel _webSocket;
-  StreamSubscription<Object> _webSocketListenSub;
+  WebSocketChannel? _webSocket;
+  StreamSubscription<Object?>? _webSocketListenSub;
 
   @override
-  OnClose onClose;
+  OnClose? onClose;
 
   @override
-  OnReceive onReceive;
+  OnReceive? onReceive;
 
   // Methods
-  WebSocketTransport(AccessTokenFactory accessTokenFactory, Logger logger,
+  WebSocketTransport(AccessTokenFactory? accessTokenFactory, Logger? logger,
       bool logMessageContent)
       : this._accessTokenFactory = accessTokenFactory,
         this._logger = logger,
@@ -31,31 +31,28 @@ class WebSocketTransport implements ITransport {
 
   @override
   Future<void> connect(String url, TransferFormat transferFormat) async {
-    assert(url != null);
-    assert(transferFormat != null);
-
     _logger?.finest("(WebSockets transport) Connecting");
 
     if (_accessTokenFactory != null) {
-      final token = await _accessTokenFactory();
-      if (!isStringEmpty(token)) {
+      final token = await _accessTokenFactory!();
+      if (token.isNotNullOrEmpty) {
         final encodedToken = Uri.encodeComponent(token);
         url +=
             (url.indexOf("?") < 0 ? "?" : "&") + "access_token=$encodedToken";
       }
     }
 
-    var websocketCompleter = Completer();
+    var webSocketCompleter = Completer();
     var opened = false;
     url = url.replaceFirst('http', 'ws');
     _logger?.finest("WebSocket try connecting to '$url'.");
     _webSocket = WebSocketChannel.connect(Uri.parse(url));
     opened = true;
-    if (!websocketCompleter.isCompleted) websocketCompleter.complete();
+    if (!webSocketCompleter.isCompleted) webSocketCompleter.complete();
     _logger?.info("WebSocket connected to '$url'.");
-    _webSocketListenSub = _webSocket.stream.listen(
+    _webSocketListenSub = _webSocket!.stream.listen(
       // onData
-      (Object message) {
+      (Object? message) {
         if (_logMessageContent && message is String) {
           _logger?.finest(
               "(WebSockets transport) data received. message ${getDataDetail(message, _logMessageContent)}.");
@@ -64,7 +61,7 @@ class WebSocketTransport implements ITransport {
         }
         if (onReceive != null) {
           try {
-            onReceive(message);
+            onReceive!(message);
           } catch (error) {
             _logger?.severe(
                 "(WebSockets transport) error calling onReceive, error: $error");
@@ -76,8 +73,8 @@ class WebSocketTransport implements ITransport {
       // onError
       onError: (Object error) {
         var e = error != null ? error : "Unknown websocket error";
-        if (!websocketCompleter.isCompleted) {
-          websocketCompleter.completeError(e);
+        if (!webSocketCompleter.isCompleted) {
+          webSocketCompleter.completeError(e);
         }
       },
 
@@ -87,18 +84,18 @@ class WebSocketTransport implements ITransport {
         // We'll reject the connect call instead
         if (opened) {
           if (onClose != null) {
-            onClose();
+            onClose!();
           }
         } else {
-          if (!websocketCompleter.isCompleted) {
-            websocketCompleter
+          if (!webSocketCompleter.isCompleted) {
+            webSocketCompleter
                 .completeError("There was an error with the transport.");
           }
         }
       },
     );
 
-    return websocketCompleter.future;
+    return webSocketCompleter.future;
   }
 
   @override
@@ -109,9 +106,9 @@ class WebSocketTransport implements ITransport {
       //_logger?.finest("(WebSockets transport) sending data.");
 
       if (data is String) {
-        _webSocket.sink.add(data);
+        _webSocket!.sink.add(data);
       } else if (data is Uint8List) {
-        _webSocket.sink.add(data);
+        _webSocket!.sink.add(data);
       } else {
         throw GeneralError("Content type is not handled.");
       }
@@ -131,17 +128,14 @@ class WebSocketTransport implements ITransport {
   _close() async {
     if (_webSocket != null) {
       // Clear websocket handlers because we are considering the socket closed now
-      if (_webSocketListenSub != null) {
-        await _webSocketListenSub.cancel();
-        _webSocketListenSub = null;
-      }
-      _webSocket.sink.close();
+      await _webSocketListenSub?.cancel();
+      _webSocket?.sink.close();
       _webSocket = null;
     }
 
     _logger?.finest("(WebSockets transport) socket closed.");
     if (onClose != null) {
-      onClose();
+      onClose!();
     }
   }
 }

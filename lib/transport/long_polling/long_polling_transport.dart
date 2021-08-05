@@ -12,30 +12,30 @@ import 'abort_controller.dart';
 class LongPollingTransport implements ITransport {
   // Properties
   final SignalRHttpClient _httpClient;
-  final AccessTokenFactory _accessTokenFactory;
-  final Logger _logger;
+  final AccessTokenFactory? _accessTokenFactory;
+  final Logger? _logger;
   final bool _logMessageContent;
   final AbortController _pollAbort;
 
-  bool get pollAborted => _pollAbort.aborted;
+  bool? get pollAborted => _pollAbort.aborted;
 
-  String _url;
-  bool _running;
-  Future<void> _receiving;
-  Exception _closeError;
-
-  @override
-  OnClose onClose;
+  String? _url;
+  late bool _running;
+  Future<void>? _receiving;
+  Exception? _closeError;
 
   @override
-  OnReceive onReceive;
+  OnClose? onClose;
+
+  @override
+  OnReceive? onReceive;
 
   // Methods
 
   LongPollingTransport(
       SignalRHttpClient httpClient,
-      AccessTokenFactory accessTokenFactory,
-      Logger logger,
+      AccessTokenFactory? accessTokenFactory,
+      Logger? logger,
       bool logMessageContent)
       : assert(httpClient != null),
         _httpClient = httpClient,
@@ -48,8 +48,7 @@ class LongPollingTransport implements ITransport {
 
   @override
   Future<void> connect(String url, TransferFormat transferFormat) async {
-    assert(!isStringEmpty(url));
-    assert(transferFormat != null);
+    assert(url.isNotNullOrEmpty);
 
     _url = url;
 
@@ -87,7 +86,7 @@ class LongPollingTransport implements ITransport {
     _receiving = poll(_url, pollOptions);
   }
 
-  Future<void> poll(String url, SignalRHttpRequest pollOptions) async {
+  Future<void> poll(String? url, SignalRHttpRequest pollOptions) async {
     try {
       while (_running) {
         // We have to get the access token on each poll, in case it changes
@@ -113,11 +112,11 @@ class LongPollingTransport implements ITransport {
             _running = false;
           } else {
             // Process the response
-            if (!isStringEmpty(response.content)) {
+            if ((response.content as String?).isNotNullOrEmpty) {
               // _logger.log(LogLevel.Trace, "(LongPolling transport) data received. ${getDataDetail(response.content, this.logMessageContent)}");
               _logger?.finest("(LongPolling transport) data received");
               if (onReceive != null) {
-                onReceive(response.content);
+                onReceive!(response.content);
               }
             } else {
               // This is another way timeout manifest.
@@ -125,11 +124,11 @@ class LongPollingTransport implements ITransport {
                   "(LongPolling transport) Poll timed out, reissuing.");
             }
           }
-        } catch (e) {
+        } on Exception catch (e) {
           if (!_running) {
             // Log but disregard errors that occur after stopping
             _logger?.finest(
-                "(LongPolling transport) Poll errored after shutdown: ${e.message}");
+                "(LongPolling transport) Poll errored after shutdown: $e");
           } else {
             if (e is TimeoutError) {
               // Ignore timeouts and reissue the poll.
@@ -148,7 +147,7 @@ class LongPollingTransport implements ITransport {
 
       // We will reach here with pollAborted==false when the server returned a response causing the transport to stop.
       // If pollAborted==true then client initiated the stop and the stop method will raise the close event after DELETE is sent.
-      if (!this.pollAborted) {
+      if (!this.pollAborted!) {
         _raiseOnClose();
       }
     }
@@ -160,7 +159,7 @@ class LongPollingTransport implements ITransport {
       return Future.error(
           new GeneralError("Cannot send until the transport is connected"));
     }
-    await sendMessage(_logger, "LongPolling", _httpClient, _url,
+    await sendMessage(_logger, "LongPolling", _httpClient, _url!,
         _accessTokenFactory, data, _logMessageContent);
   }
 
@@ -182,7 +181,7 @@ class LongPollingTransport implements ITransport {
       final deleteOptions = SignalRHttpRequest();
       final token = await _getAccessToken();
       _updateHeaderToken(deleteOptions, token);
-      await _httpClient.delete(_url, options: deleteOptions);
+      await _httpClient.delete(_url!, options: deleteOptions);
 
       _logger?.finest("(LongPolling transport) DELETE request sent.");
     } finally {
@@ -194,23 +193,23 @@ class LongPollingTransport implements ITransport {
     }
   }
 
-  Future<String> _getAccessToken() async {
+  Future<String?> _getAccessToken() async {
     if (_accessTokenFactory != null) {
-      return await _accessTokenFactory();
+      return await _accessTokenFactory!();
     }
     return null;
   }
 
-  void _updateHeaderToken(SignalRHttpRequest request, String token) {
+  void _updateHeaderToken(SignalRHttpRequest request, String? token) {
     if (request.headers == null) {
       request.headers = MessageHeaders();
     }
 
-    if (!isStringEmpty(token)) {
-      request.headers.setHeaderValue("Authorization", "Bearer $token");
+    if (token.isNotNullOrEmpty) {
+      request.headers!["Authorization"] = "Bearer $token";
       return;
     }
-    request.headers.removeHeader("Authorization");
+    request.headers!.remove("Authorization");
   }
 
   void _raiseOnClose() {
@@ -220,7 +219,7 @@ class LongPollingTransport implements ITransport {
         logMessage += " Error: " + _closeError.toString();
       }
       _logger?.finest(logMessage);
-      onClose(error: GeneralError(_closeError?.toString()));
+      onClose!(error: GeneralError(_closeError?.toString()));
     }
   }
 }

@@ -14,7 +14,7 @@ enum HttpTransportType {
   LongPolling, // = 4,
 }
 
-HttpTransportType httpTransportTypeFromString(String value) {
+HttpTransportType httpTransportTypeFromString(String? value) {
   if (value == null || value == "") {
     return HttpTransportType.None;
   }
@@ -65,10 +65,10 @@ TransferFormat getTransferFormatFromString(String value) {
 
 /// Data received call back.
 /// data: the content. Either a string (json) or Uint8List (binary)
-typedef OnReceive = void Function(Object data);
+typedef OnReceive = void Function(Object? data);
 
 ///
-typedef OnClose = void Function({Exception error});
+typedef OnClose = void Function({Exception? error});
 
 typedef AccessTokenFactory = Future<String> Function();
 
@@ -79,6 +79,6 @@ abstract class ITransport {
   /// data: the content. Either a string (json) or Uint8List (binary)
   Future<void> send(Object data);
   Future<void> stop();
-  OnReceive onReceive;
-  OnClose onClose;
+  OnReceive? onReceive;
+  OnClose? onClose;
 }

@@ -5,19 +5,7 @@ import 'package:logging/logging.dart';
 import '../protocols/ihub_protocol.dart';
 import '../signalr_client.dart';
 
-bool isIntEmpty(int value) {
-  return (value == null);
-}
-
-bool isStringEmpty(String value) {
-  return (value == null) || (value.length == 0);
-}
-
-bool isListEmpty(List value) {
-  return (value == null) || (value.length == 0);
-}
-
-String getDataDetail(Object data, bool includeContent) {
+String getDataDetail(Object? data, bool includeContent) {
   var detail = "";
   if (data is Uint8List) {
     detail = "Binary data of length ${data.lengthInBytes}";
@@ -45,19 +33,25 @@ String formatArrayBuffer(Uint8List data) {
   return str.substring(0, str.length - 1);
 }
 
+extension StringUtils on String? {
+  bool get isNotNullOrEmpty => this?.isNotEmpty ?? false;
+
+  bool get isNullOrEmpty => this?.isEmpty ?? true;
+}
+
 Future<void> sendMessage(
-    Logger logger,
+    Logger? logger,
     String transportName,
     SignalRHttpClient httpClient,
     String url,
-    AccessTokenFactory accessTokenFactory,
+    AccessTokenFactory? accessTokenFactory,
     Object content,
     bool logMessageContent) async {
   MessageHeaders headers = MessageHeaders();
   if (accessTokenFactory != null) {
     final token = await accessTokenFactory();
-    if (!isStringEmpty(token)) {
-      headers.setHeaderValue("Authorization", "Bearer $token");
+    if (token.isNotNullOrEmpty) {
+      headers["Authorization"] = "Bearer $token";
     }
   }
 

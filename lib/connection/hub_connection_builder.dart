@@ -15,17 +15,17 @@ import 'hub_connection.dart';
 class HubConnectionBuilder {
   // Properties
 
-  IHubProtocol _protocol;
+  IHubProtocol? _protocol;
 
-  HttpConnectionOptions _httpConnectionOptions;
+  HttpConnectionOptions? _httpConnectionOptions;
 
-  String _url;
+  String? _url;
 
-  Logger _logger;
+  Logger? _logger;
 
   /// If defined, this indicates the client should automatically attempt to reconnect if the connection is lost. */
   ///
-  IRetryPolicy _reconnectPolicy;
+  IRetryPolicy? _reconnectPolicy;
 
   /// Configures console logging for the HubConnection.
   ///
@@ -46,8 +46,8 @@ class HubConnectionBuilder {
   /// Returns the builder instance, for chaining.
   ///
   HubConnectionBuilder withUrl(String url,
-      {HttpConnectionOptions options, HttpTransportType transportType}) {
-    assert(!isStringEmpty(url));
+      {HttpConnectionOptions? options, HttpTransportType? transportType}) {
+    assert(url.isNotEmpty);
     assert(!(options != null && transportType != null));
 
     _url = url;
@@ -66,14 +66,12 @@ class HubConnectionBuilder {
   /// protocol: The IHubProtocol implementation to use.
   ///
   HubConnectionBuilder withHubProtocol(IHubProtocol protocol) {
-    assert(protocol != null);
-
     _protocol = protocol;
     return this;
   }
 
   HubConnectionBuilder withAutomaticReconnect(
-      {IRetryPolicy reconnectPolicy, List<int> retryDelays}) {
+      {IRetryPolicy? reconnectPolicy, List<int>? retryDelays}) {
     assert(_reconnectPolicy == null);
 
     if (reconnectPolicy == null && retryDelays == null) {
@@ -98,11 +96,12 @@ class HubConnectionBuilder {
         _httpConnectionOptions ?? HttpConnectionOptions();
 
     // Now create the connection
-    if (isStringEmpty(_url)) {
+    if (_url.isNullOrEmpty) {
       throw new GeneralError(
           "The 'HubConnectionBuilder.withUrl' method must be called before building the connection.");
     }
-    final connection = HttpConnection(_url, options: httpConnectionOptions);
+
+    final connection = HttpConnection(_url!, options: httpConnectionOptions);
     return HubConnection.create(
         connection, _logger, _protocol ?? JsonHubProtocol(),
         reconnectPolicy: _reconnectPolicy);
