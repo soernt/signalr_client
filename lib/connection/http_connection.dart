@@ -502,7 +502,7 @@ class HttpConnection implements IConnection {
     }
 
     final List<Object> transportExceptions = [];
-    final transports = negotiateResponse.availableTransports ?? [];
+    final transports = negotiateResponse.availableTransports;
     NegotiateResponse? negotiate = negotiateResponse;
     for (var endpoint in transports) {
       _connectionState = ConnectionState.Connecting;
@@ -517,7 +517,7 @@ class HttpConnection implements IConnection {
 
       if (negotiate == null) {
         try {
-          negotiate = await _getNegotiationResponse(url!);
+          negotiate = await _getNegotiationResponse(url);
         } catch (ex) {
           return Future.error(ex);
         }
@@ -555,13 +555,13 @@ class HttpConnection implements IConnection {
     switch (transport) {
       case HttpTransportType.WebSockets:
         return WebSocketTransport(
-            _accessTokenFactory, _logger, _options.logMessageContent ?? false);
+            _accessTokenFactory, _logger, _options.logMessageContent);
       case HttpTransportType.ServerSentEvents:
         return ServerSentEventsTransport(_httpClient, _accessTokenFactory,
-            _logger, _options.logMessageContent ?? false);
+            _logger, _options.logMessageContent);
       case HttpTransportType.LongPolling:
         return LongPollingTransport(_httpClient, _accessTokenFactory, _logger,
-            _options.logMessageContent ?? false);
+            _options.logMessageContent);
       default:
         throw new GeneralError("Unknown transport: $transport.");
     }

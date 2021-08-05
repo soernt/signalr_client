@@ -618,8 +618,7 @@ class HubConnection {
             (Timer t) async {
       if (_connectionState == HubConnectionState.Connected) {
         try {
-          if (_cachedPingMessage != null)
-            await _sendMessage(_cachedPingMessage!);
+          await _sendMessage(_cachedPingMessage);
         } catch (e) {
           // We don't care about the error. It should be seen elsewhere in the client.
           // The connection is probably in a bad or closed state now, cleanup the timer so it stops triggering
@@ -912,7 +911,7 @@ class HubConnection {
     for (var i = 0; i < args.length; i++) {
       final argument = args[i];
       if (argument is Stream) {
-        final streamId = _invocationId!;
+        final streamId = _invocationId;
         _invocationId++;
         // Store the stream for later use
         streams[streamId] = argument as Stream<Object>;
