@@ -69,7 +69,7 @@ class TestsPageViewModel extends ViewModel {
           .withAutomaticReconnect()
           .configureLogging(logger)
           .build();
-      _hubConnection.onclose((error) => _logger.info("Connection Closed"));
+      _hubConnection.onClose((error) => _logger.info("Connection Closed"));
     }
 
     if (_hubConnection.state != HubConnectionState.Connected) {

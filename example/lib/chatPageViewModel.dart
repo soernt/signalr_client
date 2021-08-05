@@ -93,12 +93,12 @@ class ChatPageViewModel extends ViewModel {
           .withAutomaticReconnect(retryDelays: [2000, 5000, 10000, 20000, null])
           .configureLogging(logger)
           .build();
-      _hubConnection.onclose((error) => connectionIsOpen = false);
-      _hubConnection.onreconnecting(({error}) {
+      _hubConnection.onClose((error) => connectionIsOpen = false);
+      _hubConnection.onReconnecting(({error}) {
         print("onreconnecting called");
         connectionIsOpen = false;
       });
-      _hubConnection.onreconnected(({connectionId}) {
+      _hubConnection.onReconnected(({connectionId}) {
         print("onreconnected called");
         connectionIsOpen = true;
       });

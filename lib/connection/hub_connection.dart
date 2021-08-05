@@ -49,7 +49,7 @@ class HubConnection {
   late Object _cachedPingMessage;
   final IConnection _connection;
   final Logger? _logger;
-  final IRetryPolicy _reconnectPolicy;
+  final IRetryPolicy? _reconnectPolicy;
   final IHubProtocol _protocol;
   final HandshakeProtocol _handshakeProtocol;
 
@@ -128,11 +128,14 @@ class HubConnection {
       required IHubProtocol protocol,
       Logger? logger,
       IRetryPolicy? reconnectPolicy,
+      bool withAutomaticReconnect = true,
       this.serverTimeoutInMilliseconds = DEFAULT_TIMEOUT_IN_MS,
       this.keepAliveIntervalInMilliseconds = DEFAULT_PING_INTERVAL_IN_MS})
       : this._connection = connection,
         this._protocol = protocol,
-        this._reconnectPolicy = reconnectPolicy ?? DefaultRetryPolicy(),
+        this._reconnectPolicy = withAutomaticReconnect
+            ? reconnectPolicy ?? DefaultRetryPolicy()
+            : null,
         this._handshakeProtocol = HandshakeProtocol(),
         this._logger = logger {
     _connection.onReceive = _processIncomingData;
@@ -520,30 +523,24 @@ class HubConnection {
   ///
   /// callback: The handler that will be invoked when the connection is closed. Optionally receives a single argument containing the error that caused the connection to close (if any).
   ///
-  void onclose(ClosedCallback callback) {
-    if (callback != null) {
-      _closedCallbacks.add(callback);
-    }
+  void onClose(ClosedCallback callback) {
+    _closedCallbacks.add(callback);
   }
 
   /// Registers a handler that will be invoked when the connection starts reconnecting.
   ///
   /// callback: The handler that will be invoked when the connection starts reconnecting. Optionally receives a single argument containing the error that caused the connection to start reconnecting (if any).
   ///
-  onreconnecting(ReconnectingCallback callback) {
-    if (callback != null) {
-      _reconnectingCallbacks.add(callback);
-    }
+  onReconnecting(ReconnectingCallback callback) {
+    _reconnectingCallbacks.add(callback);
   }
 
   /// Registers a handler that will be invoked when the connection successfully reconnects.
   ///
   /// callback: The handler that will be invoked when the connection successfully reconnects.
   ///
-  onreconnected(ReconnectedCallback callback) {
-    if (callback != null) {
-      _reconnectedCallbacks.add(callback);
-    }
+  onReconnected(ReconnectedCallback callback) {
+    _reconnectedCallbacks.add(callback);
   }
 
   void _processIncomingData(Object? data) {
@@ -849,7 +846,7 @@ class HubConnection {
   int? _getNextRetryDelay(
       int previousRetryCount, int elapsedMilliseconds, Exception retryReason) {
     try {
-      return _reconnectPolicy.nextRetryDelayInMilliseconds(
+      return _reconnectPolicy?.nextRetryDelayInMilliseconds(
           RetryContext(elapsedMilliseconds, previousRetryCount, retryReason));
     } catch (e) {
       _logger?.severe(
@@ -915,9 +912,7 @@ class HubConnection {
     }
 
     // Synchronize stream data so they arrive in-order on the server
-    if (promiseQueue == null) {
-      promiseQueue = Future.value();
-    }
+    promiseQueue = Future.value();
 
     // We want to iterate over the keys, since the keys are the stream ids
     for (var i = 0; i < streams.length; i++) {
