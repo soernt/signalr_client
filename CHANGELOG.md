@@ -1,3 +1,36 @@
+## [1.1.1]
+* Fix pub.dev evaluation result for native support
+
+## [1.1.0]
+* Add support for web
+* Bug fixes
+
+## [1.0.1]
+* Upgrade packages
+
+## [1.0.0]
+* Upgrade to Flutter 2
+
+## [0.1.8+2]
+* Dart format files
+
+## [0.1.8+1]
+* Move chat client files to example folder
+* Add dispose to chat client example view
+* Re-format (dart) files
+
+## [0.1.8]
+* Align codebase with AspNetCore 3.1 Typescript client codebase, including support for auto-reconnect
+
+## [0.1.7+1]
+* Minor changes
+
+## [0.1.7]
+* Fix the exception for: Response Content-Type not supported: [application/json; charset=UTF-8]
+
+## [0.1.6]
+* Merged pull request "Prepare for Uint8List SDK breaking change"
+
 ## [0.1.5]
 * Fix complex object serialization to json.
 
