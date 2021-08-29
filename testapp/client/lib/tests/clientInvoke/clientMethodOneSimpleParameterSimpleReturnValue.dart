@@ -7,12 +7,16 @@ class ClientMethodOneSimpleParameterSimpleReturnValue extends Test {
   // Properties
 
   // Methods
-  ClientMethodOneSimpleParameterSimpleReturnValue(HubConnectionProvider hubConnectionProvider, Logger logger)
-      : super(hubConnectionProvider, logger, "Client Invokes method 'MethodOneSimpleParameterSimpleReturnValue");
+  ClientMethodOneSimpleParameterSimpleReturnValue(
+      HubConnectionProvider hubConnectionProvider, Logger logger)
+      : super(hubConnectionProvider, logger,
+            "Client Invokes method 'MethodOneSimpleParameterSimpleReturnValue");
 
   @override
   Future<void> executeTest(HubConnection hubConnection) async {
-    final result = await hubConnection.invoke("MethodOneSimpleParameterSimpleReturnValue", args: <Object>["ParameterValue"]);
+    final result = await hubConnection.invoke(
+        "MethodOneSimpleParameterSimpleReturnValue",
+        args: <Object>["ParameterValue"]);
     logger.info("Result: '$result");
   }
 }

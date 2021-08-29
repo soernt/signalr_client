@@ -7,27 +7,34 @@ class ServerInvokeMethodSimpleParametersNoReturnValue extends Test {
   // Properties
 
   // Methods
-  ServerInvokeMethodSimpleParametersNoReturnValue(HubConnectionProvider hubConnectionProvider, Logger logger)
-      : super(hubConnectionProvider, logger, "Server Invokes method: 'ServerInvokeMethodSimpleParametersNoReturnValue");
+  ServerInvokeMethodSimpleParametersNoReturnValue(
+      HubConnectionProvider hubConnectionProvider, Logger logger)
+      : super(hubConnectionProvider, logger,
+            "Server Invokes method: 'ServerInvokeMethodSimpleParametersNoReturnValue");
 
   @override
   Future<void> executeTest(HubConnection hubConnection) async {
-    hubConnection.on("ServerInvokeMethodSimpleParametersNoReturnValue", _handleServerInvokeMethodSimpleParametersNoReturnValue);
+    hubConnection.on("ServerInvokeMethodSimpleParametersNoReturnValue",
+        _handleServerInvokeMethodSimpleParametersNoReturnValue);
     try {
-      await hubConnection.invoke("ServerInvokeMethodSimpleParametersNoReturnValue");
+      await hubConnection
+          .invoke("ServerInvokeMethodSimpleParametersNoReturnValue");
     } finally {
-      hubConnection.off("ServerInvokeMethodSimpleParametersNoReturnValue", method: _handleServerInvokeMethodSimpleParametersNoReturnValue);
+      hubConnection.off("ServerInvokeMethodSimpleParametersNoReturnValue",
+          method: _handleServerInvokeMethodSimpleParametersNoReturnValue);
     }
   }
 
-  void _handleServerInvokeMethodSimpleParametersNoReturnValue(List<Object> parameters) {
-
+  void _handleServerInvokeMethodSimpleParametersNoReturnValue(
+      List<Object> parameters) {
     final paramValues = new StringBuffer("Parameters: ");
-    for(int i = 0; i < parameters.length; i++){
+    for (int i = 0; i < parameters.length; i++) {
       final value = parameters[i];
-      paramValues.write( "$i => $value, ");
+      paramValues.write("$i => $value, ");
     }
 
-    logger.info("From Callback: Server invoked method 'ServerInvokeMethodSimpleParametersNoReturnValue': " + paramValues.toString());
+    logger.info(
+        "From Callback: Server invoked method 'ServerInvokeMethodSimpleParametersNoReturnValue': " +
+            paramValues.toString());
   }
 }

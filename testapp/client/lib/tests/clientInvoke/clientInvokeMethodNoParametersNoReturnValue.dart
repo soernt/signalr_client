@@ -7,7 +7,10 @@ class ClientMethodNoParametersNoReturnValue extends Test {
   // Properties
 
   // Methods
-  ClientMethodNoParametersNoReturnValue(HubConnectionProvider hubConnectionProvider, Logger logger) : super(hubConnectionProvider, logger, "Client Invokes method: 'MethodNoParametersNoReturnValue");
+  ClientMethodNoParametersNoReturnValue(
+      HubConnectionProvider hubConnectionProvider, Logger logger)
+      : super(hubConnectionProvider, logger,
+            "Client Invokes method: 'MethodNoParametersNoReturnValue");
 
   @override
   Future<void> executeTest(HubConnection hubConnection) async {

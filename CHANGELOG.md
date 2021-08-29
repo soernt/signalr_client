@@ -1,3 +1,6 @@
+## [1.2.1+1]
+* Fix all flutter formatting issues
+
 ## [1.2.1]
 * Fix formatting issues
 

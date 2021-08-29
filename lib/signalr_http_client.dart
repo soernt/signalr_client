@@ -66,7 +66,8 @@ class SignalRHttpResponse {
   /// statusText: The status message of the response.
   /// content: The content of the response
   ///
-  SignalRHttpResponse(int statusCode, {String? statusText = '', Object? content})
+  SignalRHttpResponse(int statusCode,
+      {String? statusText = '', Object? content})
       : this.statusCode = statusCode,
         this.statusText = statusText,
         this.content = content;
@@ -83,7 +84,8 @@ abstract class SignalRHttpClient {
   /// HttpRequest options Additional options to configure the request. The 'url' field in this object will be overridden by the url parameter.
   /// Returns a Future<HttpResponse> that resolves with an HttpResponse describing the response, or rejects with an Error indicating a failure.
   ///
-  Future<SignalRHttpResponse> get(String url, {required SignalRHttpRequest options}) {
+  Future<SignalRHttpResponse> get(String url,
+      {required SignalRHttpRequest options}) {
     options.method = 'GET';
     options.url = url;
     return send(options);
@@ -95,7 +97,8 @@ abstract class SignalRHttpClient {
   /// options: Additional options to configure the request. The 'url' field in this object will be overridden by the url parameter.
   /// Returns a Future that resolves with an describing the response, or rejects with an Error indicating a failure.
   ///
-  Future<SignalRHttpResponse> post(String? url, {required SignalRHttpRequest options}) {
+  Future<SignalRHttpResponse> post(String? url,
+      {required SignalRHttpRequest options}) {
     options.method = 'POST';
     options.url = url;
     return send(options);
@@ -107,7 +110,8 @@ abstract class SignalRHttpClient {
   /// Additional options to configure the request. The 'url' field in this object will be overridden by the url parameter.
   /// Returns a Future that resolves with an describing the response, or rejects with an Error indicating a failure.
   ///
-  Future<SignalRHttpResponse> delete(String? url, {required SignalRHttpRequest options}) {
+  Future<SignalRHttpResponse> delete(String? url,
+      {required SignalRHttpRequest options}) {
     options.method = 'DELETE';
     options.url = url;
     return send(options);

@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:logging/logging.dart';
@@ -14,14 +13,13 @@ class DelegatingLogSink {
 
   DelegatingLogSink(this._logFunc);
 
-  
   void attachToLogger(Logger logger) {
     assert(logger != null);
 
-    _subscription = Logger.root.onRecord.listen(_logMessage, onDone: _handleOnDone, cancelOnError: true);
+    _subscription = Logger.root.onRecord
+        .listen(_logMessage, onDone: _handleOnDone, cancelOnError: true);
   }
 
-  
   void dispose() {
     _subscription?.cancel();
   }
@@ -31,11 +29,9 @@ class DelegatingLogSink {
   }
 
   void _logMessage(LogRecord event) {
-    
     _logFunc(LogMessage(event.time, event.level, event.message));
   }
 }
-
 
 class LogMessage {
   // Properites
