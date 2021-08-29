@@ -1,3 +1,6 @@
+## [1.2.1]
+* Fix formatting issues
+
 ## [1.2.0]
 * Null safety migration
 

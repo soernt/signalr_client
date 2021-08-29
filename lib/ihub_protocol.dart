@@ -201,8 +201,8 @@ class CompletionMessage extends HubInvocationMessage {
   final Object? result;
 
   // Methods
-  CompletionMessage(
-      String? error, Object? result, MessageHeaders? headers, String? invocationId)
+  CompletionMessage(String? error, Object? result, MessageHeaders? headers,
+      String? invocationId)
       : this.error = error,
         this.result = result,
         super(MessageType.Completion, headers, invocationId);

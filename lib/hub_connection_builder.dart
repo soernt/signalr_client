@@ -66,7 +66,6 @@ class HubConnectionBuilder {
   /// protocol: The IHubProtocol implementation to use.
   ///
   HubConnectionBuilder withHubProtocol(IHubProtocol protocol) {
-
     _protocol = protocol;
     return this;
   }
