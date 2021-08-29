@@ -11,42 +11,42 @@ typedef OnHttpClientCreateCallback = void Function(Client httpClient);
 class WebSupportingHttpClient extends SignalRHttpClient {
   // Properties
 
-  final Logger _logger;
-  final OnHttpClientCreateCallback _httpClientCreateCallback;
+  final Logger? _logger;
+  final OnHttpClientCreateCallback? _httpClientCreateCallback;
 
   // Methods
 
-  WebSupportingHttpClient(Logger logger,
-      {OnHttpClientCreateCallback httpClientCreateCallback})
+  WebSupportingHttpClient(Logger? logger,
+      {OnHttpClientCreateCallback? httpClientCreateCallback})
       : this._logger = logger,
         this._httpClientCreateCallback = httpClientCreateCallback;
 
   Future<SignalRHttpResponse> send(SignalRHttpRequest request) {
     // Check that abort was not signaled before calling send
-    if ((request.abortSignal != null) && request.abortSignal.aborted) {
+    if ((request.abortSignal != null) && request.abortSignal!.aborted!) {
       return Future.error(AbortError());
     }
 
-    if ((request.method == null) || (request.method.length == 0)) {
+    if ((request.method == null) || (request.method!.length == 0)) {
       return Future.error(new ArgumentError("No method defined."));
     }
 
-    if ((request.url == null) || (request.url.length == 0)) {
+    if ((request.url == null) || (request.url!.length == 0)) {
       return Future.error(new ArgumentError("No url defined."));
     }
 
     return Future<SignalRHttpResponse>(() async {
-      final uri = Uri.parse(request.url);
+      final uri = Uri.parse(request.url!);
 
       final httpClient = Client();
       if (_httpClientCreateCallback != null) {
-        _httpClientCreateCallback(httpClient);
+        _httpClientCreateCallback!(httpClient);
       }
 
       final abortFuture = Future<void>(() {
         final completer = Completer<void>();
         if (request.abortSignal != null) {
-          request.abortSignal.onabort = () {
+          request.abortSignal!.onabort = () {
             if (!completer.isCompleted) completer.completeError(AbortError());
           };
         }
@@ -66,9 +66,9 @@ class WebSupportingHttpClient extends SignalRHttpClient {
               ? 'application/json;charset=UTF-8'
               : 'text/plain;charset=UTF-8');
 
-      if ((request.headers != null) && (!request.headers.isEmtpy)) {
-        for (var name in request.headers.names) {
-          headers.setHeaderValue(name, request.headers.getHeaderValue(name));
+      if ((request.headers != null) && (!request.headers!.isEmtpy)) {
+        for (var name in request.headers!.names) {
+          headers.setHeaderValue(name, request.headers!.getHeaderValue(name));
         }
       }
 
@@ -77,13 +77,13 @@ class WebSupportingHttpClient extends SignalRHttpClient {
 
       final httpRespFuture = await Future.any(
           [_sendHttpRequest(httpClient, request, uri, headers), abortFuture]);
-      final httpResp = httpRespFuture as Response;
+      final httpResp = httpRespFuture as Response?;
       if (httpResp == null) {
         return Future.value(null);
       }
 
       if (request.abortSignal != null) {
-        request.abortSignal.onabort = null;
+        request.abortSignal!.onabort = null;
       }
 
       if ((httpResp.statusCode >= 200) && (httpResp.statusCode < 300)) {
@@ -118,28 +118,28 @@ class WebSupportingHttpClient extends SignalRHttpClient {
   ) {
     Future<Response> httpResponse;
 
-    switch (request.method.toLowerCase()) {
+    switch (request.method!.toLowerCase()) {
       case 'post':
         httpResponse =
-            httpClient.post(uri, body: request.content, headers: headers.asMap);
+            httpClient.post(uri, body: request.content, headers: headers.asMap as Map<String, String>?);
         break;
       case 'put':
         httpResponse =
-            httpClient.put(uri, body: request.content, headers: headers.asMap);
+            httpClient.put(uri, body: request.content, headers: headers.asMap as Map<String, String>?);
         break;
       case 'delete':
         httpResponse = httpClient.delete(uri,
-            body: request.content, headers: headers.asMap);
+            body: request.content, headers: headers.asMap as Map<String, String>?);
         break;
       case 'get':
       default:
-        httpResponse = httpClient.get(uri, headers: headers.asMap);
+        httpResponse = httpClient.get(uri, headers: headers.asMap as Map<String, String>?);
     }
 
-    final hasTimeout = (request.timeout != null) && (0 < request.timeout);
+    final hasTimeout = (request.timeout != null) && (0 < request.timeout!);
     if (hasTimeout) {
       httpResponse =
-          httpResponse.timeout(Duration(milliseconds: request.timeout));
+          httpResponse.timeout(Duration(milliseconds: request.timeout!));
     }
 
     return httpResponse;

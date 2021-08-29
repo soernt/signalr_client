@@ -5,7 +5,7 @@ class HttpError implements Exception {
   /// The HTTP status code represented by this error.
   final num statusCode;
 
-  final String message;
+  final String? message;
 
   // Methods
 
@@ -14,7 +14,7 @@ class HttpError implements Exception {
   /// errorMessage A descriptive error message.
   ///  statusCode The HTTP status code represented by this error.
   ///
-  HttpError(String errorMessage, num statusCode)
+  HttpError(String? errorMessage, num statusCode)
       : this.message = errorMessage,
         this.statusCode = statusCode;
 
@@ -69,7 +69,7 @@ class GeneralError implements Exception {
   // Properties
 
   /// The error message
-  final String message;
+  final String? message;
 
   // Methods
 
@@ -77,10 +77,10 @@ class GeneralError implements Exception {
   ///
   /// errorMessage: A descriptive error message.
   ///
-  GeneralError(String errorMessage) : this.message = errorMessage;
+  GeneralError(String? errorMessage) : this.message = errorMessage;
 
   String toString() {
-    return message;
+    return message!;
   }
 }
 
@@ -90,7 +90,7 @@ class NotImplementedException extends GeneralError {
   NotImplementedException() : super("Not implemented.");
 
   String toString() {
-    return message;
+    return message!;
   }
 }
 
@@ -100,6 +100,6 @@ class InvalidPayloadException extends GeneralError {
   InvalidPayloadException(String errorMessage) : super(errorMessage);
 
   String toString() {
-    return message;
+    return message!;
   }
 }

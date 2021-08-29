@@ -20,8 +20,8 @@ class HandshakeRequestMessage {
 /// private
 class HandshakeResponseMessage {
   // Properties
-  final String error;
-  final int minorVersion;
+  final String? error;
+  final int? minorVersion;
 
   // Methods
   HandshakeResponseMessage(this.error, this.minorVersion);
@@ -35,7 +35,7 @@ class HandshakeResponseMessage {
 class ParseHandshakeResponseResult {
   // Properites
   /// Either a string (json) or a Uint8List (binary).
-  final Object remainingData;
+  final Object? remainingData;
 
   /// The HandshakeResponseMessage
   final HandshakeResponseMessage handshakeResponseMessage;
@@ -58,10 +58,10 @@ class HandshakeProtocol {
 
   /// Parse the handshake reponse
   /// data: either a string (json) or a Uint8List (binary) of the handshake response data.
-  ParseHandshakeResponseResult parseHandshakeResponse(Object data) {
+  ParseHandshakeResponseResult parseHandshakeResponse(Object? data) {
     HandshakeResponseMessage responseMessage;
     String messageData;
-    Object remainingData;
+    Object? remainingData;
 
     if (data is Uint8List) {
       // Format is binary but still need to read JSON text from handshake response
@@ -78,7 +78,7 @@ class HandshakeProtocol {
           ? data.sublist(responseLength, data.length)
           : null;
     } else {
-      final String textData = data;
+      final String textData = data as String;
       final separatorIndex =
           textData.indexOf(TextMessageFormat.recordSeparator);
       if (separatorIndex == -1) {

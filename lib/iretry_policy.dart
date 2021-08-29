@@ -1,5 +1,5 @@
 abstract class IRetryPolicy {
-  int nextRetryDelayInMilliseconds(RetryContext retryContext);
+  int? nextRetryDelayInMilliseconds(RetryContext retryContext);
 }
 
 class RetryContext {

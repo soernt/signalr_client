@@ -1,3 +1,6 @@
+## [1.2.0]
+* Null safety migration
+
 ## [1.1.1]
 * Fix pub.dev evaluation result for native support
 

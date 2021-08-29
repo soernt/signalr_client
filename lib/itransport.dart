@@ -14,7 +14,7 @@ enum HttpTransportType {
   LongPolling, // = 4,
 }
 
-HttpTransportType httpTransportTypeFromString(String value) {
+HttpTransportType httpTransportTypeFromString(String? value) {
   if (value == null || value == "") {
     return HttpTransportType.None;
   }
@@ -23,13 +23,10 @@ HttpTransportType httpTransportTypeFromString(String value) {
   switch (value) {
     case "WEBSOCKETS":
       return HttpTransportType.WebSockets;
-      break;
     case "SERVERSENTEVENTS":
       return HttpTransportType.ServerSentEvents;
-      break;
     case "LONGPOLLING":
       return HttpTransportType.LongPolling;
-      break;
     default:
       throw new GeneralError("$value is not a supported HttpTransportType");
   }
@@ -45,7 +42,7 @@ enum TransferFormat {
   Binary, // = 2,
 }
 
-TransferFormat getTransferFormatFromString(String value) {
+TransferFormat getTransferFormatFromString(String? value) {
   if (value == null || value == "") {
     return TransferFormat.Undefined;
   }
@@ -54,10 +51,8 @@ TransferFormat getTransferFormatFromString(String value) {
   switch (value) {
     case "TEXT":
       return TransferFormat.Text;
-      break;
     case "BINARY":
       return TransferFormat.Binary;
-      break;
     default:
       throw new GeneralError("$value is not a supported HttpTransportType");
   }
@@ -65,20 +60,20 @@ TransferFormat getTransferFormatFromString(String value) {
 
 /// Data received call back.
 /// data: the content. Either a string (json) or Uint8List (binary)
-typedef OnReceive = void Function(Object data);
+typedef OnReceive = void Function(Object? data);
 
 ///
-typedef OnClose = void Function({Exception error});
+typedef OnClose = void Function({Exception? error});
 
 typedef AccessTokenFactory = Future<String> Function();
 
 /// An abstraction over the behavior of transports. This is designed to support the framework and not intended for use by applications.
 abstract class ITransport {
-  Future<void> connect(String url, TransferFormat transferFormat);
+  Future<void> connect(String? url, TransferFormat transferFormat);
 
   /// data: the content. Either a string (json) or Uint8List (binary)
   Future<void> send(Object data);
   Future<void> stop();
-  OnReceive onReceive;
-  OnClose onClose;
+  OnReceive? onReceive;
+  OnClose? onClose;
 }

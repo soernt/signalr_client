@@ -11,46 +11,45 @@ import 'utils.dart';
 class ServerSentEventsTransport implements ITransport {
   // Properties
   final SignalRHttpClient _httpClient;
-  final AccessTokenFactory _accessTokenFactory;
+  final AccessTokenFactory? _accessTokenFactory;
 
-  final Logger _logger;
+  final Logger? _logger;
   final bool _logMessageContent;
-  SseClient _sseClient;
-  String _url;
+  SseClient? _sseClient;
+  String? _url;
 
   @override
-  OnClose onClose;
+  OnClose? onClose;
 
   @override
-  OnReceive onReceive;
+  OnReceive? onReceive;
 
   ServerSentEventsTransport(
       SignalRHttpClient httpClient,
-      AccessTokenFactory accessTokenFactory,
-      Logger logger,
+      AccessTokenFactory? accessTokenFactory,
+      Logger? logger,
       bool logMessageContent)
-      : assert(httpClient != null),
-        _httpClient = httpClient,
+      : _httpClient = httpClient,
         _accessTokenFactory = accessTokenFactory,
         _logger = logger,
         _logMessageContent = logMessageContent;
 
   // Methods
   @override
-  Future<void> connect(String url, TransferFormat transferFormat) async {
+  Future<void> connect(String? url, TransferFormat transferFormat) async {
     assert(!isStringEmpty(url));
-    assert(transferFormat != null);
     _logger?.finest("(SSE transport) Connecting");
 
     // set url before accessTokenFactory because this.url is only for send and we set the auth header instead of the query string for send
     _url = url;
 
     if (_accessTokenFactory != null) {
-      final token = await _accessTokenFactory();
+      final token = await _accessTokenFactory!();
       if (!isStringEmpty(token)) {
         final encodedToken = Uri.encodeComponent(token);
-        url +=
-            (url.indexOf("?") < 0 ? "?" : "&") + "access_token=$encodedToken";
+        url = url! +
+            (url.indexOf("?") < 0 ? "?" : "&") +
+            "access_token=$encodedToken";
       }
     }
 
@@ -62,7 +61,7 @@ class ServerSentEventsTransport implements ITransport {
 
     SseClient client;
     try {
-      client = SseClient.connect(Uri.parse(_url));
+      client = SseClient.connect(Uri.parse(_url!));
       _logger?.finer('(SSE transport) connected to $_url');
       opened = true;
       _sseClient = client;
@@ -70,12 +69,12 @@ class ServerSentEventsTransport implements ITransport {
       return Future.error(e);
     }
 
-    _sseClient.stream.listen((data) {
+    _sseClient!.stream!.listen((data) {
       if (onReceive != null) {
         try {
           _logger?.finest(
               '(SSE transport) data received. ${getDataDetail(data, _logMessageContent)}.');
-          onReceive(data);
+          onReceive!(data);
         } catch (error) {
           _close(error: error);
           return;
@@ -117,13 +116,13 @@ class ServerSentEventsTransport implements ITransport {
       _sseClient = null;
 
       if (onClose != null) {
-        Exception ex;
+        Exception? ex;
         if (error != null) {
           ex = (error is Exception)
               ? error
               : new GeneralError(error?.toString());
         }
-        onClose(error: ex);
+        onClose!(error: ex);
       }
     }
   }
