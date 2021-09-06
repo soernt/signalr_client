@@ -55,16 +55,16 @@ class MessageHeaders {
   static const String AuthorizationHeaderName = "Authorization";
 
   // Properties
-  HashMap<String, String?>? _headers;
+  HashMap<String, String>? _headers;
 
   Iterable<String> get names => _headers!.keys;
-  HashMap<String, String?>? get asMap => _headers;
+  HashMap<String, String>? get asMap => _headers;
 
   bool get isEmtpy => _headers!.length == 0;
 
   // Methods
   MessageHeaders() {
-    _headers = HashMap<String, String?>();
+    _headers = HashMap<String, String>();
   }
 
   /// Gets the header with the specified key.
@@ -73,7 +73,7 @@ class MessageHeaders {
   }
 
   /// Sets the header with the specified key.
-  void setHeaderValue(String name, String? value) {
+  void setHeaderValue(String name, String value) {
     _headers![name] = value;
   }
 

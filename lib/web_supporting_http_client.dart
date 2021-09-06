@@ -68,7 +68,7 @@ class WebSupportingHttpClient extends SignalRHttpClient {
 
       if ((request.headers != null) && (!request.headers!.isEmtpy)) {
         for (var name in request.headers!.names) {
-          headers.setHeaderValue(name, request.headers!.getHeaderValue(name));
+          headers.setHeaderValue(name, request.headers!.getHeaderValue(name)!);
         }
       }
 
