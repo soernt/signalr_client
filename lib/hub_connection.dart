@@ -383,13 +383,13 @@ class HubConnection {
   /// args: The arguments used to invoke the server method.
   /// Returns a Future that resolves with the result of the server method (if any), or rejects with an error.
   ///
-  Future<Object> invoke(String methodName, {List<Object>? args}) {
+  Future<Object?> invoke(String methodName, {List<Object>? args}) {
     args = args ?? [];
     final t = _replaceStreamingParams(args);
     final invocationDescriptor =
         _createInvocation(methodName, args, false, t.item2);
 
-    final completer = Completer<Object>();
+    final completer = Completer<Object?>();
 
     _callbacks[invocationDescriptor.invocationId] =
         (HubMessageBase? invocationEvent, Exception? error) {
