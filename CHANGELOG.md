@@ -1,3 +1,6 @@
+## [1.2.3+1] 
+* Update readme
+
 ## [1.2.3]
 * Fix on error calling onReceive, error: type 'List' is not a subtype of type 'List?'
 * Fix an error when CompletionMessage doesn't have error and returns null on result property.

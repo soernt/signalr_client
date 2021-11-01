@@ -35,6 +35,7 @@ dependencies:
 ...
 ```
 
+Important Note: if you are experiencing issues (for example not receiving message callback) with the latest version, please give a try to older version as signalr_netcore: 0.1.7+2-nullsafety.2 but bear in mind that this version does not support auto reconnect functionalities and need to be handled manually.
 
 ## Usage
 
