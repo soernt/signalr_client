@@ -92,8 +92,12 @@ class JsonHubProtocol implements IHubProtocol {
       Map<String, dynamic> jsonData) {
     final MessageHeaders? headers =
         createMessageHeadersFromJson(jsonData["headers"]);
-    final message = InvocationMessage(jsonData["target"], jsonData["arguments"],
-        jsonData["streamIds"], headers, jsonData["invocationId"]);
+    final message = InvocationMessage(
+        jsonData["target"],
+        jsonData["arguments"]?.cast<Object>().toList(),
+        jsonData["streamIds"],
+        headers,
+        jsonData["invocationId"]);
 
     _assertNotEmptyString(
         message.target, "Invalid payload for Invocation message.");
