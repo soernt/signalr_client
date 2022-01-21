@@ -66,11 +66,7 @@ class WebSupportingHttpClient extends SignalRHttpClient {
               ? 'application/json;charset=UTF-8'
               : 'text/plain;charset=UTF-8');
 
-      if ((request.headers != null) && (!request.headers!.isEmtpy)) {
-        for (var name in request.headers!.names) {
-          headers.setHeaderValue(name, request.headers!.getHeaderValue(name)!);
-        }
-      }
+      headers.addMessageHeaders(request.headers);
 
       _logger?.finest(
           "HTTP send: url '${request.url}', method: '${request.method}' content: '${request.content}' content length = '${(request.content as String).length}' headers: '$headers'");

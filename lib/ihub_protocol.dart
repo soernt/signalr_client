@@ -77,10 +77,19 @@ class MessageHeaders {
     _headers![name] = value;
   }
 
-  /// removes the given header
+  /// Removes the given header
   void removeHeader(String name) {
     if (_headers!.containsKey(name)) {
       _headers!.remove(name);
+    }
+  }
+
+  /// Concatenate message headers
+  void addMessageHeaders(MessageHeaders? newHeaders) {
+    if (newHeaders != null && !newHeaders.isEmtpy) {
+      for (var name in newHeaders.names) {
+        setHeaderValue(name, newHeaders.getHeaderValue(name)!);
+      }
     }
   }
 
