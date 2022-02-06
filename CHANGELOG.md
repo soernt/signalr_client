@@ -1,3 +1,8 @@
+## [1.2.4] 
+* Update readme
+* Exposes default MessageHeaders for HttpRequests
+* Remove warnings
+
 ## [1.2.3+1] 
 * Update readme
 

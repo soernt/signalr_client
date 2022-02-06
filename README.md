@@ -35,7 +35,7 @@ dependencies:
 ...
 ```
 
-Important Note: if you are experiencing issues (for example not receiving message callback) with the latest version, please give a try to older version as signalr_netcore: 0.1.7+2-nullsafety.2 but bear in mind that this version does not support auto reconnect functionalities and need to be handled manually.
+Important Note: if you are experiencing issues (for example not receiving message callback) with the latest version, please give a try to older version as signalr_netcore: 0.1.7+2-nullsafety.3 but bear in mind that this version does not support auto reconnect functionalities and need to be handled manually.
 
 ## Usage
 
@@ -158,3 +158,37 @@ Flutter Json 101:
 * [flutter.io](https://flutter.io/json/)
 * [json.encode](https://api.dartlang.org/stable/2.0.0/dart-convert/JsonCodec/encode.html)
 * [json.decode](https://api.dartlang.org/stable/2.0.0/dart-convert/JsonCodec/decode.html)
+
+
+### How to expose a MessageHeaders object so the client can send default headers
+
+Code Example:
+
+```dart
+final defaultHeaders = MessageHeaders();
+defaultHeaders.setHeaderValue("HEADER_MOCK_1", "HEADER_VALUE_1");
+defaultHeaders.setHeaderValue("HEADER_MOCK_2", "HEADER_VALUE_2");
+
+final httpConnectionOptions = new HttpConnectionOptions(
+          httpClient: WebSupportingHttpClient(logger,
+              httpClientCreateCallback: _httpClientCreateCallback),
+          accessTokenFactory: () => Future.value('JWT_TOKEN'),
+          logger: logger,
+          logMessageContent: true,
+          headers: defaultHeaders);
+
+final _hubConnection = HubConnectionBuilder()
+          .withUrl(_serverUrl, options: httpConnectionOptions)
+          .withAutomaticReconnect(retryDelays: [2000, 5000, 10000, 20000, null])
+          .configureLogging(logger)
+          .build();
+```
+
+Http Request Log:
+
+```
+I/flutter ( 5248): Starting connection with transfer format 'TransferFormat.Text'.
+I/flutter ( 5248): Sending negotiation request: https://localhost:5000/negotiate?negotiateVersion=1
+I/flutter ( 5248): HTTP send: url 'https://localhost:5000/negotiate?negotiateVersion=1', method: 'POST' content: '' content length = '0' 
+headers: '{ content-type: text/plain;charset=UTF-8 }, { HEADER_MOCK_1: HEADER_VALUE_1 }, { X-Requested-With: FlutterHttpClient }, { HEADER_MOCK_2: HEADER_VALUE_2 }, { Authorization: Bearer JWT_TOKEN }'
+```

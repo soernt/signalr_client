@@ -73,10 +73,7 @@ class WebSupportingHttpClient extends SignalRHttpClient {
 
       final httpRespFuture = await Future.any(
           [_sendHttpRequest(httpClient, request, uri, headers), abortFuture]);
-      final httpResp = httpRespFuture as Response?;
-      if (httpResp == null) {
-        return Future.value(null);
-      }
+      final httpResp = httpRespFuture as Response;
 
       if (request.abortSignal != null) {
         request.abortSignal!.onabort = null;
@@ -118,22 +115,22 @@ class WebSupportingHttpClient extends SignalRHttpClient {
       case 'post':
         httpResponse = httpClient.post(uri,
             body: request.content,
-            headers: headers.asMap as Map<String, String>?);
+            headers: headers.asMap);
         break;
       case 'put':
         httpResponse = httpClient.put(uri,
             body: request.content,
-            headers: headers.asMap as Map<String, String>?);
+            headers: headers.asMap);
         break;
       case 'delete':
         httpResponse = httpClient.delete(uri,
             body: request.content,
-            headers: headers.asMap as Map<String, String>?);
+            headers: headers.asMap);
         break;
       case 'get':
       default:
         httpResponse =
-            httpClient.get(uri, headers: headers.asMap as Map<String, String>?);
+            httpClient.get(uri, headers: headers.asMap);
     }
 
     final hasTimeout = (request.timeout != null) && (0 < request.timeout!);
