@@ -439,6 +439,8 @@ class HttpConnection implements IConnection {
 
   Future<NegotiateResponse> _getNegotiationResponse(String url) async {
     MessageHeaders headers = MessageHeaders();
+    headers.addMessageHeaders(_options.headers);
+
     if (_accessTokenFactory != null) {
       final token = await _accessTokenFactory!();
       headers.setHeaderValue("Authorization", "Bearer $token");
