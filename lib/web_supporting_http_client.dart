@@ -113,24 +113,20 @@ class WebSupportingHttpClient extends SignalRHttpClient {
 
     switch (request.method!.toLowerCase()) {
       case 'post':
-        httpResponse = httpClient.post(uri,
-            body: request.content,
-            headers: headers.asMap);
+        httpResponse =
+            httpClient.post(uri, body: request.content, headers: headers.asMap);
         break;
       case 'put':
-        httpResponse = httpClient.put(uri,
-            body: request.content,
-            headers: headers.asMap);
+        httpResponse =
+            httpClient.put(uri, body: request.content, headers: headers.asMap);
         break;
       case 'delete':
         httpResponse = httpClient.delete(uri,
-            body: request.content,
-            headers: headers.asMap);
+            body: request.content, headers: headers.asMap);
         break;
       case 'get':
       default:
-        httpResponse =
-            httpClient.get(uri, headers: headers.asMap);
+        httpResponse = httpClient.get(uri, headers: headers.asMap);
     }
 
     final hasTimeout = (request.timeout != null) && (0 < request.timeout!);

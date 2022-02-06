@@ -1,3 +1,6 @@
+## [1.2.4+1]
+* Fix formatting issues 
+
 ## [1.2.4] 
 * Update readme
 * Exposes default MessageHeaders for HttpRequests
