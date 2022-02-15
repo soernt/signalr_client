@@ -1,3 +1,6 @@
+## [1.2.5]
+* Migrate examples to Android embedding v2
+
 ## [1.2.4+1]
 * Fix formatting issues 
 
