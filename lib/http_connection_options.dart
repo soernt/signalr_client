@@ -39,6 +39,9 @@ class HttpConnectionOptions {
   ///
   bool skipNegotiation;
 
+  /// An int that reflects the time to wait for a request to complete before throwing a TimeoutError. Measured in milliseconds.
+  int requestTimeout;
+
   // Methods
   HttpConnectionOptions(
       {SignalRHttpClient? httpClient,
@@ -47,12 +50,14 @@ class HttpConnectionOptions {
       AccessTokenFactory? accessTokenFactory,
       MessageHeaders? headers,
       bool logMessageContent = false,
-      bool skipNegotiation = false})
+      bool skipNegotiation = false,
+      int requestTimeout = 2000})
       : this.httpClient = httpClient,
         this.transport = transport,
         this.logger = logger,
         this.accessTokenFactory = accessTokenFactory,
         this.headers = headers,
         this.logMessageContent = logMessageContent,
-        this.skipNegotiation = skipNegotiation;
+        this.skipNegotiation = skipNegotiation,
+        this.requestTimeout = requestTimeout;
 }

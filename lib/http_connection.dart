@@ -197,7 +197,6 @@ class TransportSendQueue {
 class HttpConnection implements IConnection {
   // Properties
   static final maxRedirects = 100;
-  static final maxRequestTimeoutMilliseconds = 2000;
 
   ConnectionState? _connectionState;
   // connectionStarted is tracked independently from connectionState, so we can check if the
@@ -450,9 +449,7 @@ class HttpConnection implements IConnection {
     _logger?.finer("Sending negotiation request: $negotiateUrl");
     try {
       final SignalRHttpRequest options = SignalRHttpRequest(
-          content: "",
-          headers: headers,
-          timeout: maxRequestTimeoutMilliseconds);
+          content: "", headers: headers, timeout: _options.requestTimeout);
       final response = await _httpClient.post(negotiateUrl, options: options);
 
       if (response.statusCode != 200) {
