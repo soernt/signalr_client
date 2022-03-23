@@ -60,7 +60,7 @@ class MessageHeaders {
   Iterable<String> get names => _headers!.keys;
   HashMap<String, String>? get asMap => _headers;
 
-  bool get isEmtpy => _headers!.length == 0;
+  bool get isEmpty => _headers!.length == 0;
 
   // Methods
   MessageHeaders() {
@@ -86,7 +86,7 @@ class MessageHeaders {
 
   /// Concatenate message headers
   void addMessageHeaders(MessageHeaders? newHeaders) {
-    if (newHeaders != null && !newHeaders.isEmtpy) {
+    if (newHeaders != null && !newHeaders.isEmpty) {
       for (var name in newHeaders.names) {
         setHeaderValue(name, newHeaders.getHeaderValue(name)!);
       }
@@ -95,7 +95,7 @@ class MessageHeaders {
 
   @override
   String toString() {
-    if (isEmtpy) return '(no headers)';
+    if (isEmpty) return '{}';
 
     String str = '';
     for (var name in names) {
@@ -152,12 +152,20 @@ class InvocationMessage extends HubInvocationMessage {
   final List<String>? streamIds;
 
   // Methods
-  InvocationMessage(String? target, List<Object>? arguments,
-      List<String>? streamIds, MessageHeaders? headers, String? invocationId)
+  InvocationMessage(
+      {String? target,
+      List<Object>? arguments,
+      List<String>? streamIds,
+      MessageHeaders? headers,
+      String? invocationId})
       : this.target = target,
         this.arguments = arguments,
         this.streamIds = streamIds,
         super(MessageType.Invocation, headers, invocationId);
+  @override
+  String toString() {
+    return 'InvocationMessage - type: ${type.index}, headers: ${headers.toString()}, invocationId: $invocationId, target: $target, arguments: $arguments, streamIds: $streamIds';
+  }
 }
 
 /// A hub message representing a streaming invocation.
@@ -165,21 +173,30 @@ class StreamInvocationMessage extends HubInvocationMessage {
   // Properites
 
   /// The target method name.
-  final String target;
+  final String? target;
 
   /// The target method arguments.
-  final List<Object> arguments;
+  final List<Object>? arguments;
 
   /// The target method's stream IDs.
-  final List<String> streamIds;
+  final List<String>? streamIds;
 
   // Methods
-  StreamInvocationMessage(String target, List<Object> arguments,
-      List<String> streamIds, MessageHeaders headers, String invocationId)
+  StreamInvocationMessage(
+      {String? target,
+      List<Object>? arguments,
+      List<String>? streamIds,
+      MessageHeaders? headers,
+      String? invocationId})
       : this.target = target,
         this.arguments = arguments,
         this.streamIds = streamIds,
         super(MessageType.StreamInvocation, headers, invocationId);
+
+  @override
+  String toString() {
+    return 'StreamInvocationMessage - type: ${type.index}, headers: ${headers.toString()}, invocationId: $invocationId, target: $target, arguments: $arguments, streamIds: $streamIds';
+  }
 }
 
 /// A hub message representing a single item produced as part of a result stream.
@@ -190,9 +207,15 @@ class StreamItemMessage extends HubInvocationMessage {
   final Object? item;
 
   // Methods
-  StreamItemMessage(Object? item, MessageHeaders? headers, String? invocationId)
+  StreamItemMessage(
+      {Object? item, MessageHeaders? headers, String? invocationId})
       : this.item = item,
         super(MessageType.StreamItem, headers, invocationId);
+
+  @override
+  String toString() {
+    return 'StreamInvocationMessage - type: ${type.index}, headers: ${headers.toString()}, invocationId: $invocationId, item: $item';
+  }
 }
 
 /// A hub message representing the result of an invocation.
@@ -210,11 +233,18 @@ class CompletionMessage extends HubInvocationMessage {
   final Object? result;
 
   // Methods
-  CompletionMessage(String? error, Object? result, MessageHeaders? headers,
-      String? invocationId)
+  CompletionMessage(
+      {String? error,
+      Object? result,
+      MessageHeaders? headers,
+      String? invocationId})
       : this.error = error,
         this.result = result,
         super(MessageType.Completion, headers, invocationId);
+  @override
+  String toString() {
+    return 'CompletionMessage - type: ${type.index}, headers: ${headers.toString()}, invocationId: $invocationId, error: $error, result: $result';
+  }
 }
 
 /// A hub message indicating that the sender is still active.
@@ -222,6 +252,10 @@ class PingMessage extends HubMessageBase {
   // Methods
 
   PingMessage() : super(MessageType.Ping);
+  @override
+  String toString() {
+    return 'PingMessage - type: ${type.index}';
+  }
 }
 
 /// A hub message indicating that the sender is closing the connection.
@@ -244,13 +278,23 @@ class CloseMessage extends HubMessageBase {
       : this.error = error,
         this.allowReconnect = allowReconnect,
         super(MessageType.Close);
+
+  @override
+  String toString() {
+    return 'CloseMessage - type: $type.index, allowReconnect: $allowReconnect, error: $error';
+  }
 }
 
 /// A hub message sent to request that a streaming invocation be canceled.
 class CancelInvocationMessage extends HubInvocationMessage {
   // Methods
-  CancelInvocationMessage(MessageHeaders headers, String? invocationId)
+  CancelInvocationMessage({MessageHeaders? headers, String? invocationId})
       : super(MessageType.CancelInvocation, headers, invocationId);
+
+  @override
+  String toString() {
+    return 'CancelInvocationMessage - type: ${type.index}, headers: ${headers.toString()}, invocationId: $invocationId';
+  }
 }
 
 /// A protocol abstraction for communicating with SignalR Hubs.

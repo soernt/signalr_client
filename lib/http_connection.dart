@@ -168,7 +168,7 @@ class TransportSendQueue {
 
       var data = _buffer[0] is String
           ? _buffer.join("")
-          : TransportSendQueue.concatBuffers(_buffer as List<Uint8List?>);
+          : TransportSendQueue.concatBuffers(List<Uint8List?>.from(_buffer));
 
       _buffer.length = 0;
 

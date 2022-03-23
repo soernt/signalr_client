@@ -6,7 +6,6 @@ import 'package:signalr_netcore/signalr_client.dart';
 import 'main.dart';
 import 'utils/viewModel/viewModel.dart';
 import 'utils/viewModel/viewModelProvider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
 

@@ -21,6 +21,7 @@ class ClientMethodComplexParameterComplexReturnValue extends Test {
     final jsonResult = await hubConnection.invoke(
         "MethodWithComplexParameterAndComplexReturnValue",
         args: <Object>[reqParam]);
+    //args: <Object>[reqParam.toJson()]); //Convert object to map for msgpack
     var resultObj = ComplexReturnValue.fromJson(jsonResult);
     logger.info("Result: '$resultObj");
   }
@@ -36,8 +37,8 @@ class ComplexInParameter {
   });
 
   Map<String, dynamic> toJson() => {
-        'firstName': firstName,
-        'lastName': lastName,
+        'FirstName': firstName, //Key name is case sensitive on the server
+        'LastName': lastName,
       };
 }
 

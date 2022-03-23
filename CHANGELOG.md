@@ -1,3 +1,8 @@
+## [1.3.0]
+
+* Add Msgpack support and added some tests.
+* Migrate examples to ASP NET core 6
+
 ## [1.2.6]
 * Add Timeout option for requests to resolve unexpected Timeout Exceptions  
 

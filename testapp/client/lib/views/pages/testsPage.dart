@@ -3,7 +3,6 @@ import 'package:client/tests/test.dart';
 import 'package:client/utils/viewModel/viewModelPropertyWidgetBuilder.dart';
 import 'package:client/views/pages/testsPageViewModel.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
 
 class TestsPage extends StatelessWidget {
