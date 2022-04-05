@@ -1,3 +1,6 @@
+## [1.2.6]
+* Add Timeout option for requests to resolve unexpected Timeout Exceptions  
+
 ## [1.2.5]
 * Migrate examples to Android embedding v2
 
