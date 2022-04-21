@@ -1,6 +1,6 @@
 import 'package:client/tests/clientInvoke/clientInvokeMethodNoParametersNoReturnValue.dart';
 import 'package:client/tests/clientInvoke/clientInvokeStreamRequest.dart';
-import 'package:client/tests/clientInvoke/clientMethodComplexParameterComplesReturnValue.dart';
+import 'package:client/tests/clientInvoke/clientMethodComplexParameterComplexReturnValue.dart';
 import 'package:client/tests/clientInvoke/clientMethodNoParametersSimpleReturnValue.dart';
 import 'package:client/tests/clientInvoke/clientMethodOneSimpleParameterNoReturnValue.dart';
 import 'package:client/tests/clientInvoke/clientMethodOneSimpleParameterSimpleReturnValue.dart';

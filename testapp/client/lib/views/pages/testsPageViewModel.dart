@@ -4,9 +4,10 @@ import 'package:client/main.dart';
 import 'package:client/tests/tests.dart';
 import 'package:client/utils/viewModel/viewModel.dart';
 import 'package:client/utils/viewModel/viewModelProvider.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
+import 'package:signalr_netcore/ihub_protocol.dart';
+//import 'package:signalr_netcore/msgpack_hub_protocol.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 typedef HubConnectionProvider = Future<HubConnection> Function();
@@ -52,6 +53,7 @@ class TestsPageViewModel extends ViewModel {
   }
 
   void _handleLogMessage(LogRecord msg) {
+    //print(msg);
     _hubLogMessages.add(msg);
     notifyPropertyChanged(hubLogMessagesPropName);
   }
@@ -60,12 +62,17 @@ class TestsPageViewModel extends ViewModel {
     final logger = _logger;
     //final logger = null;
     if (_hubConnection == null) {
-      final httpOptions = new HttpConnectionOptions(logger: logger);
+      final headers = MessageHeaders();
+      headers.setHeaderValue("api-key", "my-top-secret-api-key");
+      final httpOptions =
+          new HttpConnectionOptions(logger: logger, headers: headers);
       //final httpOptions = new HttpConnectionOptions(logger: logger, transport: HttpTransportType.ServerSentEvents);
       //final httpOptions = new HttpConnectionOptions(logger: logger, transport: HttpTransportType.LongPolling);
 
       _hubConnection = HubConnectionBuilder()
           .withUrl(_serverUrl, options: httpOptions)
+          /* Configure the Hub with msgpack protocol */
+          //.withHubProtocol(MessagePackHubProtocol())
           .withAutomaticReconnect()
           .configureLogging(logger)
           .build();

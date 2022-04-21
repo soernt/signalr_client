@@ -852,13 +852,21 @@ class HubConnection {
       bool nonblocking, List<String> streamIds) {
     if (nonblocking) {
       return InvocationMessage(
-          methodName, args, streamIds, MessageHeaders(), null);
+          target: methodName,
+          arguments: args,
+          streamIds: streamIds,
+          headers: MessageHeaders(),
+          invocationId: null);
     } else {
       final invocationId = _invocationId;
       _invocationId = _invocationId! + 1;
 
-      return InvocationMessage(methodName, args, streamIds, MessageHeaders(),
-          invocationId.toString());
+      return InvocationMessage(
+          target: methodName,
+          arguments: args,
+          streamIds: streamIds,
+          headers: MessageHeaders(),
+          invocationId: invocationId.toString());
     }
   }
 
@@ -924,24 +932,33 @@ class HubConnection {
     _invocationId = _invocationId! + 1;
 
     return StreamInvocationMessage(
-        methodName, args, streamIds, MessageHeaders(), invocationId.toString());
+        target: methodName,
+        arguments: args,
+        streamIds: streamIds,
+        headers: MessageHeaders(),
+        invocationId: invocationId.toString());
   }
 
   CancelInvocationMessage _createCancelInvocation(String? id) {
-    return CancelInvocationMessage(new MessageHeaders(), id);
+    return CancelInvocationMessage(
+        headers: new MessageHeaders(), invocationId: id);
   }
 
   StreamItemMessage _createStreamItemMessage(String id, Object item) {
-    return StreamItemMessage(item, new MessageHeaders(), id);
+    return StreamItemMessage(
+        item: item, headers: MessageHeaders(), invocationId: id);
   }
 
   CompletionMessage _createCompletionMessage(String id,
       {Object? error, Object? result}) {
     if (error != null) {
       return CompletionMessage(
-          error as String?, null, new MessageHeaders(), id);
+          error: error as String?, headers: MessageHeaders(), invocationId: id);
     }
-
-    return CompletionMessage(null, result, new MessageHeaders(), id);
+    if (result != null) {
+      return CompletionMessage(
+          result: result, headers: MessageHeaders(), invocationId: id);
+    }
+    return CompletionMessage(headers: MessageHeaders(), invocationId: id);
   }
 }

@@ -2,7 +2,6 @@ import 'main.dart';
 import 'utils/viewModel/viewModelPropertyWidgetBuilder.dart';
 import 'chatPageViewModel.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class ChatPage extends StatelessWidget {
 // Properties
