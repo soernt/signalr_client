@@ -61,8 +61,8 @@ class ServerSentEventsTransport implements ITransport {
 
     SseClient client;
     try {
-      client = SseClient.connect(Uri.parse(_url!));
-      _logger?.finer('(SSE transport) connected to $_url');
+      client = SseClient.connect(Uri.parse(url!));
+      _logger?.finer('(SSE transport) connected to $url');
       opened = true;
       _sseClient = client;
     } catch (e) {
