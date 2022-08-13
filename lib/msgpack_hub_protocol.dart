@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'package:logging/logging.dart';
-import "package:msgpack_dart/msgpack_dart.dart" as msgpack;
+import "package:message_pack_dart/message_pack_dart.dart" as msgpack;
 
 import 'errors.dart';
 import 'ihub_protocol.dart';
