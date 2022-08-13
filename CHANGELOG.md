@@ -1,3 +1,7 @@
+## [1.3.1]
+
+* Fix broken authorization in SSE (Server Side Events) transport
+
 ## [1.3.0]
 
 * Add Msgpack support and added some tests.
