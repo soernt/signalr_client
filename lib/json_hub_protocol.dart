@@ -99,7 +99,7 @@ class JsonHubProtocol implements IHubProtocol {
         createMessageHeadersFromJson(jsonData["headers"]);
     final message = InvocationMessage(
         target: jsonData["target"],
-        arguments: jsonData["arguments"]?.cast<Object>().toList(),
+        arguments: jsonData["arguments"]?.cast<Object?>().toList(),
         streamIds: (jsonData["streamIds"] == null)
             ? null
             : (List<String>.from(jsonData["streamIds"] as List<dynamic>)),
