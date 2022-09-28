@@ -1,3 +1,7 @@
+## [1.3.3]
+
+* Allowing invocation arguments to be null
+
 ## [1.3.2]
 
 * Fix broken authorization in SSE (Server Side Events) transport
