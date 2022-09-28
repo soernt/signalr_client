@@ -34,7 +34,7 @@ enum HubConnectionState {
 
 typedef InvocationEventCallback = void Function(
     HubMessageBase? invocationEvent, Exception? error);
-typedef MethodInvocationFunc = void Function(List<Object>? arguments);
+typedef MethodInvocationFunc = void Function(List<Object?>? arguments);
 typedef ClosedCallback = void Function({Exception? error});
 typedef ReconnectingCallback = void Function({Exception? error});
 typedef ReconnectedCallback = void Function({String? connectionId});

@@ -146,7 +146,7 @@ class InvocationMessage extends HubInvocationMessage {
   final String? target;
 
   /// The target method arguments.
-  final List<Object>? arguments;
+  final List<Object?>? arguments;
 
   /// The target method's stream IDs.
   final List<String>? streamIds;
@@ -154,7 +154,7 @@ class InvocationMessage extends HubInvocationMessage {
   // Methods
   InvocationMessage(
       {String? target,
-      List<Object>? arguments,
+      List<Object?>? arguments,
       List<String>? streamIds,
       MessageHeaders? headers,
       String? invocationId})
