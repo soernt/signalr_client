@@ -194,7 +194,7 @@ class JsonHubProtocol implements IHubProtocol {
         "target": message.target,
         "arguments": message.arguments,
         "streamIds": message.streamIds,
-      };
+      }..removeWhere((key, value) => value == null);
     }
 
     if (message is StreamInvocationMessage) {
