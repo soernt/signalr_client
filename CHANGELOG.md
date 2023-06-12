@@ -1,3 +1,7 @@
+## [1.3.4]
+
+* Fix the disconnect exception caused by send message error
+  
 ## [1.3.3]
 
 * Allowing invocation arguments to be null
