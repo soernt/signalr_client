@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:logging/logging.dart';
-import 'package:sse_client/sse_client.dart';
+import 'package:sse_channel/sse_channel.dart';
 
 import 'errors.dart';
 import 'itransport.dart';
@@ -15,7 +15,7 @@ class ServerSentEventsTransport implements ITransport {
 
   final Logger? _logger;
   final bool _logMessageContent;
-  SseClient? _sseClient;
+  SseChannel? _sseClient;
   String? _url;
 
   @override
@@ -59,9 +59,9 @@ class ServerSentEventsTransport implements ITransport {
           "The Server-Sent Events transport only supports the 'Text' transfer format"));
     }
 
-    SseClient client;
+    SseChannel client;
     try {
-      client = SseClient.connect(Uri.parse(url!));
+      client = SseChannel.connect(Uri.parse(url!));
       _logger?.finer('(SSE transport) connected to $url');
       opened = true;
       _sseClient = client;
@@ -69,7 +69,7 @@ class ServerSentEventsTransport implements ITransport {
       return Future.error(e);
     }
 
-    _sseClient!.stream!.listen((data) {
+    _sseClient!.stream.listen((data) {
       if (onReceive != null) {
         try {
           _logger?.finest(

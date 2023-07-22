@@ -91,7 +91,7 @@ class TestsPageView extends StatelessWidget {
           children: <Widget>[
             Text(
               "Log:",
-              style: Theme.of(context).textTheme.subtitle1,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             Padding(padding: EdgeInsetsDirectional.only(top: 8.0)),
             ViewModelPropertyWidgetBuilder(

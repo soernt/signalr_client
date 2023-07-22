@@ -130,7 +130,7 @@ class ChatPageViewModelProvider extends ViewModelProvider<ChatPageViewModel> {
 
   // Methods
   ChatPageViewModelProvider(
-      {Key key, viewModel: ChatPageViewModel, WidgetBuilder childBuilder})
+      {Key key, viewModel = ChatPageViewModel, WidgetBuilder childBuilder})
       : super(key: key, viewModel: viewModel, childBuilder: childBuilder);
 
   static ChatPageViewModel of(BuildContext context) {
