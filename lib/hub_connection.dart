@@ -3,16 +3,38 @@ import 'dart:async';
 import 'package:logging/logging.dart';
 import 'package:tuple/tuple.dart';
 
+import 'default_reconnect_policy.dart';
 import 'errors.dart';
 import 'handshake_protocol.dart';
 import 'iconnection.dart';
 import 'ihub_protocol.dart';
 import 'iretry_policy.dart';
 import 'utils.dart';
-import 'default_reconnect_policy.dart';
 
 const int DEFAULT_TIMEOUT_IN_MS = 30 * 1000;
 const int DEFAULT_PING_INTERVAL_IN_MS = 15 * 1000;
+
+/// internal class to wrap emitting events once the {@link HubConnectionState} changes.
+class _HubConnectionStateMaintainer {
+  late StreamController<HubConnectionState> _hubConnectionStateStreamController;
+  late HubConnectionState _connectionState;
+
+  _HubConnectionStateMaintainer(HubConnectionState initialConnectionState) {
+    _hubConnectionStateStreamController =
+        StreamController<HubConnectionState>.broadcast();
+    _connectionState = initialConnectionState;
+  }
+
+  set hubConnectionState(HubConnectionState hubConnectionState) {
+    _connectionState = hubConnectionState;
+    _hubConnectionStateStreamController.add(_connectionState);
+  }
+
+  HubConnectionState get hubConnectionState => _connectionState;
+
+  Stream<HubConnectionState> get hubConnectionStateStream =>
+      _hubConnectionStateStreamController.stream;
+}
 
 /// Describes the current state of the {@link HubConnection} to the server.
 enum HubConnectionState {
@@ -61,7 +83,12 @@ class HubConnection {
   Completer? _handshakeCompleter;
   Exception? _stopDuringStartError;
 
-  HubConnectionState? _connectionState;
+  late final _HubConnectionStateMaintainer _hubConnectionStateMaintainer;
+  HubConnectionState get _connectionState =>
+      _hubConnectionStateMaintainer.hubConnectionState;
+  set _connectionState(HubConnectionState hubConnectionState) {
+    _hubConnectionStateMaintainer.hubConnectionState = hubConnectionState;
+  }
 
   // connectionStarted is tracked independently from connectionState, so we can check if the
   // connection ever did successfully transition from connecting to connected before disconnecting.
@@ -92,6 +119,10 @@ class HubConnection {
 
   /// Indicates the state of the {@link HubConnection} to the server.
   HubConnectionState? get state => _connectionState;
+
+  /// Emits upon changes of the {@link HubConnectionState}.
+  Stream<HubConnectionState> get stateStream =>
+      _hubConnectionStateMaintainer.hubConnectionStateStream;
 
   /// Represents the connection id of the {@link HubConnection} on the server. The connection id will be null when the connection is either
   /// in the disconnected state or if the negotiation step was skipped.
@@ -144,7 +175,8 @@ class HubConnection {
     _reconnectedCallbacks = [];
     _invocationId = 0;
     _receivedHandshakeResponse = false;
-    _connectionState = HubConnectionState.Disconnected;
+    _hubConnectionStateMaintainer =
+        _HubConnectionStateMaintainer(HubConnectionState.Disconnected);
     _connectionStarted = false;
 
     _cachedPingMessage = _protocol.writeMessage(PingMessage());

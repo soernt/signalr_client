@@ -1,3 +1,7 @@
+## [1.4.0]
+
+* Emit events once the HubConnectionState changes
+  
 ## [1.3.5]
 
 * Upgrade packages and remove warnings
