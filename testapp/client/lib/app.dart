@@ -1,5 +1,6 @@
-import 'package:client/views/pages/testsPage.dart';
 import 'package:flutter/material.dart';
+
+import 'views/pages/testsPage.dart';
 
 class App extends StatelessWidget {
   // Properties
