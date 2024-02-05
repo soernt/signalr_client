@@ -1,7 +1,7 @@
-import 'package:client/utils/viewModel/viewModel.dart';
-import 'package:client/views/pages/testsPageViewModel.dart';
+import '../utils/viewModel/viewModel.dart';
+import '../views/pages/testsPageViewModel.dart';
 import 'package:logging/logging.dart';
-import 'package:meta/meta.dart';
+import 'package:flutter/foundation.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
 abstract class Test extends ViewModel {
@@ -14,32 +14,32 @@ abstract class Test extends ViewModel {
 
   final String description;
 
-  bool _isExecuting;
+  late bool _isExecuting;
   static const String isExecutingPropName = "isExecuting";
   bool get isExecuting => _isExecuting;
   set isExecuting(bool value) {
-    updateValue(
+    updateValue<bool>(
         isExecutingPropName, _isExecuting, value, (v) => _isExecuting = v);
   }
 
-  String _errorMessage;
+  late String _errorMessage;
   static const String errorMessagePropName = "errorMessage";
   String get errorMessage => _errorMessage;
   set errorMessage(String value) {
-    updateValue(
+    updateValue<String>(
         errorMessagePropName, _errorMessage, value, (v) => _errorMessage = v);
   }
 
   // Methods
 
-  Test(HubConnectionProvider hubConnectionProvider, Logger logger,
-      String description)
+  Test(HubConnectionProvider? hubConnectionProvider, Logger? logger,
+      String? description)
       : assert(hubConnectionProvider != null),
         assert(logger != null),
         assert(description != null),
-        _hubConnectionProvider = hubConnectionProvider,
-        this.logger = logger,
-        description = description;
+        _hubConnectionProvider = hubConnectionProvider!,
+        this.logger = logger!,
+        description = description!;
 
   Future<void> run() async {
     isExecuting = true;

@@ -8,7 +8,7 @@ class ChatPage extends StatelessWidget {
 
 // Methods
 
-  ChatPage({Key key}) : super(key: key);
+  ChatPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +54,7 @@ class MessageChatView extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             ViewModelPropertyWidgetBuilder<bool>(
-                viewModel: vm,
+                viewModel: vm!,
                 propertyName: ChatPageViewModel.connectionIsOpenPropName,
                 builder: (context, snapshot) {
                   return Text(
@@ -81,7 +81,7 @@ class MessageChatView extends StatelessWidget {
     return Column(children: <Widget>[
       ListTile(
           leading: Text("${message.senderName} :"),
-          title: Text(message.message)),
+          title: Text(message.message ?? "")),
       Divider(),
     ]);
   }
@@ -116,7 +116,7 @@ class _MessageComposeViewState extends State<MessageComposeView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         ViewModelPropertyWidgetBuilder<String>(
-            viewModel: vm,
+            viewModel: vm!,
             propertyName: ChatPageViewModel.userNamePropName,
             builder: (context, snapshot) {
               return ElevatedButton(
@@ -173,7 +173,7 @@ class _MessageComposeViewState extends State<MessageComposeView> {
               TextButton(
                   child: const Text('OK'),
                   onPressed: () {
-                    vm.userName = _userNameController.text;
+                    vm?.userName = _userNameController.text;
                     Navigator.pop(context);
                   })
             ],

@@ -856,7 +856,7 @@ class HubConnection {
         _callbacks;
     _callbacks = {};
 
-    callbacks.forEach((_, value) => {value(null, error)});
+    callbacks.forEach((_, value) => value(null, error));
   }
 
   void _cleanupPingTimer() {

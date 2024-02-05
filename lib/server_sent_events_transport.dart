@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:logging/logging.dart';
-import 'package:sse_channel/sse_channel.dart';
+import 'package:sse_channel2/sse_channel.dart';
 
 import 'errors.dart';
 import 'itransport.dart';

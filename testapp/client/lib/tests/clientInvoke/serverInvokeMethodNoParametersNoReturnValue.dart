@@ -1,5 +1,5 @@
-import 'package:client/tests/test.dart';
-import 'package:client/views/pages/testsPageViewModel.dart';
+import '../../views/pages/testsPageViewModel.dart';
+import '../test.dart';
 import 'package:logging/logging.dart';
 import 'package:signalr_netcore/signalr_client.dart';
 
@@ -25,7 +25,7 @@ class ServerInvokeMethodNoParametersNoReturnValue extends Test {
   }
 
   void _handleServerInvokeMethodNoParametersNoReturnValue(
-      List<Object> parameters) {
+      List<Object?>? parameters) {
     logger.info(
         "From Callback: Server invoked method 'ServerInvokeMethodNoParametersNoReturnValue'");
   }

@@ -1,4 +1,4 @@
-import 'package:client/utils/viewModel/viewModel.dart';
+import 'viewModel.dart';
 import 'package:flutter/widgets.dart';
 
 class ViewModelPropertyWidgetBuilder<TPropertyType>
@@ -8,10 +8,10 @@ class ViewModelPropertyWidgetBuilder<TPropertyType>
   // Methods
 
   ViewModelPropertyWidgetBuilder(
-      {Key key,
-      @required ViewModel viewModel,
-      @required String propertyName,
-      @required AsyncWidgetBuilder<PropertyChangedEvent> builder})
+      {Key? key,
+      required ViewModel viewModel,
+      required String propertyName,
+      required AsyncWidgetBuilder<PropertyChangedEvent> builder})
       : super(
             key: key,
             builder: builder,

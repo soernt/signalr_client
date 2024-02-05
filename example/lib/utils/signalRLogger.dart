@@ -7,13 +7,13 @@ typedef LogMessageDelegate = void Function(LogMessage);
 class DelegatingLogSink {
   // Properties
   final LogMessageDelegate _logFunc;
-  StreamSubscription<LogRecord> _subscription;
+  StreamSubscription<LogRecord>? _subscription;
 
   // Methods
 
   DelegatingLogSink(this._logFunc);
 
-  void attachToLogger(Logger logger) {
+  void attachToLogger(Logger? logger) {
     assert(logger != null);
 
     _subscription = Logger.root.onRecord

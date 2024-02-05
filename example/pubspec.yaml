@@ -10,7 +10,7 @@ description: A new Flutter project.
 version: 1.0.0+1
 publish_to: none
 environment:
-  sdk: ">=2.3.0 <3.0.0"
+  sdk: ">=2.15.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -20,7 +20,7 @@ dependencies:
     path: ../
 
   logging: ^1.2.0
-  rxdart: ^0.18.1
+  rxdart: ^0.27.7
   quiver: ^3.2.1
 
   # The following adds the Cupertino Icons font to your application.

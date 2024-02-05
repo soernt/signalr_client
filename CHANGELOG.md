@@ -1,7 +1,12 @@
+  
+## [1.3.7]
+
+* Update dependencies using http: ^1.1.0
+  
 ## [1.3.6]
 
 * Emit events once the HubConnectionState changes
-  
+
 ## [1.3.5]
 
 * Upgrade packages and remove warnings

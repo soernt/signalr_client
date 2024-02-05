@@ -1,7 +1,7 @@
-import 'package:client/main.dart';
-import 'package:client/tests/test.dart';
-import 'package:client/utils/viewModel/viewModelPropertyWidgetBuilder.dart';
-import 'package:client/views/pages/testsPageViewModel.dart';
+import '../../main.dart';
+import '../../tests/test.dart';
+import '../../utils/viewModel/viewModelPropertyWidgetBuilder.dart';
+import 'testsPageViewModel.dart';
 import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 
@@ -10,7 +10,7 @@ class TestsPage extends StatelessWidget {
 
 // Methods
 
-  TestsPage({Key key}) : super(key: key);
+  TestsPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class TestsPageView extends StatelessWidget {
     return Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          _createTestsSection(vm, context),
+          _createTestsSection(vm!, context),
           _createLogMessageViewSection(vm, context)
         ]);
   }

@@ -1,4 +1,4 @@
-import 'package:client/utils/viewModel/viewModel.dart';
+import 'viewModel.dart';
 import 'package:flutter/widgets.dart';
 
 class ViewModelProvider<TViewModel extends ViewModel> extends InheritedWidget {
@@ -8,19 +8,19 @@ class ViewModelProvider<TViewModel extends ViewModel> extends InheritedWidget {
   // Methods
 
   ViewModelProvider(
-      {Key key,
-      @required TViewModel viewModel,
-      @required WidgetBuilder childBuilder})
+      {Key? key,
+      required TViewModel? viewModel,
+      required WidgetBuilder? childBuilder})
       : this._default(
             key: key, viewModel: viewModel, childBuilder: childBuilder);
 
   ViewModelProvider._default(
-      {Key key,
-      @required TViewModel viewModel,
-      @required WidgetBuilder childBuilder})
+      {Key? key,
+      required TViewModel? viewModel,
+      required WidgetBuilder? childBuilder})
       : assert(viewModel != null),
         assert(childBuilder != null),
-        viewModel = viewModel,
+        viewModel = viewModel!,
         super(
             key: key,
             child: ViewModelViewStateManager(
@@ -42,11 +42,11 @@ class ViewModelViewStateManager extends StatefulWidget {
   // Methods
 
   ViewModelViewStateManager(
-      {@required ViewModel viewModel, @required WidgetBuilder childBuilder})
+      {required ViewModel? viewModel, required WidgetBuilder? childBuilder})
       : assert(viewModel != null),
         assert(childBuilder != null),
-        _childBuilder = childBuilder,
-        _viewModel = viewModel;
+        _childBuilder = childBuilder!,
+        _viewModel = viewModel!;
 
   @override
   State<StatefulWidget> createState() => _ViewModelViewStateManagerState();

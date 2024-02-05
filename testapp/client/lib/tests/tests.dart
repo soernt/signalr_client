@@ -1,18 +1,18 @@
-import 'package:client/tests/clientInvoke/clientInvokeMethodNoParametersNoReturnValue.dart';
-import 'package:client/tests/clientInvoke/clientInvokeStreamRequest.dart';
-import 'package:client/tests/clientInvoke/clientMethodComplexParameterComplexReturnValue.dart';
-import 'package:client/tests/clientInvoke/clientMethodNoParametersSimpleReturnValue.dart';
-import 'package:client/tests/clientInvoke/clientMethodOneSimpleParameterNoReturnValue.dart';
-import 'package:client/tests/clientInvoke/clientMethodOneSimpleParameterSimpleReturnValue.dart';
-import 'package:client/tests/clientInvoke/serverInvokeMethodNoParametersNoReturnValue.dart';
-import 'package:client/tests/clientInvoke/serverInvokeMethodSimpleParametersNoReturnValue.dart';
-import 'package:client/tests/test.dart';
-import 'package:client/views/pages/testsPageViewModel.dart';
+import '../views/pages/testsPageViewModel.dart';
+import 'clientInvoke/clientInvokeMethodNoParametersNoReturnValue.dart';
+import 'clientInvoke/clientInvokeStreamRequest.dart';
+import 'clientInvoke/clientMethodComplexParameterComplexReturnValue.dart';
+import 'clientInvoke/clientMethodNoParametersSimpleReturnValue.dart';
+import 'clientInvoke/clientMethodOneSimpleParameterNoReturnValue.dart';
+import 'clientInvoke/clientMethodOneSimpleParameterSimpleReturnValue.dart';
+import 'clientInvoke/serverInvokeMethodNoParametersNoReturnValue.dart';
+import 'clientInvoke/serverInvokeMethodSimpleParametersNoReturnValue.dart';
+import 'test.dart';
 import 'package:logging/logging.dart';
 
 class Tests {
   // Properties
-  List<Test> _items;
+  late List<Test> _items;
 
   // Methods
   List<Test> get items => _items;

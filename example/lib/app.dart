@@ -5,7 +5,7 @@ class App extends StatelessWidget {
   // Properties
 
   // Methods
-  App({Key key}) : super(key: key);
+  App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
