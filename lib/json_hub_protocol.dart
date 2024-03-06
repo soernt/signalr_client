@@ -26,25 +26,21 @@ class JsonHubProtocol implements IHubProtocol {
 
   // Methods
 
-  /// Creates an array of {@link @aspnet/signalr.HubMessage} objects from the specified serialized representation.
+  /// Creates an array of {@link @microsoft/signalr.HubMessage} objects from the specified serialized representation.
   ///
   /// A string containing the serialized representation.
   /// A logger that will be used to log messages that occur during parsing.
   ///
   @override
-  List<HubMessageBase> parseMessages(Object input, Logger logger) {
+  List<HubMessageBase> parseMessages(Object input, Logger? logger) {
     // Only JsonContent is allowed.
     if (!(input is String)) {
       throw new GeneralError(
           "Invalid input for JSON hub protocol. Expected a string.");
     }
 
-    final jsonInput = input as String;
-    final hubMessages = List<HubMessageBase>();
-
-    if (input == null) {
-      return hubMessages;
-    }
+    final jsonInput = input;
+    final List<HubMessageBase> hubMessages = [];
 
     // Parse the messages
     final messages = TextMessageFormat.parse(jsonInput);
@@ -55,19 +51,19 @@ class JsonHubProtocol implements IHubProtocol {
 
       switch (messageType) {
         case MessageType.Invocation:
-          messageObj = _getInvocationMessageFormJson(jsonData);
+          messageObj = _getInvocationMessageFromJson(jsonData);
           break;
         case MessageType.StreamItem:
-          messageObj = _getStreamItemMessageFormJson(jsonData);
+          messageObj = _getStreamItemMessageFromJson(jsonData);
           break;
         case MessageType.Completion:
-          messageObj = _getCompletionMessageFormJson(jsonData);
+          messageObj = _getCompletionMessageFromJson(jsonData);
           break;
         case MessageType.Ping:
-          messageObj = _getPingMessageFormJson(jsonData);
+          messageObj = _getPingMessageFromJson(jsonData);
           break;
         case MessageType.Close:
-          messageObj = _getCloseMessageFormJson(jsonData);
+          messageObj = _getCloseMessageFromJson(jsonData);
           break;
         default:
           // Future protocol changes can add message types, old clients can ignore them
@@ -80,24 +76,35 @@ class JsonHubProtocol implements IHubProtocol {
     return hubMessages;
   }
 
-  static MessageType _getMessageTypeFromJson(Map<String, dynamic> json) {
+  static MessageType? _getMessageTypeFromJson(Map<String, dynamic> json) {
     return parseMessageTypeFromString(json["type"]);
   }
 
-  static MessageHeaders createMessageHeadersFromJson(
-      Map<String, dynamic> jsonData) {
-    if (jsonData != null) {
-      throw GeneralError("ToDo");
+  static MessageHeaders? createMessageHeadersFromJson(dynamic jsonData) {
+    if (jsonData == null) {
+      return null;
+    } else {
+      final _headers1 = new Map<String, String>.from(jsonData);
+      final headers = MessageHeaders();
+      _headers1.forEach((key, value) {
+        headers.setHeaderValue(key, value);
+      });
+      return headers;
     }
-    return null;
   }
 
-  static InvocationMessage _getInvocationMessageFormJson(
+  static InvocationMessage _getInvocationMessageFromJson(
       Map<String, dynamic> jsonData) {
-    final MessageHeaders headers =
+    final MessageHeaders? headers =
         createMessageHeadersFromJson(jsonData["headers"]);
-    final message = InvocationMessage(jsonData["target"], jsonData["arguments"],
-        headers, jsonData["invocationId"]);
+    final message = InvocationMessage(
+        target: jsonData["target"],
+        arguments: jsonData["arguments"]?.cast<Object?>().toList(),
+        streamIds: (jsonData["streamIds"] == null)
+            ? null
+            : (List<String>.from(jsonData["streamIds"] as List<dynamic>)),
+        headers: headers,
+        invocationId: jsonData["invocationId"] as String?);
 
     _assertNotEmptyString(
         message.target, "Invalid payload for Invocation message.");
@@ -109,12 +116,14 @@ class JsonHubProtocol implements IHubProtocol {
     return message;
   }
 
-  static StreamItemMessage _getStreamItemMessageFormJson(
+  static StreamItemMessage _getStreamItemMessageFromJson(
       Map<String, dynamic> jsonData) {
-    final MessageHeaders headers =
+    final MessageHeaders? headers =
         createMessageHeadersFromJson(jsonData["headers"]);
-    final message =
-        StreamItemMessage(jsonData["item"], headers, jsonData["invocationId"]);
+    final message = StreamItemMessage(
+        item: jsonData["item"],
+        headers: headers,
+        invocationId: jsonData["invocationId"] as String?);
 
     _assertNotEmptyString(
         message.invocationId, "Invalid payload for StreamItem message.");
@@ -124,12 +133,15 @@ class JsonHubProtocol implements IHubProtocol {
     return message;
   }
 
-  static CompletionMessage _getCompletionMessageFormJson(
+  static CompletionMessage _getCompletionMessageFromJson(
       Map<String, dynamic> jsonData) {
-    final MessageHeaders headers =
+    final MessageHeaders? headers =
         createMessageHeadersFromJson(jsonData["headers"]);
-    final message = CompletionMessage(jsonData["error"], jsonData["result"],
-        headers, jsonData["invocationId"]);
+    final message = CompletionMessage(
+        error: jsonData["error"],
+        result: jsonData["result"],
+        headers: headers,
+        invocationId: jsonData["invocationId"] as String?);
 
     if ((message.result != null) && (message.error != null)) {
       throw InvalidPayloadException("Invalid payload for Completion message.");
@@ -143,12 +155,13 @@ class JsonHubProtocol implements IHubProtocol {
     return message;
   }
 
-  static PingMessage _getPingMessageFormJson(Map<String, dynamic> jsonData) {
+  static PingMessage _getPingMessageFromJson(Map<String, dynamic> jsonData) {
     return PingMessage();
   }
 
-  static CloseMessage _getCloseMessageFormJson(Map<String, dynamic> jsonData) {
-    return CloseMessage(jsonData["error"]);
+  static CloseMessage _getCloseMessageFromJson(Map<String, dynamic> jsonData) {
+    return CloseMessage(
+        error: jsonData["error"], allowReconnect: jsonData["allowReconnect"]);
   }
 
   /// Writes the specified HubMessage to a string and returns it.
@@ -158,7 +171,6 @@ class JsonHubProtocol implements IHubProtocol {
   ///
   @override
   String writeMessage(HubMessageBase message) {
-    assert(message != null);
     var jsonObj = _messageAsMap(message);
     return TextMessageFormat.write(json.encode(jsonObj));
   }
@@ -172,29 +184,34 @@ class JsonHubProtocol implements IHubProtocol {
       throw GeneralError("Cannot encode message of type '${message.typ}'.");
     }
 
-    final messageType = (message as HubMessageBase).type.index;
+    final messageType = message.type.index;
 
     if (message is InvocationMessage) {
       return {
         "type": messageType,
+        "headers": message.headers.asMap,
         "invocationId": message.invocationId,
         "target": message.target,
-        "arguments": message.arguments
-      };
+        "arguments": message.arguments,
+        "streamIds": message.streamIds,
+      }..removeWhere((key, value) => value == null);
     }
 
     if (message is StreamInvocationMessage) {
       return {
         "type": messageType,
+        "headers": message.headers.asMap,
         "invocationId": message.invocationId,
         "target": message.target,
-        "arguments": message.arguments
+        "arguments": message.arguments,
+        "streamIds": message.streamIds,
       };
     }
 
     if (message is StreamItemMessage) {
       return {
         "type": messageType,
+        "headers": message.headers.asMap,
         "invocationId": message.invocationId,
         "item": message.item
       };
@@ -204,6 +221,7 @@ class JsonHubProtocol implements IHubProtocol {
       return {
         "type": messageType,
         "invocationId": message.invocationId,
+        "headers": message.headers.asMap,
         "error": message.error,
         "result": message.result
       };
@@ -214,7 +232,11 @@ class JsonHubProtocol implements IHubProtocol {
     }
 
     if (message is CloseMessage) {
-      return {"type": messageType, "error": message.error};
+      return {
+        "type": messageType,
+        "error": message.error,
+        "allowReconnect": message.allowReconnect
+      };
     }
 
     if (message is CancelInvocationMessage) {
@@ -224,7 +246,7 @@ class JsonHubProtocol implements IHubProtocol {
     throw GeneralError("Converting '${message.type}' is not implemented.");
   }
 
-  static void _assertNotEmptyString(String value, String errorMessage) {
+  static void _assertNotEmptyString(String? value, String errorMessage) {
     if (isStringEmpty(value)) {
       throw InvalidPayloadException(errorMessage);
     }

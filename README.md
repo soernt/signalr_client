@@ -1,11 +1,13 @@
 # signalr_client
 
-[![pub package](https://img.shields.io/pub/v/signalr_client.svg)](https://pub.dartlang.org/packages/signalr_client)
+[![pub package](https://img.shields.io/pub/v/signalr_netcore.svg)](https://pub.dartlang.org/packages/signalr_netcore)
 
-A Flutter SignalR Client for [ASP.NET Core](https://docs.microsoft.com/aspnet/core/signalr/?view=aspnetcore-2.1).   
+A Flutter SignalR Client for [ASP.NET Core](https://docs.microsoft.com/aspnet/core/signalr).  
 ASP.NET Core SignalR is an open-source library that simplifies adding real-time web functionality to apps. Real-time web functionality enables server-side code to push content to clients instantly.
 
-The client is able to invoke server side hub functions (including streaming functions) and to receive method invocations issued by the server.
+Tested with ASP.NET Core 3.1 & ASP .NET Core 6
+
+The client is able to invoke server side hub functions (including streaming functions) and to receive method invocations issued by the server.  It also supports the auto-reconnect feature.
 
 The client supports the following transport protocols:
 * WebSocket
@@ -14,27 +16,28 @@ The client supports the following transport protocols:
 
 The client supports the following hub protocols:
 * Json
-* [~~MessagePack~~](https://msgpack.org/) - Since I can't find a MessagePack library that support the current flutter version.
+* MessagePack
 
 ## Examples
 
-* [Chat client/server](https://github.com/soernt/signalr_client/tree/master/example) - A simple client/server chat application.
-* [Integration test app](https://github.com/soernt/signalr_client/tree/master/testapp/client) - To see how a client calls various types of hub functions.
+* [Chat client/server](https://github.com/sefidgaran/signalr_client/tree/master/example) - A simple client/server chat application.
+* [Integration test app](https://github.com/sefidgaran/signalr_client/tree/master/testapp/client) - To see how a client calls various types of hub functions.
   
 
 ## Getting Started
 
-Add `signalr_client` to your `pubspec.yaml` dependencies:
+Add `signalr_netcore` to your `pubspec.yaml` dependencies:
 ```yaml
 ...
 dependencies:
   flutter:
     sdk: flutter
 
-  signalr_client:
+  signalr_netcore:
 ...
 ```
 
+Important Note: if you are experiencing issues (for example not receiving message callback) with the latest version, please give a try to older version as signalr_netcore: 0.1.7+2-nullsafety.3 but bear in mind that this version does not support auto reconnect functionalities and need to be handled manually.
 
 ## Usage
 
@@ -43,7 +46,7 @@ Let's demo some basic usages:
 #### 1. Create a hub connection:
 ```dart
 // Import the library.
-import 'package:signalr_client/signalr_client.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 // The location of the SignalR Server.
 final serverUrl = "192.168.10.50:51001";
@@ -58,7 +61,7 @@ Logging is supported via the dart [logging package](https://pub.dartlang.org/pac
 ```dart
 // Import theses libraries.
 import 'package:logging/logging.dart';
-import 'package:signalr_client/signalr_client.dart';
+import 'package:signalr_netcore/signalr_client.dart';
 
 // Configer the logging
 Logger.root.level = Level.ALL;
@@ -143,6 +146,37 @@ The Client provides the function like this:
 
 ```
 
+#### 5. Using Msgpack for serialization
+
+The Hub should be configured to use the msgpack protocol in both the client and server
+
+### Client
+
+```dart
+import 'package:signalr_netcore/msgpack_hub_protocol.dart';
+_hubConnection = HubConnectionBuilder()
+          .withUrl(_serverUrl, options: httpOptions)
+          /* Configure the Hub with msgpack protocol */
+          .withHubProtocol(MessagePackHubProtocol())
+          .withAutomaticReconnect()
+          .configureLogging(logger)
+          .build();
+```
+
+### Server
+
+Add the following packge to your ASP NET core project
+`Microsoft.AspNetCore.SignalR.Protocols.MessagePack`
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+        {
+            // Configure the hub to use msgpack protocol
+            services.AddSignalR().AddMessagePackProtocol();
+
+        }
+```
+
 ### A note about the parameter types
 
 All function parameters and return values are serialized/deserialized into/from JSON by using the dart:convert package (json.endcode/json.decode). Make sure that you:
@@ -157,3 +191,49 @@ Flutter Json 101:
 * [flutter.io](https://flutter.io/json/)
 * [json.encode](https://api.dartlang.org/stable/2.0.0/dart-convert/JsonCodec/encode.html)
 * [json.decode](https://api.dartlang.org/stable/2.0.0/dart-convert/JsonCodec/decode.html)
+
+
+#### MSGPACK
+
+All function parameters and return values are serialized/deserialized into/from Msgpack by using the [msgpack_dart](https://pub.dev/packages/msgpack_dart) package. Make sure that you:
+
+- use only simple parameter types
+  or
+- Convert your classes to maps using Json encode/decode and then pass it to msgpack
+  or
+- Serialize the message into bytes using msgpack_dart using custom encoders and decoders before passing it to signalr
+
+#### [Msgpack - It's like JSON but fast and small.](https://msgpack.org/index.html)
+
+### How to expose a MessageHeaders object so the client can send default headers
+
+Code Example:
+
+```dart
+final defaultHeaders = MessageHeaders();
+defaultHeaders.setHeaderValue("HEADER_MOCK_1", "HEADER_VALUE_1");
+defaultHeaders.setHeaderValue("HEADER_MOCK_2", "HEADER_VALUE_2");
+
+final httpConnectionOptions = new HttpConnectionOptions(
+          httpClient: WebSupportingHttpClient(logger,
+              httpClientCreateCallback: _httpClientCreateCallback),
+          accessTokenFactory: () => Future.value('JWT_TOKEN'),
+          logger: logger,
+          logMessageContent: true,
+          headers: defaultHeaders);
+
+final _hubConnection = HubConnectionBuilder()
+          .withUrl(_serverUrl, options: httpConnectionOptions)
+          .withAutomaticReconnect(retryDelays: [2000, 5000, 10000, 20000, null])
+          .configureLogging(logger)
+          .build();
+```
+
+Http Request Log:
+
+```
+I/flutter ( 5248): Starting connection with transfer format 'TransferFormat.Text'.
+I/flutter ( 5248): Sending negotiation request: https://localhost:5000/negotiate?negotiateVersion=1
+I/flutter ( 5248): HTTP send: url 'https://localhost:5000/negotiate?negotiateVersion=1', method: 'POST' content: '' content length = '0' 
+headers: '{ content-type: text/plain;charset=UTF-8 }, { HEADER_MOCK_1: HEADER_VALUE_1 }, { X-Requested-With: FlutterHttpClient }, { HEADER_MOCK_2: HEADER_VALUE_2 }, { Authorization: Bearer JWT_TOKEN }'
+```

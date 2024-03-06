@@ -1,12 +1,12 @@
-import 'package:client/views/pages/testsPage.dart';
 import 'package:flutter/material.dart';
+
+import 'views/pages/testsPage.dart';
 
 class App extends StatelessWidget {
   // Properties
 
-
   // Methods
-  App({Key key}) : super(key: key);
+  App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

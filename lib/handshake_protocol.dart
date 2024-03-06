@@ -20,20 +20,22 @@ class HandshakeRequestMessage {
 /// private
 class HandshakeResponseMessage {
   // Properties
-  final String error;
+  final String? error;
+  final int? minorVersion;
 
   // Methods
-  HandshakeResponseMessage(this.error);
+  HandshakeResponseMessage(this.error, this.minorVersion);
 
   HandshakeResponseMessage.fromJson(Map<String, dynamic> json)
-      : error = json["error"];
+      : error = json["error"],
+        minorVersion = json["minorVersion"];
 }
 
 /// private
 class ParseHandshakeResponseResult {
   // Properites
   /// Either a string (json) or a Uint8List (binary).
-  final Object remainingData;
+  final Object? remainingData;
 
   /// The HandshakeResponseMessage
   final HandshakeResponseMessage handshakeResponseMessage;
@@ -51,15 +53,15 @@ class HandshakeProtocol {
 
   // Handshake request is always JSON
   String writeHandshakeRequest(HandshakeRequestMessage handshakeRequest) {
-    return TextMessageFormat.write(json.encode(handshakeRequest));
+    return TextMessageFormat.write(json.encode(handshakeRequest.toJson()));
   }
 
   /// Parse the handshake reponse
   /// data: either a string (json) or a Uint8List (binary) of the handshake response data.
-  ParseHandshakeResponseResult parseHandshakeResponse(Object data) {
+  ParseHandshakeResponseResult parseHandshakeResponse(Object? data) {
     HandshakeResponseMessage responseMessage;
     String messageData;
-    Object remainingData;
+    Object? remainingData;
 
     if (data is Uint8List) {
       // Format is binary but still need to read JSON text from handshake response
@@ -76,7 +78,7 @@ class HandshakeProtocol {
           ? data.sublist(responseLength, data.length)
           : null;
     } else {
-      final String textData = data;
+      final String textData = data as String;
       final separatorIndex =
           textData.indexOf(TextMessageFormat.recordSeparator);
       if (separatorIndex == -1) {
@@ -97,6 +99,7 @@ class HandshakeProtocol {
     final response =
         HandshakeResponseMessage.fromJson(json.decode(messages[0]));
 
+    // NOTE: The fromJson should have thrown an error before this check would be required.
     // if (response.type) {
     //     throw new Error("Expected a handshake response from the server.");
     // }

@@ -4,21 +4,24 @@ import "itransport.dart";
 
 class ConnectionFeatures {
   // Properties
-  bool inherentKeepAlive;
+  bool? inherentKeepAlive;
 
   // Methods
   ConnectionFeatures(this.inherentKeepAlive);
 }
 
 abstract class IConnection {
-  ConnectionFeatures features;
+  ConnectionFeatures? features;
+  String? connectionId;
 
-  Future<void> start({TransferFormat transferFormat});
-  Future<void> send(Object data);
-  Future<void> stop(Exception error);
+  String? baseUrl;
 
-  OnReceive onreceive;
-  OnClose onclose;
+  Future<void> start({TransferFormat? transferFormat});
+  Future<void> send(Object? data);
+  Future<void>? stop({Exception? error});
+
+  OnReceive? onreceive;
+  OnClose? onclose;
 
   IConnection() : features = ConnectionFeatures(null);
 }

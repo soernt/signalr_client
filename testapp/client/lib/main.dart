@@ -1,8 +1,7 @@
-import 'package:client/app.dart';
 import 'package:flutter/material.dart';
+import 'app.dart';
 
-
-const kServerUrl = "http://192.168.2.107:51001";
+const kServerUrl = "http://192.168.0.4:5000";
 
 void main() {
   runApp(App());

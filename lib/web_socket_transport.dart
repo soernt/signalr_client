@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:logging/logging.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'errors.dart';
 import 'itransport.dart';
@@ -11,83 +11,110 @@ import 'utils.dart';
 class WebSocketTransport implements ITransport {
   // Properties
 
-  Logger _logger;
-  AccessTokenFactory _accessTokenFactory;
+  Logger? _logger;
+  AccessTokenFactory? _accessTokenFactory;
   bool _logMessageContent;
-  WebSocket _webSocket;
-  StreamSubscription<Object> _webSocketListenSub;
+  WebSocketChannel? _webSocket;
+  StreamSubscription<Object?>? _webSocketListenSub;
 
   @override
-  OnClose onClose;
+  OnClose? onClose;
 
   @override
-  OnReceive onReceive;
+  OnReceive? onReceive;
 
   // Methods
-  WebSocketTransport(AccessTokenFactory accessTokenFactory, Logger logger,
+  WebSocketTransport(AccessTokenFactory? accessTokenFactory, Logger? logger,
       bool logMessageContent)
       : this._accessTokenFactory = accessTokenFactory,
         this._logger = logger,
         this._logMessageContent = logMessageContent;
 
   @override
-  Future<void> connect(String url, TransferFormat transferFormat) async {
+  Future<void> connect(String? url, TransferFormat transferFormat) async {
     assert(url != null);
-    assert(transferFormat != null);
 
     _logger?.finest("(WebSockets transport) Connecting");
 
     if (_accessTokenFactory != null) {
-      final token = await _accessTokenFactory();
+      final token = await _accessTokenFactory!();
       if (!isStringEmpty(token)) {
         final encodedToken = Uri.encodeComponent(token);
-        url +=
-            (url.indexOf("?") < 0 ? "?" : "&") + "access_token=$encodedToken";
+        url = url! +
+            (url.indexOf("?") < 0 ? "?" : "&") +
+            "access_token=$encodedToken";
       }
     }
 
-    url = url.replaceFirst('http', 'ws');
+    var websocketCompleter = Completer();
+    var opened = false;
+    url = url!.replaceFirst('http', 'ws');
     _logger?.finest("WebSocket try connecting to '$url'.");
-    _webSocket = await WebSocket.connect(url);
+    _webSocket = WebSocketChannel.connect(Uri.parse(url));
+    opened = true;
+    if (!websocketCompleter.isCompleted) websocketCompleter.complete();
     _logger?.info("WebSocket connected to '$url'.");
-    _webSocketListenSub = _webSocket.listen(
+    _webSocketListenSub = _webSocket!.stream.listen(
       // onData
-      (Object message) {
-        //_logger.log(LogLevel.Trace, "(WebSockets transport) data received. ${getDataDetail(message.data, this.logMessageContent)}.");
-        _logger?.finest("(WebSockets transport) data received.");
+      (Object? message) {
+        if (_logMessageContent && message is String) {
+          _logger?.finest(
+              "(WebSockets transport) data received. message ${getDataDetail(message, _logMessageContent)}.");
+        } else {
+          _logger?.finest("(WebSockets transport) data received.");
+        }
         if (onReceive != null) {
-          onReceive(message);
+          try {
+            onReceive!(message);
+          } catch (error) {
+            _logger?.severe(
+                "(WebSockets transport) error calling onReceive, error: $error");
+            _close();
+          }
         }
       },
 
       // onError
-      onError: (Object error) {
-        if (error != null) {
-          return Future.error(error);
+      onError: (Object? error) {
+        var e = error != null ? error : "Unknown websocket error";
+        if (!websocketCompleter.isCompleted) {
+          websocketCompleter.completeError(e);
         }
       },
 
       // onDone
       onDone: () {
-        if (onClose != null) {
-          onClose(null);
+        // Don't call close handler if connection was never established
+        // We'll reject the connect call instead
+        if (opened) {
+          if (onClose != null) {
+            onClose!();
+          }
+        } else {
+          if (!websocketCompleter.isCompleted) {
+            websocketCompleter
+                .completeError("There was an error with the transport.");
+          }
         }
       },
     );
+
+    return websocketCompleter.future;
   }
 
   @override
   Future<void> send(Object data) {
-    if ((_webSocket != null) && (_webSocket.readyState == WebSocket.open)) {
-      //_logger.log(LogLevel.Trace, "(WebSockets transport) sending data. ${getDataDetail(data, this.logMessageContent)}.");
-      _logger?.finest("(WebSockets transport) sending data.");
+    if (_webSocket != null) {
+      _logger?.finest(
+          "(WebSockets transport) sending data. ${getDataDetail(data, true)}.");
+      //_logger?.finest("(WebSockets transport) sending data.");
 
       if (data is String) {
-        _webSocket.add(data);
+        _webSocket!.sink.add(data);
       } else if (data is Uint8List) {
-        _webSocket.add(data);
+        _webSocket!.sink.add(data);
       } else {
-        throw GeneralError("Content type is not handeled.");
+        throw GeneralError("Content type is not handled.");
       }
 
       return Future.value(null);
@@ -97,32 +124,24 @@ class WebSocketTransport implements ITransport {
   }
 
   @override
-  Future<void> stop(Error error) async {
-    if (_webSocket != null) {
-      // Clear websocket handlers because we are considering the socket closed now
-      if (_webSocketListenSub != null) {
-        await _webSocketListenSub.cancel();
-        _webSocketListenSub = null;
-      }
-      _webSocket.close();
-      _webSocket = null;
-
-      // Manually invoke onclose callback inline so we know the HttpConnection was closed properly before returning
-      // This also solves an issue where websocket.onclose could take 18+ seconds to trigger during network disconnects
-      _close(null);
-    }
-
+  Future<void> stop() async {
+    await _close();
     return Future.value(null);
   }
 
-  void _close(Error error) {
+  _close() async {
+    if (_webSocket != null) {
+      // Clear websocket handlers because we are considering the socket closed now
+      await _webSocketListenSub?.cancel();
+      _webSocketListenSub = null;
+
+      _webSocket!.sink.close();
+      _webSocket = null;
+    }
+
     _logger?.finest("(WebSockets transport) socket closed.");
     if (onClose != null) {
-      if (error != null) {
-        // if (event && (event.wasClean === false || event.code !== 1000)) {
-        // this.onclose(new Error(`Websocket closed with status code: ${event.code} (${event.reason})`));
-      }
-      onClose(GeneralError(error?.toString()));
+      onClose!();
     }
   }
 }

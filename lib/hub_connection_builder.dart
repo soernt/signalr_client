@@ -5,21 +5,27 @@ import 'http_connection.dart';
 import 'http_connection_options.dart';
 import 'hub_connection.dart';
 import 'ihub_protocol.dart';
+import 'iretry_policy.dart';
 import 'itransport.dart';
 import 'json_hub_protocol.dart';
 import 'utils.dart';
+import 'default_reconnect_policy.dart';
 
-/// A builder for configuring {@link @aspnet/signalr.HubConnection} instances.
+/// A builder for configuring {@link @microsoft/signalr.HubConnection} instances.
 class HubConnectionBuilder {
   // Properties
 
-  IHubProtocol _protocol;
+  IHubProtocol? _protocol;
 
-  HttpConnectionOptions _httpConnectionOptions;
+  HttpConnectionOptions? _httpConnectionOptions;
 
-  String _url;
+  String? _url;
 
-  Logger _logger;
+  Logger? _logger;
+
+  /// If defined, this indicates the client should automatically attempt to reconnect if the connection is lost. */
+  ///
+  IRetryPolicy? _reconnectPolicy;
 
   /// Configures console logging for the HubConnection.
   ///
@@ -31,7 +37,7 @@ class HubConnectionBuilder {
     return this;
   }
 
-  /// Configures the {@link @aspnet/signalr.HubConnection} to use HTTP-based transports to connect to the specified URL.
+  /// Configures the {@link @microsoft/signalr.HubConnection} to use HTTP-based transports to connect to the specified URL.
   ///
   /// url: The URL the connection will use.
   /// options: An options object used to configure the connection.
@@ -40,16 +46,16 @@ class HubConnectionBuilder {
   /// Returns the builder instance, for chaining.
   ///
   HubConnectionBuilder withUrl(String url,
-      {HttpConnectionOptions options, HttpTransportType transportTyp}) {
+      {HttpConnectionOptions? options, HttpTransportType? transportType}) {
     assert(!isStringEmpty(url));
-    assert(!(options != null && transportTyp != null));
+    assert(!(options != null && transportType != null));
 
     _url = url;
 
     if (options != null) {
       _httpConnectionOptions = options;
     } else {
-      _httpConnectionOptions = HttpConnectionOptions(transport: transportTyp);
+      _httpConnectionOptions = HttpConnectionOptions(transport: transportType);
     }
 
     return this;
@@ -60,9 +66,22 @@ class HubConnectionBuilder {
   /// protocol: The IHubProtocol implementation to use.
   ///
   HubConnectionBuilder withHubProtocol(IHubProtocol protocol) {
-    assert(protocol != null);
-
     _protocol = protocol;
+    return this;
+  }
+
+  HubConnectionBuilder withAutomaticReconnect(
+      {IRetryPolicy? reconnectPolicy, List<int>? retryDelays}) {
+    assert(_reconnectPolicy == null);
+
+    if (reconnectPolicy == null && retryDelays == null) {
+      _reconnectPolicy = DefaultRetryPolicy();
+    } else if (retryDelays != null) {
+      _reconnectPolicy = DefaultRetryPolicy(retryDelays: retryDelays);
+    } else {
+      _reconnectPolicy = reconnectPolicy;
+    }
+
     return this;
   }
 
@@ -81,7 +100,9 @@ class HubConnectionBuilder {
       throw new GeneralError(
           "The 'HubConnectionBuilder.withUrl' method must be called before building the connection.");
     }
-    final connection = HttpConnection(_url, options: httpConnectionOptions);
-    return HubConnection(connection, _logger, _protocol ?? JsonHubProtocol());
+    final connection = HttpConnection(_url!, options: httpConnectionOptions);
+    return HubConnection.create(
+        connection, _logger, _protocol ?? JsonHubProtocol(),
+        reconnectPolicy: _reconnectPolicy);
   }
 }

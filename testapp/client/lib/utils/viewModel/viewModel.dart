@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:meta/meta.dart';
+import 'package:flutter/foundation.dart';
 import 'package:quiver/strings.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -27,13 +27,17 @@ abstract class ViewModel {
   ViewModel() : propertyChanges = PublishSubject<PropertyChangedEvent>();
 
   @protected
-  bool updateValue<TPropertyType>(String propertyName, TPropertyType currentValue, TPropertyType newValue, SetValue<TPropertyType> setNewValue) {
+  bool updateValue<TPropertyType>(
+      String propertyName,
+      TPropertyType currentValue,
+      TPropertyType newValue,
+      SetValue<TPropertyType>? setNewValue) {
     assert(setNewValue != null);
 
     if (currentValue == newValue) {
       return false;
     }
-    setNewValue(newValue);
+    setNewValue!(newValue);
     notifyPropertyChanged(propertyName);
     return true;
   }
@@ -43,38 +47,49 @@ abstract class ViewModel {
     propertyChanges.add(PropertyChangedEvent(this, propertyName));
   }
 
-  Observable<PropertyChangedEvent> whenPropertiesChanged(List<String> propertyNames) {
-    assert(propertyNames != null || propertyNames.length != 0);
+  Stream<PropertyChangedEvent> whenPropertiesChanged(
+      List<String>? propertyNames) {
+    assert(propertyNames != null || propertyNames!.length != 0);
 
     return propertyChanges
-        .where((event) => isBlank(event.propertyName) || propertyNames.indexOf(event.propertyName) != -1)
-        .transform(StreamTransformer.fromHandlers(handleData: (PropertyChangedEvent value, EventSink<PropertyChangedEvent> sink) {
+        .where((event) =>
+            isBlank(event.propertyName) ||
+            propertyNames!.indexOf(event.propertyName) != -1)
+        .transform(StreamTransformer.fromHandlers(handleData:
+            (PropertyChangedEvent value, EventSink<PropertyChangedEvent> sink) {
       sink.add(value);
     }));
   }
 
-  Observable<void> whenPropertiesChangedHint(List<String> propertyNames) {
-    assert(propertyNames != null || propertyNames.length != 0);
+  Stream<void> whenPropertiesChangedHint(List<String>? propertyNames) {
+    assert(propertyNames != null || propertyNames!.length != 0);
 
     return propertyChanges
-        .where((event) => isBlank(event.propertyName) || propertyNames.indexOf(event.propertyName) != -1)
-        .transform(StreamTransformer.fromHandlers(handleData: (PropertyChangedEvent value, EventSink<void> sink) {
+        .where((event) =>
+            isBlank(event.propertyName) ||
+            propertyNames!.indexOf(event.propertyName) != -1)
+        .transform(StreamTransformer.fromHandlers(
+            handleData: (PropertyChangedEvent value, EventSink<void> sink) {
       sink.add(null);
     }));
   }
 
-  Observable<PropertyChangedEvent> whenPropertyChanged(String propertyName) {
+  Stream<PropertyChangedEvent> whenPropertyChanged(String propertyName) {
     return propertyChanges
-        .where((event) => isBlank(event.propertyName) || event.propertyName == propertyName)
-        .transform(StreamTransformer.fromHandlers(handleData: (PropertyChangedEvent value, EventSink<PropertyChangedEvent> sink) {
+        .where((event) =>
+            isBlank(event.propertyName) || event.propertyName == propertyName)
+        .transform(StreamTransformer.fromHandlers(handleData:
+            (PropertyChangedEvent value, EventSink<PropertyChangedEvent> sink) {
       sink.add(value);
     }));
   }
 
-  Observable whenPropertyChangedHint(String propertyName) {
+  Stream whenPropertyChangedHint(String propertyName) {
     return propertyChanges
-        .where((event) => isBlank(event.propertyName) || event.propertyName == propertyName)
-        .transform(StreamTransformer.fromHandlers(handleData: (PropertyChangedEvent value, EventSink<void> sink) {
+        .where((event) =>
+            isBlank(event.propertyName) || event.propertyName == propertyName)
+        .transform(StreamTransformer.fromHandlers(
+            handleData: (PropertyChangedEvent value, EventSink<void> sink) {
       sink.add(null);
     }));
   }

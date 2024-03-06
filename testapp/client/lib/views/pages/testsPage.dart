@@ -1,9 +1,8 @@
-import 'package:client/main.dart';
-import 'package:client/tests/test.dart';
-import 'package:client/utils/viewModel/viewModelPropertyWidgetBuilder.dart';
-import 'package:client/views/pages/testsPageViewModel.dart';
+import '../../main.dart';
+import '../../tests/test.dart';
+import '../../utils/viewModel/viewModelPropertyWidgetBuilder.dart';
+import 'testsPageViewModel.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:logging/logging.dart';
 
 class TestsPage extends StatelessWidget {
@@ -11,7 +10,7 @@ class TestsPage extends StatelessWidget {
 
 // Methods
 
-  TestsPage({Key key}) : super(key: key);
+  TestsPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +18,10 @@ class TestsPage extends StatelessWidget {
     return TestsPageViewModelProvider(
         viewModel: vm,
         childBuilder: (ctx) {
-          return Scaffold(appBar: AppBar(title: Text("Server at: $kServerUrl")), resizeToAvoidBottomPadding: false, body: TestsPageView());
+          return Scaffold(
+              appBar: AppBar(title: Text("Server at: $kServerUrl")),
+              resizeToAvoidBottomInset: false,
+              body: TestsPageView());
         });
   }
 }
@@ -32,7 +34,12 @@ class TestsPageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = TestsPageViewModelProvider.of(context);
-    return Column(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[_createTestsSection(vm, context), _createLogMessageViewSection(vm, context)]);
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          _createTestsSection(vm!, context),
+          _createLogMessageViewSection(vm, context)
+        ]);
   }
 
   Widget _createTestsSection(TestsPageViewModel vm, BuildContext context) {
@@ -52,7 +59,11 @@ class TestsPageView extends StatelessWidget {
               label: Text("Tests"),
             ),
             Padding(padding: EdgeInsetsDirectional.only(top: 8.0)),
-            Expanded(child: ListView.builder(itemCount: vm.tests.items.length, itemBuilder: (BuildContext ctx, int index) => _createTestItemView(vm.tests.items[index]))),
+            Expanded(
+                child: ListView.builder(
+                    itemCount: vm.tests.items.length,
+                    itemBuilder: (BuildContext ctx, int index) =>
+                        _createTestItemView(vm.tests.items[index]))),
           ],
         ),
       )),
@@ -60,10 +71,17 @@ class TestsPageView extends StatelessWidget {
   }
 
   Widget _createTestItemView(Test test) {
-    return Row(children: <Widget>[Expanded(flex: 5, child: Text(test.description)), Expanded(flex: 1, child: RaisedButton(child: Text("Run"), onPressed: () => test.run()))]);
+    return Row(children: <Widget>[
+      Expanded(flex: 5, child: Text(test.description)),
+      Expanded(
+          flex: 1,
+          child:
+              ElevatedButton(child: Text("Run"), onPressed: () => test.run()))
+    ]);
   }
 
-  Widget _createLogMessageViewSection(TestsPageViewModel vm, BuildContext context) {
+  Widget _createLogMessageViewSection(
+      TestsPageViewModel vm, BuildContext context) {
     return Expanded(
         child: Card(
       child: Padding(
@@ -73,14 +91,14 @@ class TestsPageView extends StatelessWidget {
           children: <Widget>[
             Text(
               "Log:",
-              style: Theme.of(context).textTheme.subhead,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             Padding(padding: EdgeInsetsDirectional.only(top: 8.0)),
             ViewModelPropertyWidgetBuilder(
                 viewModel: vm,
                 propertyName: TestsPageViewModel.hubLogMessagesPropName,
                 builder: (context, snapshot) {
-                  return RaisedButton(
+                  return ElevatedButton(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
@@ -102,7 +120,11 @@ class TestsPageView extends StatelessWidget {
                   viewModel: vm,
                   propertyName: TestsPageViewModel.hubLogMessagesPropName,
                   builder: (context, snapshot) {
-                    return new ListView.builder(itemCount: vm.hubLogMessages.length, itemBuilder: (BuildContext ctx, int index) => _createLogMessageItemView(vm.hubLogMessages[index]));
+                    return new ListView.builder(
+                        itemCount: vm.hubLogMessages.length,
+                        itemBuilder: (BuildContext ctx, int index) =>
+                            _createLogMessageItemView(
+                                vm.hubLogMessages[index]));
                   }),
             ),
           ],
@@ -123,7 +145,8 @@ class TestsPageView extends StatelessWidget {
           children: <Widget>[
             Expanded(
                 flex: 3,
-                child: Text("${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}:${at.second.toString().padLeft(2, '0')}.${at.millisecond.toString().padLeft(3, '0')}")),
+                child: Text(
+                    "${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}:${at.second.toString().padLeft(2, '0')}.${at.millisecond.toString().padLeft(3, '0')}")),
             Expanded(flex: 8, child: Text(item.message))
           ],
         ),
